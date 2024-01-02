@@ -52,14 +52,14 @@ For testing, run the container with:
 docker run --rm -it -v "$(pwd):/workdir/external" vts-simpipe-corsika bash
 ```
 
-Details on the CORSIKA build configuration, following the process described in the CORSIKA INSTALL file:
+The CORSIKA configuration is generated using the `coconut` tools with the following settings:
 
+```text
+options:   VOLUMEDET TIMEAUTO URQMD QGSJETII
+selection: BERNLOHRDIR SLANT CERENKOV IACT IACTDIR ATMEXT
+```
 
-   options:   VOLUMEDET TIMEAUTO URQMD QGSJETII
-  selection: BERNLOHRDIR SLANT CERENKOV IACT IACTDIR ATMEXT
-
-  ./configure --with-bernlohr --enable-SLANT --enable-CERENKOV --enable-IACT --enable-ATMEXT CORHEMODEL=QGSJETII CORLEMODEL=URQMD CORDETECTOR=VOLUMEDET CORTIMELIB=TIMEAUTO --prefix=/workdir/corsika-77500 --bindir=/workdir/corsika-77500/run --libdir=/workdir/corsika-77500/lib/unknown
-
+The file [docker/corsika-config.h](docker/corsika-config.h) contains the configuration file for CORSIKA and is used for the compilation.
 
 ## Simulation Configuration
 
