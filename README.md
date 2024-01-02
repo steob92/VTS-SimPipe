@@ -5,10 +5,10 @@ This repository contains the simulation pipeline for [VERITAS](https://veritas.s
 This work is built on a large effort from many people, especially:
 
 - the [CORSIKA](https://web.ikp.kit.edu/corsika/) team
-- Charly Duke for the [GrOptics](https://github.com/groptics/GrOptics/tree/master) package
+- Charlie Duke for the [GrOptics](https://github.com/groptics/GrOptics/tree/master) package
 - Nepomuk Otte for the [CARE](https://github.com/nepomukotte/CARE) package
 - Raul Prado for an initial pipeline implementation for DESY (see [here](https://github.com/RaulRPrado/MC-DESY/tree/master))
-- Tony Line for a Docker implementation of the pipeline (see [here](https://github.com/VERITAS-Observatory/Build_SimDockerImage/tree/master))
+- Tony Lin for a Docker implementation of the pipeline (see [here](https://github.com/VERITAS-Observatory/Build_SimDockerImage/tree/master))
 
 Repository setup:
 
