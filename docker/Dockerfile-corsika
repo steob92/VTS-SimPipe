@@ -13,7 +13,7 @@ RUN yum update -y && yum install -y \
 
 ADD $CORSIKA.tar.gz .
 # CORSIKA compile options derived with coconut
-COPY corsika-config.h $CORSIKA/include/config.h
+COPY ./docker/corsika-config.h $CORSIKA/include/config.h
 
 # build corsika
 WORKDIR $CORSIKA
