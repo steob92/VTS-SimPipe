@@ -1,0 +1,41 @@
+FROM almalinux:9.3 as build_image
+WORKDIR /workdir
+ENV DEBIAN_FRONTEND=noninteractive
+ENV CORSIKA=corsika-77500
+
+RUN yum update -y && yum install -y \
+    csh \
+    perl \
+    which \
+    gcc-fortran \
+    && \
+    yum clean all
+
+ADD $CORSIKA.tar.gz .
+# CORSIKA compile options derived with coconut
+COPY corsika-config.h $CORSIKA/include/config.h
+
+# build corsika
+WORKDIR $CORSIKA
+RUN ./coconut < /dev/null
+
+# remove corsika source code to follow
+# the corsika non-distribution policy.
+# RUN mv $CORSIKA/run /workdir/corsika-run && \
+#    rm -rf $CORSIKA
+
+SHELL ["/bin/bash", "-c"]
+WORKDIR /workdir/
+
+FROM almalinux:9.3-minimal
+WORKDIR /workdir
+ENV DEBIAN_FRONTEND=noninteractive
+ENV CORSIKA=corsika-77500
+COPY --from=build_image /workdir/$CORSIKA/run /workdir/corsika-run
+
+RUN microdnf update -y && microdnf install -y \
+    gcc-fortran && \
+    microdnf clean all
+
+SHELL ["/bin/bash", "-c"]
+WORKDIR /workdir/
