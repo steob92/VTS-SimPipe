@@ -5,10 +5,10 @@ This repository contains the simulation pipeline for [VERITAS](https://veritas.s
 This work is built on a large effort from many people, especially:
 
 - the [CORSIKA](https://web.ikp.kit.edu/corsika/) team
-- Charly Duke for the [GrOptics](https://github.com/groptics/GrOptics/tree/master) package
+- Charlie Duke for the [GrOptics](https://github.com/groptics/GrOptics/tree/master) package
 - Nepomuk Otte for the [CARE](https://github.com/nepomukotte/CARE) package
 - Raul Prado for an initial pipeline implementation for DESY (see [here](https://github.com/RaulRPrado/MC-DESY/tree/master))
-- Tony Line for a Docker implementation of the pipeline (see [here](https://github.com/VERITAS-Observatory/Build_SimDockerImage/tree/master))
+- Tony Lin for a Docker implementation of the pipeline (see [here](https://github.com/VERITAS-Observatory/Build_SimDockerImage/tree/master))
 
 Repository setup:
 
@@ -52,14 +52,14 @@ For testing, run the container with:
 docker run --rm -it -v "$(pwd):/workdir/external" vts-simpipe-corsika bash
 ```
 
-Details on the CORSIKA build configuration, following the process described in the CORSIKA INSTALL file:
+The CORSIKA configuration is generated using the `coconut` tools with the following settings:
 
+```text
+options:   VOLUMEDET TIMEAUTO URQMD QGSJETII
+selection: BERNLOHRDIR SLANT CERENKOV IACT IACTDIR ATMEXT
+```
 
-   options:   VOLUMEDET TIMEAUTO URQMD QGSJETII
-  selection: BERNLOHRDIR SLANT CERENKOV IACT IACTDIR ATMEXT
-
-  ./configure --with-bernlohr --enable-SLANT --enable-CERENKOV --enable-IACT --enable-ATMEXT CORHEMODEL=QGSJETII CORLEMODEL=URQMD CORDETECTOR=VOLUMEDET CORTIMELIB=TIMEAUTO --prefix=/workdir/corsika-77500 --bindir=/workdir/corsika-77500/run --libdir=/workdir/corsika-77500/lib/unknown
-
+The file [docker/corsika-config.h](docker/corsika-config.h) contains the configuration file for CORSIKA and is used for the compilation.
 
 ## Simulation Configuration
 
