@@ -61,13 +61,20 @@ selection: BERNLOHRDIR SLANT CERENKOV IACT IACTDIR ATMEXT
 
 The file [docker/corsika-config.h](docker/corsika-config.h) contains the configuration file for CORSIKA and is used for the compilation.
 
+## Environmental Variables
+
+Environmental variables are used to configure the simulation pipeline, especially output directories and executables.
+Copy the file [env_setup_template.sh](env_setup_template.sh) to `env_setup.sh` and modify the variables as needed.
+
+## CORSIKA air-shower simulations
+
+The CORSIKA air-shower simulations are performed using the `VTSSIMPIPE_CORSIKA_EXE` executable defined in `env_setup.sh`.
+The script to run the CORSIKA simulations is [scripts/run_corsika.sh](scripts/run_corsika.sh), configuration parameters are
+defined as in the template [config/CORSIKA/config_template.dat](config/CORSIKA/config_template.dat).
+Note that no changes are expected to be necessary for the input steering template [config/CORISKA/input_template.dat](config/CORISKA/input_template.dat).
+
 ## Simulation Configuration
 
 ## Processing Scripts
 
 Processing scripts are prepared for HT Condor systems.
-
-## Implementation Notes
-
-- [ ] CORSIKA
-    - [ ] scatter area as function of zenith angle
