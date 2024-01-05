@@ -125,8 +125,7 @@ Log = ${SUBSCRIPT}.\$(Cluster)_\$(Process).log
 Output = ${SUBSCRIPT}.\$(Cluster)_\$(Process).output
 Error = ${SUBSCRIPT}.\$(Cluster)_\$(Process).error
 Log = ${SUBSCRIPT}.\$(Cluster)_\$(Process).log
-request_memory = ${2}
-request_disk = ${3}
+request_memory = 2000M
 getenv = True
 max_materialize = 250
 queue 1
@@ -142,11 +141,9 @@ if [[ $VTSSIMPIPE_CORSIKA_EXE == "docker" ]]; then
 elif [[ $VTSSIMPIPE_CORSIKA_EXE == "apptainer" ]]; then
     CORSIKA_DATA_DIR="/workdir/external/$DIRSUFF"
     CONTAINER_EXTERNAL_DIR="--bind \"$DATA_DIR:$CORSIKA_DATA_DIR\" --bind \"$LOG_DIR:/workdir/external\""
-        # apptainer exec --cleanenv --bind "/lustre/fs23/group/veritas/users/maierg/simpipe_test/data/Zd25/CORSIKA:/workdir/external/Zd25/CORSIKA" --bind "/lustre/fs23/group/veritas/users/maierg/simpipe_test/log/Zd25/CORSIKA:/workdir/external" --compat docker://ghcr.io/gernotmaier/vtsimpipe-corsika:latest bash -c "mkdir -p /workdir/external/Zd25/CORSIKA/corsika_run_files &&cp -v /workdir/corsika-run/* /workdir/external/Zd25/CORSIKA/corsika_run_files"
     INPUT="/workdir/external/$(basename "$INPUT")"
     if [[ $PULL == "TRUE" ]]; then
-#        apptainer pull --disable-cache --force docker://$VTSSIMPIPE_IMAGE
-        echo $CONTAINER_EXTERNAL_DIR
+        apptainer pull --disable-cache --force docker://$VTSSIMPIPE_IMAGE
         # copy corsika directory to data dir (as apptainers are readonly)
         COPY_COMMAND="apptainer exec --cleanenv $CONTAINER_EXTERNAL_DIR --compat docker://$VTSSIMPIPE_IMAGE"
         COPY_COMMAND="$COPY_COMMAND bash -c \"mkdir -p $CORSIKA_DATA_DIR/tmp_corsika_run_files && cp /workdir/corsika-run/* $CORSIKA_DATA_DIR/tmp_corsika_run_files\""
