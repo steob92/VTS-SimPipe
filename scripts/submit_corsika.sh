@@ -15,7 +15,7 @@ exit
 fi
 
 # env variables
-source ../env_setup.sh
+source $(dirname "$0")/../env_setup.sh
 echo "VTSSIMPIPE_CORSIKA_DIR: $VTSSIMPIPE_CORSIKA_DIR"
 echo "VTSSIMPIPE_CORSIKA_EXE: $VTSSIMPIPE_CORSIKA_EXE"
 echo "VTSSIMPIPE_LOG_DIR: $VTSSIMPIPE_LOG_DIR"
@@ -25,16 +25,13 @@ if [[ ! -e $1 ]]; then
     echo "Configuration file $1 does not exist."
     exit
 fi
-source $1
+source "$1"
 
 # check that input file template exists
 if [[ ! -e $2 ]]; then
     echo "Input file template $2 does not exist."
     exit
 fi
-
-###################
-# configuration parameters (some of them zenith angle dependent)
 
 # core scatter area
 get_core_scatter()
@@ -72,13 +69,13 @@ S1=65168195
 echo "First seed: $S1"
 
 # directories
-DIRSUFF="Zd${ZENITH}/CORSIKA/"
-LOGDIR="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"
-DATADIR="$VTSSIMPIPE_CORSIKA_DIR"/"$DIRSUFF"
-mkdir -p "$LOGDIR"
-mkdir -p "$DATADIR"
-echo "Log directory: $LOGDIR"
-echo "Data directory: $DATADIR"
+DIRSUFF="Zd${ZENITH}/CORSIKA"
+LOG_DIR="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"
+DATA_DIR="$VTSSIMPIPE_CORSIKA_DIR"/"$DIRSUFF"
+mkdir -p "$LOG_DIR"
+mkdir -p "$DATA_DIR"
+echo "Log directory: $LOG_DIR"
+echo "Data directory: $DATA_DIR"
 
 # generate input files and submission scripts
 generate_corsika_submission_script()
@@ -86,28 +83,55 @@ generate_corsika_submission_script()
     FSCRIPT=$1
     INPUT=$2
     LOGFILE=$3
-    LOGDIR=$(dirname "$INPUT")
+    LOG_DIR=$(dirname "$INPUT")
     rm -f "$LOGFILE"
 
-    # submission script
-    echo "#!/bin/bash" > "$FSCRIPT"
+    echo "#!/bin/bash" > "$FSCRIPT.sh"
+    # docker: mount external directories
     if [[ $VTSSIMPIPE_CORSIKA_EXE == *"docker"* ]]; then
         INPUT="/workdir/external/$(basename "$INPUT")"
-        CORSIKA_EXE=${VTSSIMPIPE_CORSIKA_EXE/CORSIKALOGDIR/$LOGDIR}
+        EXTERNAL_DIR="-v \"$DATA_DIR:$CORSIKA_DATA_DIR\" -v \"$LOG_DIR:/workdir/external\""
+        CORSIKA_EXE=${VTSSIMPIPE_CORSIKA_EXE/CORSIKA_DIRECTORIES/$EXTERNAL_DIR}
         CORSIKA_EXE=${CORSIKA_EXE/CORSIKAINPUTFILE/$INPUT}
     else
         CORSIKA_EXE="$VTSSIMPIPE_CORSIKA_EXE < $INPUT"
     fi
-    echo "$CORSIKA_EXE > $LOGFILE" >> "$FSCRIPT"
-    chmod u+x "$FSCRIPT"
+    echo "$CORSIKA_EXE > $LOGFILE" >> "$FSCRIPT.sh"
+    chmod u+x "$FSCRIPT.sh"
 }
 
-# require to set docker paths correctly
+# generate HT condor file
+generate_htcondor_file()
+{
+    SUBSCRIPT=$(readlink -f "${1}")
+    SUBFIL=${SUBSCRIPT}.condor
+    rm -f "${SUBFIL}"
+
+    cat > "${SUBFIL}" <<EOL
+Executable = ${SUBSCRIPT}
+Log = ${SUBSCRIPT}.\$(Cluster)_\$(Process).log
+Output = ${SUBSCRIPT}.\$(Cluster)_\$(Process).output
+Error = ${SUBSCRIPT}.\$(Cluster)_\$(Process).error
+Log = ${SUBSCRIPT}.\$(Cluster)_\$(Process).log
+request_memory = ${2}
+request_disk = ${3}
+getenv = True
+max_materialize = 250
+queue 1
+EOL
+# priority = 15
+}
+
+# docker: external directories
+CORSIKA_DATA_DIR="$DATA_DIR"
+if [[ $VTSSIMPIPE_CORSIKA_EXE == *"docker"* ]]; then
+    CORSIKA_DATA_DIR="/workdir/external/$DIRSUFF"
+fi
 
 for ID in $(seq 0 "$N_RUNS");
 do
     # input card
-    INPUT="$LOGDIR"/"input_$ID.dat"
+    INPUT="$LOG_DIR"/"input_$ID.dat"
     rm -f "$INPUT"
 
     S1=$((S1 + 2))
@@ -121,7 +145,7 @@ do
         -e "s|energy_min|$ENERGY_MIN|" \
         -e "s|atmosphere_id|$ATMOSPHERE|" \
         -e "s|zenith_angle|$ZENITH|g" \
-        -e "s|output_directory|$DATADIR|" \
+        -e "s|output_directory|$CORSIKA_DATA_DIR|" \
         -e "s|seed_1|$S1|" \
         -e "s|seed_2|$S2|" \
         -e "s|seed_3|$S3|" \
@@ -131,7 +155,10 @@ do
     S1=$((S4 + 2))
 
     # submission script and HT condor file
-    FSCRIPT="$LOGDIR"/"run_corsika_$ID"
-    LOGFILE="$LOGDIR"/"DAT$ID.log"
+    FSCRIPT="$LOG_DIR"/"run_corsika_$ID"
+    LOGFILE="$LOG_DIR"/"DAT$ID.log"
     generate_corsika_submission_script "$FSCRIPT" "$INPUT" "$LOGFILE"
+    generate_htcondor_file "$FSCRIPT.sh"
 done
+
+echo "End of job preparation for CORSIKA ($LOG_DIR)."
