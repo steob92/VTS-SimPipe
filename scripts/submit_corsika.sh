@@ -1,6 +1,7 @@
 #!/bin/bash
 # Generate CORSIKA input files and submission scripts
 #
+set -e
 
 echo "Generate CORSIKA input files and submission scripts."
 echo
@@ -88,15 +89,15 @@ generate_corsika_submission_script()
 
     echo "#!/bin/bash" > "$FSCRIPT.sh"
     # docker: mount external directories
-    if [[ $VTSSIMPIPE_CORSIKA_EXE == *"docker"* ]]; then
+    if [[ $VTSSIMPIPE_CORSIKA_EXE == "docker run"* ]]; then
         INPUT="/workdir/external/$(basename "$INPUT")"
         EXTERNAL_DIR="-v \"$DATA_DIR:$CORSIKA_DATA_DIR\" -v \"$LOG_DIR:/workdir/external\""
         CORSIKA_EXE=${VTSSIMPIPE_CORSIKA_EXE/CORSIKA_DIRECTORIES/$EXTERNAL_DIR}
         CORSIKA_EXE=${CORSIKA_EXE/CORSIKAINPUTFILE/$INPUT}
+        echo "$CORSIKA_EXE > $LOGFILE" >> "$FSCRIPT.sh"
     else
-        CORSIKA_EXE="$VTSSIMPIPE_CORSIKA_EXE < $INPUT"
+        echo "$VTSSIMPIPE_CORSIKA_EXE < $INPUT > $LOGFILE" >> "$FSCRIPT.sh"
     fi
-    echo "$CORSIKA_EXE > $LOGFILE" >> "$FSCRIPT.sh"
     chmod u+x "$FSCRIPT.sh"
 }
 
@@ -124,7 +125,7 @@ EOL
 
 # docker: external directories
 CORSIKA_DATA_DIR="$DATA_DIR"
-if [[ $VTSSIMPIPE_CORSIKA_EXE == *"docker"* ]]; then
+if [[ $VTSSIMPIPE_CORSIKA_EXE == "docker run"* ]]; then
     CORSIKA_DATA_DIR="/workdir/external/$DIRSUFF"
 fi
 
