@@ -63,10 +63,12 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/amd64,linux/arm64/v8
-          push: True
-#          push:
-#            ${{ github.event_name == 'release' || github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+            #          platforms: linux/amd64,linux/arm64/v8
+          platforms: linux/amd64
+            #          push: True
+          push:
+            ${{ github.event_name == 'release' || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' }}
+
           file: ./docker/Dockerfile-corsika
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}-vtssimpipe-corsika
