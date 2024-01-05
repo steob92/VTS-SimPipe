@@ -7,7 +7,7 @@ echo "Generate CORSIKA input files and submission scripts."
 echo
 
 if [ $# -lt 2 ]; then
-echo "./submit_corsika.sh <config file> <input file template>
+echo "./submit_corsika.sh <config file> <input file template> <pull and prepare containers (TRUE/FALSE)
 
 For template configuration file, see ./config/CORSIKA/config_template.dat
 For a CORSIKA input file template, see ./config/CORSIKA/input_template.dat
@@ -15,11 +15,14 @@ For a CORSIKA input file template, see ./config/CORSIKA/input_template.dat
 exit
 fi
 
+[[ "$3" ]] && PULL=$3 || PULL=FALSE
+
 # env variables
 source $(dirname "$0")/../env_setup.sh
 echo "VTSSIMPIPE_CORSIKA_DIR: $VTSSIMPIPE_CORSIKA_DIR"
-echo "VTSSIMPIPE_CORSIKA_EXE: $VTSSIMPIPE_CORSIKA_EXE"
 echo "VTSSIMPIPE_LOG_DIR: $VTSSIMPIPE_LOG_DIR"
+echo "VTSSIMPIPE_CORSIKA_EXE: $VTSSIMPIPE_CORSIKA_EXE"
+echo "VTSSIMPIPE_IMAGE: $VTSSIMPIPE_IMAGE"
 
 # read configuration parameters
 if [[ ! -e $1 ]]; then
@@ -38,9 +41,10 @@ fi
 get_core_scatter()
 {
     ZENITH=$1
-    # TODO
-    if [[ $ZENITH -lt 40 ]]; then
-        echo "1500.E2"
+    if [[ $ZENITH -lt 39 ]]; then
+        echo "750.E2"
+    elif [[ $ZENITH -lt 49 ]]; then
+        echo "1000.E2"
     else
         echo "1500.E2"
     fi
@@ -50,8 +54,9 @@ get_core_scatter()
 get_energy_min()
 {
     ZENITH=$1
-    # TODO
-    if [[ $ZENITH -lt 40 ]]; then
+    if [[ $ZENITH -lt 29 ]]; then
+        echo "30."
+    elif [[ $ZENITH -lt 54 ]]; then
         echo "50."
     else
         echo "100"
@@ -67,6 +72,7 @@ echo "Core scatter area: $CORE_SCATTER cm"
 ENERGY_MIN=$(get_energy_min "$ZENITH")
 echo "Minimum energy: $ENERGY_MIN GeV"
 S1=65168195
+S1=$((RANDOM % 900000000 - 1))
 echo "First seed: $S1"
 
 # directories
@@ -85,15 +91,20 @@ generate_corsika_submission_script()
     INPUT=$2
     LOGFILE=$3
     LOG_DIR=$(dirname "$INPUT")
+    CONTAINER_EXTERNAL_DIR=$4
     rm -f "$LOGFILE"
 
     echo "#!/bin/bash" > "$FSCRIPT.sh"
     # docker: mount external directories
-    if [[ $VTSSIMPIPE_CORSIKA_EXE == "docker run"* ]]; then
+    if [[ $VTSSIMPIPE_CORSIKA_EXE == "docker" ]]; then
         INPUT="/workdir/external/$(basename "$INPUT")"
-        EXTERNAL_DIR="-v \"$DATA_DIR:$CORSIKA_DATA_DIR\" -v \"$LOG_DIR:/workdir/external\""
-        CORSIKA_EXE=${VTSSIMPIPE_CORSIKA_EXE/CORSIKA_DIRECTORIES/$EXTERNAL_DIR}
-        CORSIKA_EXE=${CORSIKA_EXE/CORSIKAINPUTFILE/$INPUT}
+        CORSIKA_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_IMAGE"
+        CORSIKA_EXE="${CORSIKA_EXE} bash -c \"cd /workdir/corsika-run && ./corsika77500Linux_QGSII_urqmd < $INPUT\""
+        echo "$CORSIKA_EXE > $LOGFILE" >> "$FSCRIPT.sh"
+    elif [[ $VTSSIMPIPE_CORSIKA_EXE == "apptainer" ]]; then
+        INPUT="/workdir/external/$(basename "$INPUT")"
+        CORSIKA_EXE="apptainer exec --cleanenv $CONTAINER_EXTERNAL_DIR --compat docker://$VTSSIMPIPE_IMAGE"
+        CORSIKA_EXE="${CORSIKA_EXE} bash -c \"cd /workdir/corsika-run && ./corsika77500Linux_QGSII_urqmd < $INPUT\""
         echo "$CORSIKA_EXE > $LOGFILE" >> "$FSCRIPT.sh"
     else
         echo "$VTSSIMPIPE_CORSIKA_EXE < $INPUT > $LOGFILE" >> "$FSCRIPT.sh"
@@ -114,8 +125,7 @@ Log = ${SUBSCRIPT}.\$(Cluster)_\$(Process).log
 Output = ${SUBSCRIPT}.\$(Cluster)_\$(Process).output
 Error = ${SUBSCRIPT}.\$(Cluster)_\$(Process).error
 Log = ${SUBSCRIPT}.\$(Cluster)_\$(Process).log
-request_memory = ${2}
-request_disk = ${3}
+request_memory = 2000M
 getenv = True
 max_materialize = 250
 queue 1
@@ -123,10 +133,26 @@ EOL
 # priority = 15
 }
 
-# docker: external directories
+# Preparation of containers
 CORSIKA_DATA_DIR="$DATA_DIR"
-if [[ $VTSSIMPIPE_CORSIKA_EXE == "docker run"* ]]; then
+if [[ $VTSSIMPIPE_CORSIKA_EXE == "docker" ]]; then
     CORSIKA_DATA_DIR="/workdir/external/$DIRSUFF"
+    CONTAINER_EXTERNAL_DIR="-v \"$DATA_DIR:$CORSIKA_DATA_DIR\" -v \"$LOG_DIR:/workdir/external\""
+    if [[ $PULL == "TRUE" ]]; then
+        docker pull "$VTSSIMPIPE_IMAGE"
+    fi
+elif [[ $VTSSIMPIPE_CORSIKA_EXE == "apptainer" ]]; then
+    CORSIKA_DATA_DIR="/workdir/external/$DIRSUFF"
+    CONTAINER_EXTERNAL_DIR="--bind \"$DATA_DIR:$CORSIKA_DATA_DIR\" --bind \"$LOG_DIR:/workdir/external\""
+    INPUT="/workdir/external/$(basename "$INPUT")"
+    if [[ $PULL == "TRUE" ]]; then
+        apptainer pull --disable-cache --force docker://"$VTSSIMPIPE_IMAGE"
+        # copy corsika directory to data dir (as apptainers are readonly)
+        COPY_COMMAND="apptainer exec --cleanenv $CONTAINER_EXTERNAL_DIR --compat docker://$VTSSIMPIPE_IMAGE"
+        COPY_COMMAND="$COPY_COMMAND bash -c \"mkdir -p $CORSIKA_DATA_DIR/tmp_corsika_run_files && cp /workdir/corsika-run/* $CORSIKA_DATA_DIR/tmp_corsika_run_files\""
+        eval "$COPY_COMMAND"
+        echo "CORSIKA files are copied to $DATA_DIR/tmp_corsika_run_files"
+    fi
 fi
 
 for ID in $(seq 0 "$N_RUNS");
@@ -153,12 +179,17 @@ do
         -e "s|seed_4|$S4|" \
         "$2" > "$INPUT"
 
+    if [[ $VTSSIMPIPE_CORSIKA_EXE == "apptainer" ]]; then
+        dat_dir="DATDIR $CORSIKA_DATA_DIR/tmp_corsika_run_files"
+        sed -i "1i$dat_dir" "$INPUT"
+    fi
+
     S1=$((S4 + 2))
 
     # submission script and HT condor file
     FSCRIPT="$LOG_DIR"/"run_corsika_$ID"
     LOGFILE="$LOG_DIR"/"DAT$ID.log"
-    generate_corsika_submission_script "$FSCRIPT" "$INPUT" "$LOGFILE"
+    generate_corsika_submission_script "$FSCRIPT" "$INPUT" "$LOGFILE" "$CONTAINER_EXTERNAL_DIR"
     generate_htcondor_file "$FSCRIPT.sh"
 done
 

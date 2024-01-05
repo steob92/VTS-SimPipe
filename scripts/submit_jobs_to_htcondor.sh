@@ -41,13 +41,12 @@ if ls "${JDIR}"/*.condor 1> /dev/null 2>&1; then
     # assume that all condor files have similar requests
     CONDORFILE=$(find "${JDIR}" -name "*.condor" | head -n 1)
     {
-        grep -h request_memory "$CONDORFILE"
-        grep -h request_disk "$CONDORFILE"
-        echo "getenv = True"
-        grep -h max_materialize "$CONDORFILE"
-        # echo "priority = 150"
-        echo "queue file matching files *.sh"
+        grep -h request_memory "$CONDORFILE" || echo "request_memory = 2000M";
+        echo "getenv = True";
+        grep -h max_materialize "$CONDORFILE" || echo "max_materialize = 250";
+        echo "queue file matching files *.sh";
     } >> "${SUBMITF}"
+    # echo "priority = 150"
 
     PDIR=$(pwd)
     if [ "${2}" = "submit" ]; then
