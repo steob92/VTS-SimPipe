@@ -38,9 +38,10 @@ fi
 get_core_scatter()
 {
     ZENITH=$1
-    # TODO
-    if [[ $ZENITH -lt 40 ]]; then
-        echo "1500.E2"
+    if [[ $ZENITH -lt 39 ]]; then
+        echo "750.E2"
+    elif [[ $ZENITH -lt 49 ]]; then
+        echo "1000.E2"
     else
         echo "1500.E2"
     fi
@@ -50,8 +51,9 @@ get_core_scatter()
 get_energy_min()
 {
     ZENITH=$1
-    # TODO
-    if [[ $ZENITH -lt 40 ]]; then
+    if [[ $ZENITH -lt 29 ]]; then
+        echo "30."
+    elif [[ $ZENITH -lt 54 ]]; then
         echo "50."
     else
         echo "100"
