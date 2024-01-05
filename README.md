@@ -78,3 +78,8 @@ Note that no changes are expected to be necessary for the input steering templat
 ## Processing Scripts
 
 Processing scripts are prepared for HT Condor systems.
+
+## Using Apptainers
+
+- set $APPTAINER_CACHEDIR
+- `apptainer pull --disable-cache --force docker://ghcr.io/gernotmaier/vtsimpipe-corsika:latest`
