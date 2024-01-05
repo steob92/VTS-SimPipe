@@ -38,6 +38,8 @@ RUN microdnf update -y && microdnf install -y \
     microdnf clean all
 
 COPY ./config/CORSIKA/atmprof*.dat /workdir/corsika-run/
+# qgsjet tables
+ADD https://syncandshare.desy.de/index.php/s/X9a4c5bYzy5p6nF/download /workdir/corsika-run/tables.dat
 
 SHELL ["/bin/bash", "-c"]
 WORKDIR /workdir/
