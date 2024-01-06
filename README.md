@@ -60,6 +60,10 @@ selection: BERNLOHRDIR SLANT CERENKOV IACT IACTDIR ATMEXT
 
 The file [docker/corsika-config.h](docker/corsika-config.h) contains the configuration file for CORSIKA and is used for the compilation.
 
+### GrOptics containers
+
+GrOptics requires C++11 for compilation, therefore the `root:6.24.06-centos7` is used as base image.
+
 ## Environmental Variables
 
 Environmental variables are used to configure the simulation pipelines, especially output directories and executables.
