@@ -7,7 +7,7 @@ echo "Generate CORSIKA input files and submission scripts."
 echo
 
 if [ $# -lt 2 ]; then
-echo "./submit_corsika.sh <config file> <input file template> <pull and prepare containers (TRUE/FALSE)
+echo "./prepare_production_corsika.sh <config file> <input file template> <pull and prepare containers (TRUE/FALSE)
 
 For template configuration file, see ./config/CORSIKA/config_template.dat
 For a CORSIKA input file template, see ./config/CORSIKA/input_template.dat
@@ -18,7 +18,8 @@ fi
 [[ "$3" ]] && PULL=$3 || PULL=FALSE
 
 # env variables
-source $(dirname "$0")/../env_setup.sh
+# shellcheck source=/dev/null
+source "$(dirname "$0")"/../env_setup.sh
 echo "VTSSIMPIPE_CORSIKA_DIR: $VTSSIMPIPE_CORSIKA_DIR"
 echo "VTSSIMPIPE_LOG_DIR: $VTSSIMPIPE_LOG_DIR"
 echo "VTSSIMPIPE_CORSIKA_EXE: $VTSSIMPIPE_CORSIKA_EXE"
@@ -29,6 +30,7 @@ if [[ ! -e $1 ]]; then
     echo "Configuration file $1 does not exist."
     exit
 fi
+# shellcheck source=/dev/null
 source "$1"
 
 # check that input file template exists
@@ -89,10 +91,10 @@ generate_corsika_submission_script()
 {
     FSCRIPT=$1
     INPUT=$2
-    LOGFILE=$3
-    LOG_DIR=$(dirname "$INPUT")
+    OUTPUT_FILE=$3
     CONTAINER_EXTERNAL_DIR=$4
-    rm -f "$LOGFILE"
+    rm -f "$OUTPUT_FILE.log"
+    rm -f "$OUTPUT_FILE.telescope"
 
     echo "#!/bin/bash" > "$FSCRIPT.sh"
     # docker: mount external directories
@@ -100,15 +102,16 @@ generate_corsika_submission_script()
         INPUT="/workdir/external/$(basename "$INPUT")"
         CORSIKA_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_IMAGE"
         CORSIKA_EXE="${CORSIKA_EXE} bash -c \"cd /workdir/corsika-run && ./corsika77500Linux_QGSII_urqmd < $INPUT\""
-        echo "$CORSIKA_EXE > $LOGFILE" >> "$FSCRIPT.sh"
+        echo "$CORSIKA_EXE > $OUTPUT_FILE.log" >> "$FSCRIPT.sh"
     elif [[ $VTSSIMPIPE_CORSIKA_EXE == "apptainer" ]]; then
         INPUT="/workdir/external/$(basename "$INPUT")"
         CORSIKA_EXE="apptainer exec --cleanenv $CONTAINER_EXTERNAL_DIR --compat docker://$VTSSIMPIPE_IMAGE"
         CORSIKA_EXE="${CORSIKA_EXE} bash -c \"cd /workdir/corsika-run && ./corsika77500Linux_QGSII_urqmd < $INPUT\""
-        echo "$CORSIKA_EXE > $LOGFILE" >> "$FSCRIPT.sh"
+        echo "$CORSIKA_EXE > $OUTPUT_FILE.log" >> "$FSCRIPT.sh"
     else
-        echo "$VTSSIMPIPE_CORSIKA_EXE < $INPUT > $LOGFILE" >> "$FSCRIPT.sh"
+        echo "$VTSSIMPIPE_CORSIKA_EXE < $INPUT > $OUTPUT_FILE.log" >> "$FSCRIPT.sh"
     fi
+    echo "bzip2 -f -v $OUTPUT_FILE.telescope" >> "$FSCRIPT.sh"
     chmod u+x "$FSCRIPT.sh"
 }
 
@@ -149,7 +152,8 @@ elif [[ $VTSSIMPIPE_CORSIKA_EXE == "apptainer" ]]; then
         apptainer pull --disable-cache --force docker://"$VTSSIMPIPE_IMAGE"
         # copy corsika directory to data dir (as apptainers are readonly)
         COPY_COMMAND="apptainer exec --cleanenv $CONTAINER_EXTERNAL_DIR --compat docker://$VTSSIMPIPE_IMAGE"
-        COPY_COMMAND="$COPY_COMMAND bash -c \"mkdir -p $CORSIKA_DATA_DIR/tmp_corsika_run_files && cp /workdir/corsika-run/* $CORSIKA_DATA_DIR/tmp_corsika_run_files\""
+        COPY_COMMAND="$COPY_COMMAND bash -c \"mkdir -p $CORSIKA_DATA_DIR/tmp_corsika_run_files && \
+            cp /workdir/corsika-run/* $CORSIKA_DATA_DIR/tmp_corsika_run_files\""
         eval "$COPY_COMMAND"
         echo "CORSIKA files are copied to $DATA_DIR/tmp_corsika_run_files"
     fi
@@ -157,8 +161,10 @@ fi
 
 for ID in $(seq 0 "$N_RUNS");
 do
+    run_number=$((ID + RUN_START))
+
     # input card
-    INPUT="$LOG_DIR"/"input_$ID.dat"
+    INPUT="$LOG_DIR"/"input_$run_number.dat"
     rm -f "$INPUT"
 
     S1=$((S1 + 2))
@@ -166,7 +172,7 @@ do
     S3=$((S2 + 2))
     S4=$((S3 + 2))
 
-    sed -e "s|run_number|$((ID + RUN_START))|" \
+    sed -e "s|run_number|$run_number|" \
         -e "s|number_of_showers|$N_SHOWER|" \
         -e "s|core_scatter_area|$CORE_SCATTER|" \
         -e "s|energy_min|$ENERGY_MIN|" \
@@ -187,9 +193,9 @@ do
     S1=$((S4 + 2))
 
     # submission script and HT condor file
-    FSCRIPT="$LOG_DIR"/"run_corsika_$ID"
-    LOGFILE="$LOG_DIR"/"DAT$ID.log"
-    generate_corsika_submission_script "$FSCRIPT" "$INPUT" "$LOGFILE" "$CONTAINER_EXTERNAL_DIR"
+    FSCRIPT="$LOG_DIR"/"run_corsika_$run_number"
+    OUTPUT_FILE="$DATA_DIR"/"DAT$run_number"
+    generate_corsika_submission_script "$FSCRIPT" "$INPUT" "$OUTPUT_FILE" "$CONTAINER_EXTERNAL_DIR"
     generate_htcondor_file "$FSCRIPT.sh"
 done
 
