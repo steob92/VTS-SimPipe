@@ -7,7 +7,7 @@ echo "Generate CORSIKA input files and submission scripts."
 echo
 
 if [ $# -lt 2 ]; then
-echo "./submit_corsika.sh <config file> <input file template> <pull and prepare containers (TRUE/FALSE)
+echo "./prepare_production_corsika.sh <config file> <input file template> <pull and prepare containers (TRUE/FALSE)
 
 For template configuration file, see ./config/CORSIKA/config_template.dat
 For a CORSIKA input file template, see ./config/CORSIKA/input_template.dat
