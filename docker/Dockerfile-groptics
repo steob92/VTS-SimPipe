@@ -1,0 +1,28 @@
+FROM rootproject/root:6.24.06-centos7 AS build_image
+
+RUN yum update -y && yum install -y \
+    git \
+    makedepend \
+    imake \
+    which && \
+    yum clean all
+
+# corsikaIOreader
+WORKDIR /workdir
+RUN git clone https://github.com/GernotMaier/corsikaIOreader.git --depth 1
+WORKDIR /workdir/corsikaIOreader
+RUN make && make clean
+
+# GrOptics
+WORKDIR /workdir
+RUN git clone https://github.com/GernotMaier/GrOptics --depth 1
+WORKDIR /workdir/GrOptics
+RUN make
+
+FROM rootproject/root:6.24.06-centos7
+WORKDIR /workdir
+COPY --from=build_image /workdir/corsikaIOreader/corsikaIOreader /workdir/corsikaIOreader/corsikaIOreader
+COPY --from=build_image /workdir/GrOptics /workdir/GrOptics
+
+SHELL ["/bin/bash", "-c"]
+WORKDIR /workdir/
