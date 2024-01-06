@@ -86,7 +86,7 @@ The configuration script [scripts/config_corsika.sh](scripts/config_corsika.sh) 
 Usage of CORSIKA run script:
 
 ```bash
-./submit_corsika.sh ../config/CORSIKA/config_template.dat ../config/CORSIKA/input_template.dat TRUE
+./prepare_production_corsika.sh ../config/CORSIKA/config_template.dat ../config/CORSIKA/input_template.dat TRUE
 ```
 
 The last parameter indicates to pull the container image from the registry.
