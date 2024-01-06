@@ -18,7 +18,8 @@ fi
 [[ "$3" ]] && PULL=$3 || PULL=FALSE
 
 # env variables
-source $(dirname "$0")/../env_setup.sh
+# shellcheck source=/dev/null
+source "$(dirname "$0")"/../env_setup.sh
 echo "VTSSIMPIPE_CORSIKA_DIR: $VTSSIMPIPE_CORSIKA_DIR"
 echo "VTSSIMPIPE_LOG_DIR: $VTSSIMPIPE_LOG_DIR"
 echo "VTSSIMPIPE_CORSIKA_EXE: $VTSSIMPIPE_CORSIKA_EXE"
@@ -29,6 +30,7 @@ if [[ ! -e $1 ]]; then
     echo "Configuration file $1 does not exist."
     exit
 fi
+# shellcheck source=/dev/null
 source "$1"
 
 # check that input file template exists
