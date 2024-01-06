@@ -75,7 +75,7 @@ Directories:
 The CORSIKA air-shower simulations require as environmental variables:
 
 - `VTSSIMPIPE_IMAGE` pointing to the Docker image to be used for the simulations
-- `VTSSIMPIPE_CORSIKA_EXE` describes the type of container platform (docker or apptainer)
+- `VTSSIMPIPE_CORSIKA_EXE` describes the type of container platform (docker or apptainer) or points directly to the CORSIKA executable (in cases no containers are used)
 
 The script to run the CORSIKA simulations is [scripts/run_corsika.sh](scripts/run_corsika.sh), configuration parameters are
 defined as in the template [config/CORSIKA/config_template.dat](config/CORSIKA/config_template.dat).
