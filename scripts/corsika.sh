@@ -10,23 +10,23 @@ prepare_corsika_containers()
     VTSSIMPIPE_CONTAINER="$4"
     VTSSIMPIPE_CORSIKA_IMAGE="$5"
 
-    CORSIKA_DATA_DIR="$DATA_DIR"
+    CORSIKA_DATA_DIR="${DATA_DIR}/CORSIKA"
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
-        CORSIKA_DATA_DIR="/workdir/external/$DIRSUFF"
-        CONTAINER_EXTERNAL_DIR="-v \"$DATA_DIR:$CORSIKA_DATA_DIR\" -v \"$LOG_DIR:/workdir/external\""
+        CONTAINER_EXTERNAL_DIR="-v \"$CORSIKA_DATA_DIR:/workdir/external/data\" -v \"$LOG_DIR:/workdir/external/log\""
+        CORSIKA_DATA_DIR="/workdir/external/data"
         if [[ $PULL == "TRUE" ]]; then
             docker pull "$VTSSIMPIPE_CORSIKA_IMAGE"
         fi
     elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-        CORSIKA_DATA_DIR="/workdir/external/$DIRSUFF"
-        CONTAINER_EXTERNAL_DIR="--bind \"$DATA_DIR:$CORSIKA_DATA_DIR\" --bind \"$LOG_DIR:/workdir/external\""
+        CONTAINER_EXTERNAL_DIR="--bind \"$CORSIKA_DATA_DIR:/workdir/external/data\" --bind \"$LOG_DIR:/workdir/external/log\""
+        CORSIKA_DATA_DIR="/workdir/external/data"
         INPUT="/workdir/external/$(basename "$INPUT")"
         if [[ $PULL == "TRUE" ]]; then
             apptainer pull --disable-cache --force docker://"$VTSSIMPIPE_CORSIKA_IMAGE"
             # copy corsika directory to data dir (as apptainers are readonly)
             COPY_COMMAND="apptainer exec --cleanenv $CONTAINER_EXTERNAL_DIR --compat docker://$VTSSIMPIPE_IMAGE"
-            COPY_COMMAND="$COPY_COMMAND bash -c \"mkdir -p $CORSIKA_DATA_DIR/tmp_corsika_run_files && \
-                cp /workdir/corsika-run/* $CORSIKA_DATA_DIR/tmp_corsika_run_files\""
+            COPY_COMMAND="$COPY_COMMAND bash -c \"mkdir -p /workdir/external/data/tmp_corsika_run_files && \
+                cp /workdir/corsika-run/* /workdir/external/data/tmp_corsika_run_files\""
             eval "$COPY_COMMAND"
             echo "CORSIKA files are copied to $DATA_DIR/tmp_corsika_run_files"
         fi
@@ -46,12 +46,12 @@ generate_corsika_submission_script()
     echo "#!/bin/bash" > "$FSCRIPT.sh"
     # docker: mount external directories
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
-        INPUT="/workdir/external/$(basename "$INPUT")"
+        INPUT="/workdir/external/log/$(basename "$INPUT")"
         CORSIKA_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_CORSIKA_IMAGE"
         CORSIKA_EXE="${CORSIKA_EXE} bash -c \"cd /workdir/corsika-run && ./corsika77500Linux_QGSII_urqmd < $INPUT\""
         echo "$CORSIKA_EXE > $OUTPUT_FILE.log" >> "$FSCRIPT.sh"
     elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-        INPUT="/workdir/external/$(basename "$INPUT")"
+        INPUT="/workdir/external/log/$(basename "$INPUT")"
         CORSIKA_EXE="apptainer exec --cleanenv $CONTAINER_EXTERNAL_DIR --compat docker://$VTSSIMPIPE_CORSIKA_IMAGE"
         CORSIKA_EXE="${CORSIKA_EXE} bash -c \"cd /workdir/corsika-run && ./corsika77500Linux_QGSII_urqmd < $INPUT\""
         echo "$CORSIKA_EXE > $OUTPUT_FILE.log" >> "$FSCRIPT.sh"
@@ -127,6 +127,7 @@ generate_corsika_input_card()
 
     if [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
         dat_dir="DATDIR $CORSIKA_DATA_DIR/tmp_corsika_run_files"
+        sed "1i$dat_dir" "$INPUT"
         sed -i '' "1s|^|${dat_dir}\\n|" "$INPUT"
     fi
 

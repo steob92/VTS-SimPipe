@@ -37,6 +37,8 @@ echo "Simulation type: $SIM_TYPE"
 # shellcheck source=/dev/null
 . corsika.sh
 # shellcheck source=/dev/null
+. groptics.sh
+# shellcheck source=/dev/null
 . "$CONFIG"
 
 # env variables
@@ -58,11 +60,11 @@ if [[ $SIM_TYPE == "CORSIKA" ]]; then
 fi
 
 # directories
-DIRSUFF="Zd${ZENITH}/$SIM_TYPE"
-LOG_DIR="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"
+DIRSUFF="ATM${ATMOSPHERE}/Zd${ZENITH}"
+LOG_DIR="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/"$SIM_TYPE"
 DATA_DIR="$VTSSIMPIPE_DATA_DIR"/"$DIRSUFF"
-mkdir -p "$LOG_DIR"
-mkdir -p "$DATA_DIR"
+mkdir -p "${LOG_DIR}"
+mkdir -p "${DATA_DIR}/${SIM_TYPE}"
 echo "Log directory: $LOG_DIR"
 echo "Data directory: $DATA_DIR"
 
@@ -90,12 +92,22 @@ EOL
 if [[ $SIM_TYPE == "CORSIKA" ]]; then
     prepare_corsika_containers "$DATA_DIR" "$LOG_DIR" \
         "$PULL" "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_CORSIKA_IMAGE"
+elif [[ $SIM_TYPE == "GROPTICS" ]]; then
+    prepare_groptics_containers "$DATA_DIR" "$LOG_DIR" "$ATMOSPHERE" \
+        "$PULL" "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_GROPTICS_IMAGE"
+elif [[ $SIM_TYPE == "CARE" ]]; then
+    prepare_care_containers "$DATA_DIR" "$LOG_DIR" \
+        "$PULL" "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_CARE_IMAGE"
+else
+    echo "Unknown simulation type $SIM_TYPE."
+    exit
 fi
 
 for ID in $(seq 0 "$N_RUNS");
 do
     run_number=$((ID + RUN_START))
     FSCRIPT="$LOG_DIR"/"run_${SIM_TYPE}_$run_number"
+    INPUT="$LOG_DIR"/"input_$run_number.dat"
     OUTPUT_FILE="$DATA_DIR"/"DAT$run_number"
 
     if [[ $SIM_TYPE == "CORSIKA" ]]; then
@@ -106,6 +118,10 @@ do
         S1=$((S4 + 2))
 
         generate_corsika_submission_script "$FSCRIPT" "$INPUT" "$OUTPUT_FILE" "$CONTAINER_EXTERNAL_DIR"
+        generate_htcondor_file "$FSCRIPT.sh"
+    elif [[ $SIM_TYPE == "GROPTICS" ]]; then
+        generate_groptics_submission_script "$FSCRIPT" "$OUTPUT_FILE" \
+            "$run_number" "$ATMOSPHERE" "$CONTAINER_EXTERNAL_DIR"
         generate_htcondor_file "$FSCRIPT.sh"
     fi
 done
