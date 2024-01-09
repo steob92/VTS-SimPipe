@@ -8,10 +8,7 @@ export VTSSIMPIPE_DATA_DIR=vtssimpipe_corsika_dir
 # container type
 export VTSSIMPIPE_CONTAINER="apptainer"
 # export VTSSIMPIPE_CONTAINER="docker"
-
-################
 # CORSIKA
-
-# CORSIKA executable
-# Provide the CORSIKA command to be called for processing.
 export VTSSIMPIPE_CORSIKA_IMAGE="ghcr.io/gernotmaier/vtsimpipe-corsika:latest"
+# GROPTICS
+export VTSSIMPIPE_GROPTICS_IMAGE="ghcr.io/gernotmaier/vtsimpipe-groptics"

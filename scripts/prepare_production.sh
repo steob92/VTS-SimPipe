@@ -48,6 +48,7 @@ echo "VTSSIMPIPE_DATA_DIR: $VTSSIMPIPE_DATA_DIR"
 echo "VTSSIMPIPE_LOG_DIR: $VTSSIMPIPE_LOG_DIR"
 echo "VTSSIMPIPE_CONTAINER: $VTSSIMPIPE_CONTAINER"
 echo "VTSSIMPIPE_CORSIKA_IMAGE: $VTSSIMPIPE_CORSIKA_IMAGE"
+echo "VTSSIMPIPE_GROPTICS_IMAGE: $VTSSIMPIPE_GROPTICS_IMAGE"
 
 echo "Generating for $SIM_TYPE $N_RUNS input files and submission scripts (starting from run number $RUN_START)."
 echo "Number of showers per run: $N_SHOWER"
@@ -121,7 +122,7 @@ do
         generate_htcondor_file "$FSCRIPT.sh"
     elif [[ $SIM_TYPE == "GROPTICS" ]]; then
         generate_groptics_submission_script "$FSCRIPT" "$OUTPUT_FILE" \
-            "$run_number" "$ATMOSPHERE" "$CONTAINER_EXTERNAL_DIR"
+            "$run_number" "$CONTAINER_EXTERNAL_DIR"
         generate_htcondor_file "$FSCRIPT.sh"
     fi
 done

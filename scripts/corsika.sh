@@ -33,7 +33,6 @@ prepare_corsika_containers()
     fi
 }
 
-# generate CORSIKA input files and submission scripts
 generate_corsika_submission_script()
 {
     FSCRIPT="$1"
