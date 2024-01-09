@@ -108,7 +108,7 @@ do
     run_number=$((ID + RUN_START))
     FSCRIPT="$LOG_DIR"/"run_${SIM_TYPE}_$run_number"
     INPUT="$LOG_DIR"/"input_$run_number.dat"
-    OUTPUT_FILE="$DATA_DIR"/"DAT$run_number"
+    OUTPUT_FILE="${DATA_DIR}/${SIM_TYPE}/DAT${run_number}"
 
     if [[ $SIM_TYPE == "CORSIKA" ]]; then
         S4=$(generate_corsika_input_card \
