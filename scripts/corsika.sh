@@ -15,16 +15,16 @@ prepare_corsika_containers()
     if [[ $PULL == "TRUE" ]]; then
         if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
             docker pull "$VTSSIMPIPE_CORSIKA_IMAGE"
+            COPY_COMMAND="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_CORSIKA_IMAGE"
         elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-            CONTAINER_EXTERNAL_DIR=
             apptainer pull --disable-cache --force docker://"$VTSSIMPIPE_CORSIKA_IMAGE"
-            # copy corsika directory to data dir (as apptainers are readonly)
-            COPY_COMMAND="apptainer exec --cleanenv $CONTAINER_EXTERNAL_DIR --compat docker://$VTSSIMPIPE_IMAGE"
-            COPY_COMMAND="$COPY_COMMAND bash -c \"mkdir -p /workdir/external/data/tmp_corsika_run_files && \
-                cp /workdir/corsika-run/* /workdir/external/data/tmp_corsika_run_files\""
-            eval "$COPY_COMMAND"
-            echo "CORSIKA files are copied to $DATA_DIR/CORSIKA/tmp_corsika_run_files"
+            COPY_COMMAND="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} --compat docker://$VTSSIMPIPE_CORSIKA_IMAGE"
         fi
+        # copy corsika directory to data dir (as apptainers are readonly)
+        COPY_COMMAND="$COPY_COMMAND bash -c \"mkdir -p /workdir/external/data/tmp_corsika_run_files && \
+            cp /workdir/corsika-run/* /workdir/external/data/tmp_corsika_run_files\""
+        eval "$COPY_COMMAND"
+        echo "CORSIKA files are copied to $DATA_DIR/tmp_corsika_run_files"
     fi
 }
 
@@ -40,7 +40,8 @@ generate_corsika_submission_script()
     INPUT="/workdir/external/log/$(basename "$INPUT")"
 
     echo "#!/bin/bash" > "$FSCRIPT.sh"
-    # docker: mount external directories
+    mkdir -p $(dirname $OUTPUT_FILE)
+    rm -f $OUTPUT_FILE.telescope
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
         CORSIKA_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_CORSIKA_IMAGE"
     elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
@@ -102,6 +103,7 @@ generate_corsika_input_card()
     S3=$((S2 + 2))
     S4=$((S3 + 2))
 
+    echo "DATDIR $CORSIKA_DATA_DIR/tmp_corsika_run_files" > "$INPUT"
     sed -e "s|run_number|$run_number|" \
         -e "s|number_of_showers|$N_SHOWER|" \
         -e "s|core_scatter_area|$CORE_SCATTER|" \
@@ -113,12 +115,7 @@ generate_corsika_input_card()
         -e "s|seed_2|$S2|" \
         -e "s|seed_3|$S3|" \
         -e "s|seed_4|$S4|" \
-        "$INPUT_TEMPLATE" > "$INPUT"
-
-    if [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-        dat_dir="DATDIR $CORSIKA_DATA_DIR/tmp_corsika_run_files"
-        sed -i '' "1s|^|${dat_dir}\\n|" "$INPUT"
-    fi
+        "$INPUT_TEMPLATE" >> "$INPUT"
 
     echo "$S4"
 }
