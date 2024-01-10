@@ -69,6 +69,8 @@ generate_groptics_pilot_file()
     touch "$PILOT"
 
     {
+        # (dummy file name; groptics is executed with the "-of" flag)
+        echo "* FILEOUT photonLocation.root allT T 0"
         echo "* NSHOWER -1 -1"
         echo "* WOBBLE $(get_wobble "${RUN_NUMBER}" "${WOBBLE}") 0.0 0.0 90."
         echo "* ARRAYCONFIG ./data/${GROPTICS_CONFIG}"
