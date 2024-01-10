@@ -30,6 +30,28 @@ prepare_corsikaIOreader()
 
 
 #####################################################################
+# get wobble direction (use run number)
+get_wobble()
+{
+    RUN_NUMBER="$1"
+    WOBBLE="$2"
+    if [[ $((RUN_NUMBER % 4)) == 0 ]]; then
+        # North
+        echo "0.0 ${WOBBLE}"
+    elif [[ $((RUN_NUMBER % 4)) == 1 ]]; then
+        # East
+        echo "${WOBBLE} 0.0"
+    elif [[ $((RUN_NUMBER % 4)) == 2 ]]; then
+        # South
+        echo "0.0 -${WOBBLE}"
+    else
+        # West
+        echo "-${WOBBLE} 0.0"
+    fi
+}
+
+
+#####################################################################
 # generate GrOptics pilot file
 #
 # The pilot file is used to configure the GrOptics simulation.
@@ -47,10 +69,9 @@ generate_groptics_pilot_file()
     touch "$PILOT"
 
     {
-        echo "* FILEOUT photonLocation.root allT T 0"
         echo "* NSHOWER -1 -1"
-        echo "* WOBBLE 0.5 0.0 0.0 90.0"
-        echo "* ARRAYCONFIG ./data/VERITAS_NewArray.cfg"
+        echo "* WOBBLE $(get_wobble "${RUN_NUMBER}" "${WOBBLE}") 0.0 0.0 90."
+        echo "* ARRAYCONFIG ./data/${GROPTICS_CONFIG}"
         echo "* SEED 0"
         echo "* DEBUGBRANCHES 1"
     } >> "$PILOT"
@@ -119,22 +140,19 @@ generate_groptics_submission_script()
     rm -f "$OUTPUT_FILE.groptics.log"
 
     CORSIKA_FILE="${CORSIKA_DATA_DIR}/$(basename "$OUTPUT_FILE").telescope"
-    if [[ $VTSSIMPIPE_CONTAINER == "docker" ]] || [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-        CORSIKA_FILE="/workdir/external/corsika/$(basename "$CORSIKA_FILE")"
-    fi
+    CORSIKA_FILE="/workdir/external/corsika/$(basename "$CORSIKA_FILE")"
 
     CORSIKA_IO_READER=$(prepare_corsikaIOreader)
-    GROPTICS="./grOptics -of /workdir/external/groptics/$(basename OUTPUT_FILE).groptics \
-     -p $(generate_groptics_pilot_file "$LOG_DIR" "$RUN_NUMBER"))"
+    GROPTICS="./grOptics -of /workdir/external/groptics/$(basename "$OUTPUT_FILE").groptics.root \
+     -p $(generate_groptics_pilot_file "$LOG_DIR" "$RUN_NUMBER")"
 
     echo "#!/bin/bash" > "$FSCRIPT.sh"
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
         GROPTICS_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_GROPTICS_IMAGE"
     elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-        GROPTICS_EXE="apptainer exec --cleanenv $CONTAINER_EXTERNAL_DIR --compat docker://$VTSSIMPIPE_GROPTICS_IMAGE"
+        GROPTICS_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} --compat docker://$VTSSIMPIPE_GROPTICS_IMAGE"
     fi
     GROPTICS_EXE="${GROPTICS_EXE} bash -c \"cd /workdir/GrOptics && ${CORSIKA_IO_READER} | ${GROPTICS}\""
-    echo "$GROPTICS_EXE > $OUTPUT_FILE.log" >> "$FSCRIPT.sh"
-#    echo "bzip2 -f -v $OUTPUT_FILE.telescope" >> "$FSCRIPT.sh"
+    echo "$GROPTICS_EXE > $OUTPUT_FILE.groptics.log 2>&1" >> "$FSCRIPT.sh"
     chmod u+x "$FSCRIPT.sh"
 }
