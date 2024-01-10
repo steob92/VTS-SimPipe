@@ -12,7 +12,7 @@ echo "./prepare_production.sh <simulation step> <config file> <input file templa
 Allowed simulation steps: CORSIKA, GROPTICS, CARE
 
 CORSIKA:
-- template configuration file, see ./config/CORSIKA/config_template.dat
+- template configuration file, see ./config/config_ATM61_template.dat
 - input file template, see ./config/CORSIKA/input_template.dat
 "
 exit
