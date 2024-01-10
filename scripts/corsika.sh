@@ -23,7 +23,7 @@ prepare_corsika_containers()
             COPY_COMMAND="$COPY_COMMAND bash -c \"mkdir -p /workdir/external/data/tmp_corsika_run_files && \
                 cp /workdir/corsika-run/* /workdir/external/data/tmp_corsika_run_files\""
             eval "$COPY_COMMAND"
-            echo "CORSIKA files are copied to $DATA_DIR/tmp_corsika_run_files"
+            echo "CORSIKA files are copied to $DATA_DIR/CORSIKA/tmp_corsika_run_files"
         fi
     fi
 }
