@@ -32,7 +32,7 @@ RUN microdnf update -y && microdnf install -y \
     gcc-fortran && \
     microdnf clean all
 
-COPY ./config/CORSIKA/atmprof*.dat /workdir/corsika-run/
+COPY ./config/ATMOSPHERE/atmprof*.dat /workdir/corsika-run/
 # qgsjet tables (otherwise CORSIKA generates these tables during startup)
 ADD https://syncandshare.desy.de/index.php/s/X9a4c5bYzy5p6nF/download /workdir/corsika-run/tables.dat
 
