@@ -22,8 +22,8 @@ prepare_corsikaIOreader()
     CORSIKA_IO_READER="../corsikaIOreader/corsikaIOreader \
         -queff 0.50\
         -cors ${CORSIKA_FILE} \
-        -seed ${RUN_NUMBER} -grisu stdout \
-        -abs /workdir/GrOptics/data/${EXTINCTION_FILE} \
+        -seed $((RANDOM % 900000000 - 1)) -grisu stdout \
+        -abs /workdir/GrOptics/data/${EXTINCTION} \
         -cfg /workdir/GrOptics/data/${TELESCOPE_MODEL}"
     echo "$CORSIKA_IO_READER"
 }
@@ -105,7 +105,7 @@ prepare_groptics_containers()
     mkdir -p "$TMP_CONFIG_DIR"
 
     # copy file for atmospheric extinction (corsikaIOreader required "M5" in file name)
-    cp -f "$(dirname "$0")"/../config/ATMOSPHERE/"$EXTINCTION_FILE" "${TMP_CONFIG_DIR}/"
+    cp -f "$(dirname "$0")"/../config/ATMOSPHERE/"$EXTINCTION" "${TMP_CONFIG_DIR}/"
     # copy file for atmospheric profile (corsikaIOreader expect it in the /workdir/external/groptics/data directory)
     cp -f "$(dirname "$0")"/../config/ATMOSPHERE/atmprof"$ATMOSPHERE".dat "${TMP_CONFIG_DIR}/"
     # copy file for telescope model

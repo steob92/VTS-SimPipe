@@ -39,6 +39,8 @@ echo "Simulation type: $SIM_TYPE"
 # shellcheck source=/dev/null
 . groptics.sh
 # shellcheck source=/dev/null
+. care.sh
+# shellcheck source=/dev/null
 . "$CONFIG"
 
 # env variables
@@ -49,13 +51,15 @@ echo "VTSSIMPIPE_LOG_DIR: $VTSSIMPIPE_LOG_DIR"
 echo "VTSSIMPIPE_CONTAINER: $VTSSIMPIPE_CONTAINER"
 echo "VTSSIMPIPE_CORSIKA_IMAGE: $VTSSIMPIPE_CORSIKA_IMAGE"
 echo "VTSSIMPIPE_GROPTICS_IMAGE: $VTSSIMPIPE_GROPTICS_IMAGE"
+echo "VTSSIMPIPE_CARE_IMAGE: $VTSSIMPIPE_CARE_IMAGE"
 
 echo "Generating for $SIM_TYPE $N_RUNS input files and submission scripts (starting from run number $RUN_START)."
 echo "Number of showers per run: $N_SHOWER"
 echo "Atmosphere: $ATMOSPHERE"
 echo "Zenith angle: $ZENITH deg"
+echo "Wobble angle: $WOBBLE deg"
+echo "NSB rate: $NSB MHz"
 if [[ $SIM_TYPE == "CORSIKA" ]]; then
-    S1=65168195
     S1=$((RANDOM % 900000000 - 1))
     echo "First CORSIKA seed: $S1"
 fi
@@ -122,6 +126,10 @@ do
         generate_htcondor_file "$FSCRIPT.sh"
     elif [[ $SIM_TYPE == "GROPTICS" ]]; then
         generate_groptics_submission_script "$FSCRIPT" "$OUTPUT_FILE" \
+            "$run_number" "$CONTAINER_EXTERNAL_DIR"
+        generate_htcondor_file "$FSCRIPT.sh"
+    elif [[ $SIM_TYPE == "CARE" ]]; then
+        generate_care_submission_script "$FSCRIPT" "$OUTPUT_FILE" \
             "$run_number" "$CONTAINER_EXTERNAL_DIR"
         generate_htcondor_file "$FSCRIPT.sh"
     fi
