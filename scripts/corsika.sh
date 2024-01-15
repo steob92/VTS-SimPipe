@@ -12,20 +12,22 @@ prepare_corsika_containers()
 
     CONTAINER_EXTERNAL_DIR="-v \"${DATA_DIR}/CORSIKA:/workdir/external/data\" -v \"$LOG_DIR:/workdir/external/log\""
     CORSIKA_DATA_DIR="/workdir/external/data"
-    if [[ $PULL == "TRUE" ]]; then
-        if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
-            docker pull "$VTSSIMPIPE_CORSIKA_IMAGE"
-            COPY_COMMAND="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_CORSIKA_IMAGE"
-        elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-            apptainer pull --disable-cache --force docker://"$VTSSIMPIPE_CORSIKA_IMAGE"
-            COPY_COMMAND="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} --compat docker://$VTSSIMPIPE_CORSIKA_IMAGE"
-        fi
-        # copy corsika directory to data dir (as apptainers are readonly)
-        COPY_COMMAND="$COPY_COMMAND bash -c \"mkdir -p /workdir/external/data/tmp_corsika_run_files && \
-            cp /workdir/corsika-run/* /workdir/external/data/tmp_corsika_run_files\""
-        eval "$COPY_COMMAND"
-        echo "CORSIKA files are copied to $DATA_DIR/tmp_corsika_run_files"
+    if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
+        COPY_COMMAND="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_CORSIKA_IMAGE"
+        PULL_COMMAND="docker pull $VTSSIMPIPE_CORSIKA_IMAGE"
+    elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
+        PULL_COMMAND="apptainer pull --disable-cache --force docker://$VTSSIMPIPE_CORSIKA_IMAGE"
+        COPY_COMMAND="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} --compat docker://$VTSSIMPIPE_CORSIKA_IMAGE"
     fi
+    if [[ $PULL == "TRUE" ]]; then
+        eval "$PULL_COMMAND"
+    fi
+    # copy corsika directory to data dir (as apptainers are readonly)
+    echo "Copy CORSIKA files to ${DATA_DIR}/CORSIKA/tmp_corsika_run_files"
+    mkdir -p "${DATA_DIR}/CORSIKA/tmp_corsika_run_files"
+    COPY_COMMAND="$COPY_COMMAND bash -c \"cp /workdir/corsika-run/* /workdir/external/data/tmp_corsika_run_files\""
+    echo "$COPY_COMMAND"
+    eval "$COPY_COMMAND"
 }
 
 generate_corsika_submission_script()
