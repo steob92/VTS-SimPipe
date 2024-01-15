@@ -83,15 +83,15 @@ generate_care_submission_script()
     rm -f "$OUTPUT_FILE.care.log"
 
     CARE="./CameraAndReadout \
-     NSBRATEPERPIXEL \\\"0 ${NSB}\\\" \
-     HIGHGAINPULSESHAPE \\\"0 ${CARE_HIGH_GAIN}\\\" \
-     LOWGAINPULSESHAPE \\\"0 ${CARE_LOW_GAIN}\\\" \
+     NSBRATEPERPIXEL \\\"0 0 ${NSB}\\\" \
+     HIGHGAINPULSESHAPE \\\"0 /workdir/CARE/data/${CARE_HIGH_GAIN}\\\" \
+     LOWGAINPULSESHAPE \\\"0 /workdir/CARE/data/${CARE_LOW_GAIN}\\\" \
      --notraces \
      --seed $((RANDOM % 900000000 - 1)) \
      --vbfrunnumber 10000 \
      --writepedestals 1 \
      --configfile /workdir/CARE/data/${CARE_CONFIG} \
-     --outputfile /workdir/external/care/$(basename "$OUTPUT_FILE").root \
+     --outputfile /workdir/external/care/$(basename "$OUTPUT_FILE") \
      --inputfile /workdir/external/groptics/$(basename "$OUTPUT_FILE").groptics.root"
 
     echo "#!/bin/bash" > "$FSCRIPT.sh"
