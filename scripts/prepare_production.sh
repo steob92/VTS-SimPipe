@@ -7,7 +7,7 @@ echo "Generate simulation input files and submission scripts."
 echo
 
 if [ $# -lt 3 ]; then
-echo "./prepare_production.sh <simulation step> <config file> <input file template> <pull and prepare containers (TRUE/FALSE)
+echo "./prepare_production.sh <simulation step> <config file> <input file template>
 
 Allowed simulation steps: CORSIKA, GROPTICS, CARE
 
@@ -21,7 +21,6 @@ fi
 SIM_TYPE="$1"
 CONFIG="$2"
 INPUT_TEMPLATE="$3"
-[[ "$4" ]] && PULL=$4 || PULL=FALSE
 
 if [[ ! -e "$CONFIG" ]]; then
     echo "Configuration file $CONFIG does not exist."
@@ -96,13 +95,13 @@ EOL
 
 if [[ $SIM_TYPE == "CORSIKA" ]]; then
     prepare_corsika_containers "$DATA_DIR" "$LOG_DIR" \
-        "$PULL" "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_CORSIKA_IMAGE"
+        "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_CORSIKA_IMAGE"
 elif [[ $SIM_TYPE == "GROPTICS" ]]; then
     prepare_groptics_containers "$DATA_DIR" "$LOG_DIR" "$ATMOSPHERE" \
-        "$PULL" "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_GROPTICS_IMAGE"
+        "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_GROPTICS_IMAGE"
 elif [[ $SIM_TYPE == "CARE" ]]; then
     prepare_care_containers "$DATA_DIR" "$LOG_DIR" \
-        "$PULL" "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_CARE_IMAGE"
+        "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_CARE_IMAGE"
 else
     echo "Unknown simulation type $SIM_TYPE."
     exit

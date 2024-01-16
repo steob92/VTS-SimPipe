@@ -45,9 +45,8 @@ prepare_care_containers()
 {
     DATA_DIR="$1"
     LOG_DIR="$2"
-    PULL="$3"
-    VTSSIMPIPE_CONTAINER="$4"
-    VTSSIMPIPE_CARE_IMAGE="$5"
+    VTSSIMPIPE_CONTAINER="$3"
+    VTSSIMPIPE_CARE_IMAGE="$4"
 
     TMP_CONFIG_DIR="${DATA_DIR}/CARE/model_files/"
     mkdir -p "$TMP_CONFIG_DIR"
@@ -61,14 +60,6 @@ prepare_care_containers()
     CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"${DATA_DIR}/CARE:/workdir/external/care\""
     CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"${TMP_CONFIG_DIR}:/workdir/CARE/data\""
     CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"$LOG_DIR:/workdir/external/log/\""
-
-    if [[ $PULL == "TRUE" ]]; then
-        if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
-            docker pull "$VTSSIMPIPE_CARE_IMAGE"
-        elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-            apptainer pull --disable-cache --force docker://"$VTSSIMPIPE_CARE_IMAGE"
-        fi
-    fi
 }
 
 #####################################################################

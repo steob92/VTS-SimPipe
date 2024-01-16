@@ -6,21 +6,15 @@ prepare_corsika_containers()
 {
     DATA_DIR="$1"
     LOG_DIR="$2"
-    PULL="$3"
-    VTSSIMPIPE_CONTAINER="$4"
-    VTSSIMPIPE_CORSIKA_IMAGE="$5"
+    VTSSIMPIPE_CONTAINER="$3"
+    VTSSIMPIPE_CORSIKA_IMAGE="$4"
 
     CONTAINER_EXTERNAL_DIR="-v \"${DATA_DIR}/CORSIKA:/workdir/external/data\" -v \"$LOG_DIR:/workdir/external/log\""
     CORSIKA_DATA_DIR="/workdir/external/data"
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
         COPY_COMMAND="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_CORSIKA_IMAGE"
-        PULL_COMMAND="docker pull $VTSSIMPIPE_CORSIKA_IMAGE"
     elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-        PULL_COMMAND="apptainer pull --disable-cache --force docker://$VTSSIMPIPE_CORSIKA_IMAGE"
         COPY_COMMAND="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} --compat docker://$VTSSIMPIPE_CORSIKA_IMAGE"
-    fi
-    if [[ $PULL == "TRUE" ]]; then
-        eval "$PULL_COMMAND"
     fi
     # copy corsika directory to data dir (as apptainers are readonly)
     echo "Copy CORSIKA files to ${DATA_DIR}/CORSIKA/tmp_corsika_run_files"

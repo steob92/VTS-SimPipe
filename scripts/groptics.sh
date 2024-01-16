@@ -97,9 +97,8 @@ prepare_groptics_containers()
     DATA_DIR="$1"
     LOG_DIR="$2"
     ATMOSPHERE="$3"
-    PULL="$4"
-    VTSSIMPIPE_CONTAINER="$5"
-    VTSSIMPIPE_GROPTICS_IMAGE="$6"
+    VTSSIMPIPE_CONTAINER="$4"
+    VTSSIMPIPE_GROPTICS_IMAGE="$5"
 
     TMP_CONFIG_DIR="${DATA_DIR}/GROPTICS/model_files/"
     mkdir -p "$TMP_CONFIG_DIR"
@@ -120,14 +119,6 @@ prepare_groptics_containers()
     # corsikaIOreader expects the atmprof file in the /workdir/external/groptics/data directory
     CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"${TMP_CONFIG_DIR}:/workdir/GrOptics/data\""
     CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"$LOG_DIR:/workdir/external/log/\""
-
-    if [[ $PULL == "TRUE" ]]; then
-        if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
-            docker pull "$VTSSIMPIPE_GROPTICS_IMAGE"
-        elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-            apptainer pull --disable-cache --force docker://"$VTSSIMPIPE_GROPTICS_IMAGE"
-        fi
-    fi
 }
 
 #####################################################################
