@@ -96,11 +96,8 @@ generate_groptics_pilot_file()
 prepare_groptics_containers()
 {
     DATA_DIR="$1"
-    LOG_DIR="$2"
-    ATMOSPHERE="$3"
-    WOBBLE="$4"
-    VTSSIMPIPE_CONTAINER="$5"
-    VTSSIMPIPE_GROPTICS_IMAGE="$6"
+    ATMOSPHERE="$2"
+    WOBBLE="$3"
 
     mkdir -p "$DATA_DIR"
     GROPTICS_DATA_DIR="${DATA_DIR}/W${WOBBLE}/GROPTICS"

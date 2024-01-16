@@ -57,7 +57,7 @@ echo "Number of showers per run: $N_SHOWER"
 echo "Atmosphere: $ATMOSPHERE"
 echo "Zenith angle: $ZENITH deg"
 echo "Wobble angle: $WOBBLE_LIST deg"
-echo "NSB rate: $NSB MHz"
+echo "NSB rate: $NSB_LIST MHz"
 if [[ $SIM_TYPE == "CORSIKA" ]]; then
     S1=$((RANDOM % 900000000 - 1))
     echo "First CORSIKA seed: $S1"
@@ -68,7 +68,7 @@ DIRSUFF="ATM${ATMOSPHERE}/Zd${ZENITH}"
 LOG_DIR="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/"$SIM_TYPE"
 DATA_DIR="$VTSSIMPIPE_DATA_DIR"/"$DIRSUFF"
 mkdir -p "${LOG_DIR}"
-mkdir -p "${DATA_DIR}/${SIM_TYPE}"
+mkdir -p "${DATA_DIR}"
 echo "Log directory: $LOG_DIR"
 echo "Data directory: $DATA_DIR"
 
@@ -98,12 +98,14 @@ if [[ $SIM_TYPE == "CORSIKA" ]]; then
         "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_CORSIKA_IMAGE"
 elif [[ $SIM_TYPE == "GROPTICS" ]]; then
     for WOBBLE in ${WOBBLE_LIST}; do
-        prepare_groptics_containers "$DATA_DIR" "$LOG_DIR" "$ATMOSPHERE" "$WOBBLE" \
-            "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_GROPTICS_IMAGE"
+        prepare_groptics_containers "$DATA_DIR" "$ATMOSPHERE" "$WOBBLE"
     done
 elif [[ $SIM_TYPE == "CARE" ]]; then
-    prepare_care_containers "$DATA_DIR" "$LOG_DIR" \
-        "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_CARE_IMAGE"
+    for WOBBLE in ${WOBBLE_LIST}; do
+        for NSB in ${NSB_LIST}; do
+            prepare_care_containers "$DATA_DIR" "$WOBBLE" "$NSB"
+        done
+    done
 else
     echo "Unknown simulation type $SIM_TYPE."
     exit
@@ -132,9 +134,13 @@ do
             generate_htcondor_file "${FSCRIPT}_${WOBBLE}.sh"
         done
     elif [[ $SIM_TYPE == "CARE" ]]; then
-        generate_care_submission_script "$FSCRIPT" "$OUTPUT_FILE" \
-            "$run_number" "$CONTAINER_EXTERNAL_DIR"
-        generate_htcondor_file "$FSCRIPT.sh"
+        for WOBBLE in ${WOBBLE_LIST}; do
+            for NSB in ${NSB_LIST}; do
+                generate_care_submission_script "${FSCRIPT}_${WOBBLE}_${NSB}" "$OUTPUT_FILE" \
+                    "${WOBBLE}" "${NSB}"
+                generate_htcondor_file "${FSCRIPT}_${WOBBLE}_${NSB}.sh"
+            done
+        done
     fi
 done
 
