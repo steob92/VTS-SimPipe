@@ -4,6 +4,14 @@ N_SHOWER=3
 ZENITH=25
 ATMOSPHERE=61
 WOBBLE="0.5"
-EXTINCTION_FILE="Ext_results_VWinter_3_2_6.M5.txt"
+NSB="200"
+
+# GrOptics
+EXTINCTION="Ext_results_VWinter_3_2_6.M5.txt"
 TELESCOPE_MODEL="Upgrade_20120827_v420_3.cfg"
 GROPTICS_CONFIG="VERITAS_NewArray.cfg"
+
+# CARE
+CARE_CONFIG="CARE_VERITAS_AfterPMTUpgrade_V6Nahee_withPMTransitTimeSpread.cfg"
+CARE_HIGH_GAIN="VERITASHighGainPulseShapeHamamatsuPMT.txt"
+CARE_LOW_GAIN="VERITASLowGainPulseShapeHamamatsuPMT.txt"
