@@ -56,7 +56,7 @@ echo "Generating for $SIM_TYPE $N_RUNS input files and submission scripts (start
 echo "Number of showers per run: $N_SHOWER"
 echo "Atmosphere: $ATMOSPHERE"
 echo "Zenith angle: $ZENITH deg"
-echo "Wobble angle: $WOBBLE deg"
+echo "Wobble angle: $WOBBLE_LIST deg"
 echo "NSB rate: $NSB MHz"
 if [[ $SIM_TYPE == "CORSIKA" ]]; then
     S1=$((RANDOM % 900000000 - 1))
@@ -97,8 +97,10 @@ if [[ $SIM_TYPE == "CORSIKA" ]]; then
     prepare_corsika_containers "$DATA_DIR" "$LOG_DIR" \
         "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_CORSIKA_IMAGE"
 elif [[ $SIM_TYPE == "GROPTICS" ]]; then
-    prepare_groptics_containers "$DATA_DIR" "$LOG_DIR" "$ATMOSPHERE" \
-        "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_GROPTICS_IMAGE"
+    for WOBBLE in ${WOBBLE_LIST}; do
+        prepare_groptics_containers "$DATA_DIR" "$LOG_DIR" "$ATMOSPHERE" "$WOBBLE" \
+            "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_GROPTICS_IMAGE"
+    done
 elif [[ $SIM_TYPE == "CARE" ]]; then
     prepare_care_containers "$DATA_DIR" "$LOG_DIR" \
         "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_CARE_IMAGE"
@@ -124,9 +126,11 @@ do
         generate_corsika_submission_script "$FSCRIPT" "$INPUT" "$OUTPUT_FILE" "$CONTAINER_EXTERNAL_DIR"
         generate_htcondor_file "$FSCRIPT.sh"
     elif [[ $SIM_TYPE == "GROPTICS" ]]; then
-        generate_groptics_submission_script "$FSCRIPT" "$OUTPUT_FILE" \
-            "$run_number" "$CONTAINER_EXTERNAL_DIR"
-        generate_htcondor_file "$FSCRIPT.sh"
+        for WOBBLE in ${WOBBLE_LIST}; do
+            generate_groptics_submission_script "${FSCRIPT}_${WOBBLE}" "$OUTPUT_FILE" \
+                "$run_number" "${WOBBLE}"
+            generate_htcondor_file "${FSCRIPT}_${WOBBLE}.sh"
+        done
     elif [[ $SIM_TYPE == "CARE" ]]; then
         generate_care_submission_script "$FSCRIPT" "$OUTPUT_FILE" \
             "$run_number" "$CONTAINER_EXTERNAL_DIR"

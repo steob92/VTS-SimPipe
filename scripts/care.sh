@@ -2,35 +2,6 @@
 # Helper functions for CARE; called from prepare_production.sh
 
 #####################################################################
-# generate GrOptics pilot file
-#
-# The pilot file is used to configure the GrOptics simulation.
-#
-# WOBBLE:     wobble offset and direction in degrees
-# ARRAYCONFIG: telescope model file
-# SEED:       seed for the random number generator (0=machine clock)
-generate_groptics_pilot_file()
-{
-    LOG_DIR="$1"
-    RUN_NUMBER="$2"
-
-    PILOT="${LOG_DIR}/pilot_${RUN_NUMBER}.dat"
-    rm -f "$PILOT"
-    touch "$PILOT"
-
-    {
-        # (dummy file name; groptics is executed with the "-of" flag)
-        echo "* FILEOUT photonLocation.root allT T 0"
-        echo "* NSHOWER -1 -1"
-        echo "* WOBBLE $(get_wobble "${RUN_NUMBER}" "${WOBBLE}") 0.0 0.0 90."
-        echo "* ARRAYCONFIG ./data/${GROPTICS_CONFIG}"
-        echo "* SEED 0"
-        echo "* DEBUGBRANCHES 1"
-    } >> "$PILOT"
-    echo "/workdir/external/log/$(basename "$PILOT")"
-}
-
-#####################################################################
 # preparation of CARE containers
 #
 # Unfortunately quite fine tuned due to directory requirements of
