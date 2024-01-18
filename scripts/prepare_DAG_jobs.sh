@@ -44,13 +44,13 @@ for ID in $(seq 0 "$N_RUNS"); do
     # GROPTICS and CARE
     for WOBBLE in ${WOBBLE_LIST}; do
         job_groptics="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/GROPTICS/run_GROPTICS_${run_number}_${WOBBLE}.sh.condor
-        echo "JOB GROPTICS_${run_number}_W${WOBBLE} $job_groptics" >> "$DAG_FILE"
-        PARENT_CORSIKA="$PARENT_CORSIKA GROPTICS_${run_number}_W${WOBBLE}"
+        echo "JOB GROPTICS_${run_number}_${WOBBLE} $job_groptics" >> "$DAG_FILE"
+        PARENT_CORSIKA="$PARENT_CORSIKA GROPTICS_${run_number}_${WOBBLE}"
         PARENT_GROPTICS="PARENT GROPTICS_${run_number}_${WOBBLE} CHILD"
         for NSB in ${NSB_LIST}; do
             job_care="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CARE/run_CARE_${run_number}_${WOBBLE}_${NSB}.sh.condor
-            echo "JOB CARE_${run_number}_W${WOBBLE}_${NSB} $job_care" >> "$DAG_FILE"
-            PARENT_GROPTICS="$PARENT_GROPTICS CARE_${run_number}_W${WOBBLE}_${NSB}"
+            echo "JOB CARE_${run_number}_${WOBBLE}_${NSB} $job_care" >> "$DAG_FILE"
+            PARENT_GROPTICS="$PARENT_GROPTICS CARE_${run_number}_${WOBBLE}_${NSB}"
         done
         echo "$PARENT_GROPTICS" >> "$DAG_FILE"
     done

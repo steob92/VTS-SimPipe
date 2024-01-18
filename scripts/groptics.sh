@@ -100,7 +100,7 @@ prepare_groptics_containers()
     WOBBLE="$3"
 
     mkdir -p "$DATA_DIR"
-    GROPTICS_DATA_DIR="${DATA_DIR}/W${WOBBLE}/GROPTICS"
+    GROPTICS_DATA_DIR="${DATA_DIR}/GROPTICS/W${WOBBLE}/GROPTICS"
     TMP_CONFIG_DIR="${GROPTICS_DATA_DIR}/model_files/"
     mkdir -p "$TMP_CONFIG_DIR"
 
