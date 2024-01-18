@@ -3,15 +3,6 @@
 
 #####################################################################
 # preparation of CARE containers
-#
-# Unfortunately quite fine tuned due to directory requirements of
-# corsikaIOreader and grOptics:
-#
-# /workdir/external/log:     directory for run scripts and pilot files
-# /workdir/external/groptics:directory with GrOptics (input) files
-# /workdir/CARE/Config:      directory into which model files
-#                            (configuration, pulse shapes) are copied.
-#
 prepare_care_containers()
 {
     DATA_DIR="$1"
@@ -28,6 +19,15 @@ prepare_care_containers()
 
 #####################################################################
 # generate CARE input files and submission scripts
+#
+# Unfortunately quite fine tuned due to directory requirements of
+# corsikaIOreader and grOptics:
+#
+# /workdir/external/log:     directory for run scripts and pilot files
+# /workdir/external/groptics:directory with GrOptics (input) files
+# /workdir/CARE/Config:      directory into which model files
+#                            (configuration, pulse shapes) are copied.
+#
 generate_care_submission_script()
 {
     CAREFSCRIPT="$1"

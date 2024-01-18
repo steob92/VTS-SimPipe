@@ -6,8 +6,8 @@ set -e
 echo "Generate simulation input files and submission scripts."
 echo
 
-if [ $# -lt 3 ]; then
-echo "./prepare_production.sh <simulation step> <config file> <input file template>
+if [ $# -lt 2 ]; then
+echo "./prepare_production.sh <simulation step> <config file> ,input file template]
 
 Allowed simulation steps: CORSIKA, GROPTICS, CARE
 
@@ -20,14 +20,10 @@ fi
 
 SIM_TYPE="$1"
 CONFIG="$2"
-INPUT_TEMPLATE="$3"
+[[ "$3" ]] && INPUT_TEMPLATE=$3 || INPUT_TEMPLATE=""
 
 if [[ ! -e "$CONFIG" ]]; then
     echo "Configuration file $CONFIG does not exist."
-    exit
-fi
-if [[ ! -e "$INPUT_TEMPLATE" ]]; then
-    echo "Input file template $INPUT_TEMPLATE does not exist."
     exit
 fi
 
@@ -94,8 +90,7 @@ EOL
 }
 
 if [[ $SIM_TYPE == "CORSIKA" ]]; then
-    prepare_corsika_containers "$DATA_DIR" "$LOG_DIR" \
-        "$VTSSIMPIPE_CONTAINER" "$VTSSIMPIPE_CORSIKA_IMAGE"
+    prepare_corsika_containers "$DATA_DIR" "$LOG_DIR"
 elif [[ $SIM_TYPE == "GROPTICS" ]]; then
     for WOBBLE in ${WOBBLE_LIST}; do
         prepare_groptics_containers "$DATA_DIR" "$ATMOSPHERE" "$WOBBLE"
@@ -119,6 +114,10 @@ do
     OUTPUT_FILE="${DATA_DIR}/${SIM_TYPE}/DAT${run_number}"
 
     if [[ $SIM_TYPE == "CORSIKA" ]]; then
+        if [[ ! -e "$INPUT_TEMPLATE" ]]; then
+            echo "Input file template $INPUT_TEMPLATE does not exist."
+            exit
+        fi
         S4=$(generate_corsika_input_card \
            "$LOG_DIR" "$run_number" "$S1" \
            "$INPUT_TEMPLATE" "$N_SHOWER" "$ZENITH" "$ATMOSPHERE" \

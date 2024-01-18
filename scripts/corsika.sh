@@ -6,8 +6,6 @@ prepare_corsika_containers()
 {
     DATA_DIR="$1"
     LOG_DIR="$2"
-    VTSSIMPIPE_CONTAINER="$3"
-    VTSSIMPIPE_CORSIKA_IMAGE="$4"
 
     CONTAINER_EXTERNAL_DIR="-v \"${DATA_DIR}/CORSIKA:/workdir/external/data\" -v \"$LOG_DIR:/workdir/external/log\""
     CORSIKA_DATA_DIR="/workdir/external/data"
@@ -20,7 +18,6 @@ prepare_corsika_containers()
     echo "Copy CORSIKA files to ${DATA_DIR}/CORSIKA/tmp_corsika_run_files"
     mkdir -p "${DATA_DIR}/CORSIKA/tmp_corsika_run_files"
     COPY_COMMAND="$COPY_COMMAND bash -c \"cp /workdir/corsika-run/* /workdir/external/data/tmp_corsika_run_files\""
-    echo "$COPY_COMMAND"
     eval "$COPY_COMMAND"
 }
 
@@ -36,8 +33,8 @@ generate_corsika_submission_script()
     INPUT="/workdir/external/log/$(basename "$INPUT")"
 
     echo "#!/bin/bash" > "$FSCRIPT.sh"
-    mkdir -p $(dirname $OUTPUT_FILE)
-    rm -f $OUTPUT_FILE.telescope
+    mkdir -p "$(dirname $OUTPUT_FILE)"
+    rm -f "$OUTPUT_FILE".telescope
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
         CORSIKA_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_CORSIKA_IMAGE"
     elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
@@ -45,10 +42,8 @@ generate_corsika_submission_script()
     fi
     CORSIKA_EXE="${CORSIKA_EXE} bash -c \"cd /workdir/corsika-run && ./corsika77500Linux_QGSII_urqmd < $INPUT\""
     echo "$CORSIKA_EXE > $OUTPUT_FILE.log" >> "$FSCRIPT.sh"
-#    echo "bzip2 -f -v $OUTPUT_FILE.telescope" >> "$FSCRIPT.sh"
     chmod u+x "$FSCRIPT.sh"
 }
-
 
 # core scatter area
 get_corsika_core_scatter()
@@ -89,7 +84,6 @@ generate_corsika_input_card()
     CORE_SCATTER=$(get_corsika_core_scatter "$ZENITH")
     ATMOSPHERE="$7"
     CORSIKA_DATA_DIR="$8"
-    VTSSIMPIPE_CONTAINER="$9"
 
     INPUT="$LOG_DIR"/"input_$run_number.dat"
     rm -f "$INPUT"
