@@ -7,7 +7,7 @@ echo "Generate simulation input files and submission scripts."
 echo
 
 if [ $# -lt 2 ]; then
-echo "./prepare_production.sh <simulation step> <config file> ,input file template]
+echo "./prepare_production.sh <simulation step> <config file> [input file template]
 
 Allowed simulation steps: CORSIKA, GROPTICS, CARE
 
