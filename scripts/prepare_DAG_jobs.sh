@@ -33,8 +33,6 @@ for ID in $(seq 0 "$N_RUNS"); do
 
     # CORSIKA
     job_corsika="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CORSIKA/run_CORSIKA_${run_number}.sh.condor
-    echo "CORSIKA job: $job_corsika"
-
     {
         echo "# DAG file for run $run_number"
         echo "JOB CORSIKA_${run_number} $job_corsika"
