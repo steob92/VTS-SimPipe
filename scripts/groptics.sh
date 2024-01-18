@@ -100,7 +100,7 @@ prepare_groptics_containers()
     WOBBLE="$3"
 
     mkdir -p "$DATA_DIR"
-    GROPTICS_DATA_DIR="${DATA_DIR}/GROPTICS/W${WOBBLE}/GROPTICS"
+    GROPTICS_DATA_DIR="${DATA_DIR}/GROPTICS/W${WOBBLE}"
     TMP_CONFIG_DIR="${GROPTICS_DATA_DIR}/model_files/"
     mkdir -p "$TMP_CONFIG_DIR"
 
@@ -125,7 +125,7 @@ generate_groptics_submission_script()
     WOBBLE="$4"
     rm -f "$OUTPUT_FILE.groptics.log"
 
-    GROPTICS_DATA_DIR="${DATA_DIR}/W${WOBBLE}/GROPTICS"
+    GROPTICS_DATA_DIR="${DATA_DIR}/GROPTICS/W${WOBBLE}"
     TMP_CONFIG_DIR="${GROPTICS_DATA_DIR}/model_files/"
     # mount directories
     CORSIKA_DATA_DIR="${DATA_DIR}/CORSIKA"
@@ -148,6 +148,6 @@ generate_groptics_submission_script()
         GROPTICS_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} --compat docker://$VTSSIMPIPE_GROPTICS_IMAGE"
     fi
     GROPTICS_EXE="${GROPTICS_EXE} bash -c \"cd /workdir/GrOptics && ${CORSIKA_IO_READER} | ${GROPTICS}\""
-    echo "$GROPTICS_EXE > $OUTPUT_FILE.groptics.log 2>&1" >> "$GROPTICSFSCRIPT.sh"
+    echo "$GROPTICS_EXE > $GROPTICS_DATA_DIR/$(basename "$OUTPUT_FILE").groptics.log 2>&1" >> "$GROPTICSFSCRIPT.sh"
     chmod u+x "$GROPTICSFSCRIPT.sh"
 }

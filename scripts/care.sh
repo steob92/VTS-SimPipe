@@ -9,7 +9,7 @@ prepare_care_containers()
     WOBBLE="$2"
     NSB="$3"
 
-    CARE_DATA_DIR="${DATA_DIR}/W${WOBBLE}/NSB${NSB}/CARE"
+    CARE_DATA_DIR="${DATA_DIR}/CARE/W${WOBBLE}/NSB${NSB}"
     TMP_CONFIG_DIR="${CARE_DATA_DIR}/model_files/"
     mkdir -p "$TMP_CONFIG_DIR"
 
@@ -38,8 +38,8 @@ generate_care_submission_script()
     NSB="$4"
 
     # mount directories
-    GROPTICS_DATA_DIR="${DATA_DIR}/W${WOBBLE}/GROPTICS"
-    CARE_DATA_DIR="${DATA_DIR}/W${WOBBLE}/NSB${NSB}/CARE"
+    GROPTICS_DATA_DIR="${DATA_DIR}GROPTICS/W${WOBBLE}"
+    CARE_DATA_DIR="${DATA_DIR}/CARE/W${WOBBLE}/NSB${NSB}"
     TMP_CONFIG_DIR="${CARE_DATA_DIR}/model_files/"
     CONTAINER_EXTERNAL_DIR="-v \"${GROPTICS_DATA_DIR}:/workdir/external/groptics\""
     CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"${CARE_DATA_DIR}/CARE:/workdir/external/care\""
@@ -65,6 +65,6 @@ generate_care_submission_script()
         CARE_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} --compat docker://$VTSSIMPIPE_CARE_IMAGE"
     fi
     CARE_EXE="${CARE_EXE} bash -c \"cd /workdir/CARE && ${CARE}\""
-    echo "$CARE_EXE > $OUTPUT_FILE.care.log 2>&1" >> "$CAREFSCRIPT.sh"
+    echo "$CARE_EXE > $CARE_DATA_DIR/$(basename "OUTPUT_FILE").care.log 2>&1" >> "$CAREFSCRIPT.sh"
     chmod u+x "$CAREFSCRIPT.sh"
 }
