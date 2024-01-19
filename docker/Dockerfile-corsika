@@ -6,9 +6,7 @@ ENV CORSIKA=corsika-77500
 RUN yum update -y && yum install -y \
     csh \
     perl \
-    which \
-    gcc-fortran \
-    && \
+    gcc-fortran && \
     yum clean all
 
 ADD $CORSIKA.tar.gz .
