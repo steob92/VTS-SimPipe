@@ -36,6 +36,8 @@ echo "Simulation type: $SIM_TYPE"
 # shellcheck source=/dev/null
 . care.sh
 # shellcheck source=/dev/null
+. mergevbf.sh
+# shellcheck source=/dev/null
 . "$CONFIG"
 
 # env variables
@@ -101,6 +103,8 @@ elif [[ $SIM_TYPE == "CARE" ]]; then
             prepare_care_containers "$DATA_DIR" "$WOBBLE" "$NSB"
         done
     done
+elif [[ $SIM_TYPE == "MERGEVBF" ]]; then
+    echo "(nothing to prepare for mergevbf)"
 else
     echo "Unknown simulation type $SIM_TYPE."
     exit
