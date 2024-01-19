@@ -1,0 +1,37 @@
+FROM rootproject/root:6.24.06-centos7 AS build_image
+
+RUN yum install -y \
+    git \
+    yum clean all
+
+# VBF
+ADD https://syncandshare.desy.de/index.php/s/gR5EtCo7PbpCpN5/download /workdir/VBF-0.3.4.tar.gz
+
+WORKDIR /workdir/
+RUN mkdir VBF && tar -xzf VBF-0.3.4.tar.gz -C VBF --strip-components=1 && \
+    cd VBF && \
+    ./configure --prefix=/workdir/VBF && \
+    make && make install && make clean
+ENV VBFSYS /workdir/VBF
+ENV LD_LIBRARY_PATH "${VBFSYS}/lib/:${LD_LIBRARY_PATH}"
+ENV PATH ${VBFSYS}/bin:${PATH}
+ENV VBFSYS /workdir/VBF
+ENV LD_LIBRARY_PATH "${VBFSYS}/lib/:${LD_LIBRARY_PATH}"
+ENV PATH ${VBFSYS}/bin:${PATH}
+
+# mergeVBF in Eventdisplay
+WORKDIR /workdir
+RUN git clone https://github.com/VERITAS-Observatory/EventDisplay_v4 --depth 1
+WORKDIR /workdir/EventDisplay_v4
+RUN make mergeVBF && make clean
+
+FROM rootproject/root:6.24.06-centos7
+WORKDIR /workdir
+COPY --from=build_image /workdir/VBF /workdir/VBF
+COPY --from=build_image /workdir/EventDisplay_v4 /workdir/EventDisplay_v4
+ENV VBFSYS /workdir/VBF
+ENV LD_LIBRARY_PATH "${VBFSYS}/lib/:${LD_LIBRARY_PATH}"
+ENV PATH ${VBFSYS}/bin:${PATH}
+
+SHELL ["/bin/bash", "-c"]
+WORKDIR /workdir/
