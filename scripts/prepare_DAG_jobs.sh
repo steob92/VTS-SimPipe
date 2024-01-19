@@ -1,9 +1,9 @@
 #!/bin/sh
-# DAGMan Workflows to submit all steps simulataneously
+# DAGMan Workflows to prepare all steps simulataneously
 #
 
 if [ $# -lt 1 ]; then
-echo "./submit_DAG_jobs.sh <config file>
+echo "./prepare_DAG_jobs.sh <config file>
 "
 exit
 fi
