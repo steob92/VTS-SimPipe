@@ -36,7 +36,7 @@ generate_mergevbf_submission_script()
         CARE_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} --compat docker://$VTSSIMPIPE_MERGEVBF_IMAGE"
     fi
     COLLECT_VBF="ls /workdir/external/care/*.vbf > /workdir/external/mergevbf/vbf_files.list"
-    MERGEVBF_EXE="${CARE_EXE} bash -c \"cd /opt/Eventdisplay && ${COLLECT_VBF} && ${MERGEVBF}\""
+    MERGEVBF_EXE="${CARE_EXE} bash -c \"cd /workdir/EventDisplay_v4 && ${COLLECT_VBF} && ${MERGEVBF}\""
     echo "$MERGEVBF_EXE > $MERGEVBF_DATA_DIR/$(basename "$OUTPUT_FILE").mergevbf.log 2>&1" >> "$MERGEVBFFSCRIPT.sh"
     chmod u+x "$MERGEVBFFSCRIPT.sh"
 }
