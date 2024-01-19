@@ -1,7 +1,7 @@
 FROM rootproject/root:6.24.06-centos7 AS build_image
 
 RUN yum install -y \
-    git \
+    git && \
     yum clean all
 
 # VBF
