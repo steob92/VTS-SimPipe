@@ -7,21 +7,23 @@ RUN yum install -y \
     which && \
     yum clean all
 
-# CARE
-WORKDIR /workdir
-RUN git clone https://github.com/nepomukotte/CARE --depth 1
-WORKDIR /workdir/CARE
+# VBF
+ADD https://syncandshare.desy.de/index.php/s/gR5EtCo7PbpCpN5/download /workdir/VBF-0.3.4.tar.gz
+
+WORKDIR /workdir/
 RUN mkdir VBF && tar -xzf VBF-0.3.4.tar.gz -C VBF --strip-components=1 && \
     cd VBF && \
     ./configure --prefix=/workdir/VBF && \
-    make && make install
+    make && make install && make clean
 ENV VBFSYS /workdir/VBF
 ENV LD_LIBRARY_PATH "${VBFSYS}/lib/:${LD_LIBRARY_PATH}"
 ENV PATH ${VBFSYS}/bin:${PATH}
 
+# CARE
+WORKDIR /workdir/
+RUN git clone https://github.com/nepomukotte/CARE --depth 1
 WORKDIR /workdir/CARE
-RUN make && make clean && \
-    rm -rf VBF && rm -f *.tar.gz
+RUN make && make clean && rm -f *.tar.gz
 
 FROM rootproject/root:6.24.06-centos7
 WORKDIR /workdir
