@@ -50,30 +50,25 @@ generate_mergevbf_submission_script()
     rm -f "$MERGEVBF_DATA_DIR"/file_list.dat
     rm -f "${MERGEVBF_DATA_DIR}/split_file_list_*"
     find "$CARE_DATA_DIR" -type f -name "*.vbf" -exec basename {} \; | sed 's|^|/workdir/external/care/|' | sort -n > "$MERGEVBF_DATA_DIR"/file_list.dat
-    ls -l "$MERGEVBF_DATA_DIR"/file_list.dat
     split -d -l $batch_size "$MERGEVBF_DATA_DIR"/file_list.dat "$MERGEVBF_DATA_DIR"/split_file_list_
 
     for flist in "$MERGEVBF_DATA_DIR"/split_file_list_*; do
         vbf_id="${flist##*_}"
-        echo $flist $vbf_id
 
-        # gamma_V6_CARE_std_Atmosphere61_zen20deg_1.0wob_160MHz_1.vbf.zst
         MERGEDFILE=$(get_merge_file_name "$WOBBLE" "$NSB" "$vbf_id")
-        echo "$MERGEDFILE"
 
         MERGEVBF="./bin/mergeVBF \
             /workdir/external/mergevbf/$(basename $flist) \
             /workdir/external/mergevbf/$MERGEDFILE ${RUNNUMBER}"
 
-        rm -f "$MERGEVBFFSCRIPT_${vbf_id}.sh"
-        echo "SCRIPT $MERGEVBFFSCRIPT_${vbf_id}.sh"
-        echo "#!/bin/bash" > "$MERGEVBFFSCRIPT_${vbf_id}.sh"
+        rm -f "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
+        echo "#!/bin/bash" > "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
         if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
             CARE_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_MERGEVBF_IMAGE"
         elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
             CARE_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} --compat docker://$VTSSIMPIPE_MERGEVBF_IMAGE"
         fi
-        ZSTD_VBF="zstd /workdir/external/care/$MERGEDFILE"
+        ZSTD_VBF="zstd /workdir/external/mergevbf/$MERGEDFILE"
         MERGEVBF_EXE="${CARE_EXE} bash -c \"cd /workdir/EventDisplay_v4 && ${MERGEVBF} && ${ZSTD_VBF}\""
         echo "$MERGEVBF_EXE > $MERGEVBF_DATA_DIR/$(basename "$OUTPUT_FILE").mergevbf_${vbf_id}.log 2>&1" >> "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
         chmod u+x "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
