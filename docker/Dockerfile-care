@@ -1,15 +1,24 @@
 FROM rootproject/root:6.24.06-centos7 AS build_image
+ARG VBF_VERSION=0.3.4
+ARG CARE_VERSION=1.7.1
 
-RUN yum install -y \
-    makedepend \
-    imake && \
-    yum clean all
+# makedepend
+WORKDIR /workdir/
+ADD https://xorg.freedesktop.org/releases/individual/util/makedepend-1.0.8.tar.gz /workdir/
+RUN mkdir makedepend && tar -xzf makedepend-1.0.8.tar.gz -C makedepend --strip-components=1 && \
+    cd makedepend && ./configure && make && make install
+# imake
+ADD https://xorg.freedesktop.org/releases/individual/util/imake-1.0.10.tar.gz /workdir
+WORKDIR /workdir/
+RUN mkdir imake && tar -xzf imake-1.0.10.tar.gz -C imake --strip-components=1 && \
+    cd makedepend && ./configure && make && make install
+
+ENV PATH /usr/local/bin/:${PATH}
 
 # VBF
-ADD https://syncandshare.desy.de/index.php/s/gR5EtCo7PbpCpN5/download /workdir/VBF-0.3.4.tar.gz
-
+ADD https://syncandshare.desy.de/index.php/s/gR5EtCo7PbpCpN5/download /workdir/VBF-$VBF_VERSION.tar.gz
 WORKDIR /workdir/
-RUN mkdir VBF && tar -xzf VBF-0.3.4.tar.gz -C VBF --strip-components=1 && \
+RUN mkdir VBF && tar -xzf VBF-$VBF_VERSION.tar.gz -C VBF --strip-components=1 && \
     cd VBF && \
     ./configure --prefix=/workdir/VBF && \
     make && make install && make clean
@@ -19,9 +28,12 @@ ENV PATH ${VBFSYS}/bin:${PATH}
 
 # CARE
 WORKDIR /workdir/
-RUN git clone https://github.com/nepomukotte/CARE --depth 1
-WORKDIR /workdir/CARE
-RUN make && make clean && rm -f *.tar.gz
+# RUN git clone https://github.com/nepomukotte/CARE --depth 1
+# WORKDIR /workdir/CARE
+ADD https://github.com/nepomukotte/CARE/archive/refs/tags/v$CARE_VERSION.tar.gz /workdir/
+RUN mkdir CARE && tar -xzf v$CARE_VERSION.tar.gz -C CARE --strip-components=1 && \
+    cd CARE && \
+    make && make clean && rm -f *.tar.gz
 
 FROM rootproject/root:6.24.06-centos7
 WORKDIR /workdir

@@ -1,7 +1,7 @@
 FROM almalinux:9.3 AS build_image
 WORKDIR /workdir
 ENV DEBIAN_FRONTEND=noninteractive
-ENV CORSIKA=corsika-77500
+ARG CORSIKA=corsika-77500
 
 RUN yum update -y && yum install -y \
     csh \
@@ -23,7 +23,7 @@ WORKDIR /workdir/
 FROM almalinux:9.3-minimal
 WORKDIR /workdir
 ENV DEBIAN_FRONTEND=noninteractive
-ENV CORSIKA=corsika-77500
+ARG CORSIKA=corsika-77500
 COPY --from=build_image /workdir/$CORSIKA/run /workdir/corsika-run
 
 RUN microdnf update -y && microdnf install -y \

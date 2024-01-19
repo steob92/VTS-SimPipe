@@ -35,6 +35,9 @@ The simulation pipeline requires the following software to be installed:
 
 ## Installation
 
+The simulation pipeline is configured to run in Docker/Apptainer containers.
+Images can be downloaded from the package registry of this repository.
+
 ### CORSIKA containers
 
 Requires the tar package with the CORSIKA tar software to be available in the main directory of `VTSSimPipe`.
@@ -60,9 +63,34 @@ selection: BERNLOHRDIR SLANT CERENKOV IACT IACTDIR ATMEXT
 
 The file [docker/corsika-config.h](docker/corsika-config.h) contains the configuration file for CORSIKA and is used for the compilation.
 
-### GrOptics containers
+### GrOptics and corsikaIOreader containers
 
 GrOptics requires C++11 for compilation, therefore the `root:6.24.06-centos7` is used as base image.
+
+```bash
+docker build -f ./docker/Dockerfile-groptics -t vts-simpipe-groptics .
+docker run --rm -it -v "$(pwd):/workdir/external" vts-simpipe-groptics bash
+```
+
+### CARE containers
+
+The same base image for CARE is used as for GrOptics, including VBF and ROOT.
+
+```bash
+docker build -f ./docker/Dockerfile-care -t vts-simpipe-care .
+docker run --rm -it -v "$(pwd):/workdir/external" vts-simpipe-care bash
+```
+
+### mergeVBF containers
+
+The tiny tool mergeVBF is actual part of the Eventdisplay software.
+The same base image for mergeVBF is used as for CARE, including VBF and ROOT.
+This container also includes an installation of [zstd](https://github.com/facebook/zstd), which is used to compress the VBF files.
+
+```bash
+docker build -f ./docker/Dockerfile-mergevbf -t vts-simpipe-mergevbf .
+docker run --rm -it -v "$(pwd):/workdir/external" vts-simpipe-mergevbf bash
+```
 
 ## Environmental Variables
 
