@@ -1,10 +1,10 @@
-name: docker-mergevbf
+name: build-images
 
 on:
   workflow_dispatch:
   pull_request:
     paths:
-      - './docker/Dockerfile-mergevbf'
+      - './docker/'
   push:
     branches:
       - main
@@ -19,11 +19,14 @@ env:
 
 jobs:
 
-  mergevbf-container:
+  build-container:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        type: ['corsika', 'groptics', 'care', 'mergevbf']
 
     steps:
       - name: Checkout repository
@@ -51,16 +54,16 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}.{{patch}}
             type=schedule,pattern={{date 'YYYYMMDD'}}
             type=raw,value={{date 'YYYYMMDD-HHmmss'}}
-          images: ${{ env.REGISTRY }}/GernotMaier/vtsimpipe-mergevbf
+          images: ${{ env.REGISTRY }}/GernotMaier/vtsimpipe-${{ matrix.type }}
           flavor: latest=true
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/amd64,linux/arm64/v8
+          platforms: linux/amd64
           push:
             ${{ github.event_name == 'release' || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' }}
-          file: ./docker/Dockerfile-mergevbf
+          file: ./docker/Dockerfile-${{ matrix.type }}
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}-vtssimpipe-mergevbf
+          labels: ${{ steps.meta.outputs.labels }}-vtssimpipe-${{ matrix.type }}
