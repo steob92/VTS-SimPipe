@@ -1,9 +1,9 @@
 FROM rootproject/root:6.24.06-centos7 AS build_image
 
-RUN yum install -y imake
 RUN yum install -y \
     git \
     makedepend \
+    imake \
     which && \
     yum clean all
 
