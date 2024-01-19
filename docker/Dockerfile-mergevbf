@@ -1,7 +1,10 @@
 FROM rootproject/root:6.24.06-centos7 AS build_image
 
 RUN yum install -y \
-    git && \
+    git \
+    makedepend \
+    imake \
+    which && \
     yum clean all
 
 # VBF
@@ -12,9 +15,6 @@ RUN mkdir VBF && tar -xzf VBF-0.3.4.tar.gz -C VBF --strip-components=1 && \
     cd VBF && \
     ./configure --prefix=/workdir/VBF && \
     make && make install && make clean
-ENV VBFSYS /workdir/VBF
-ENV LD_LIBRARY_PATH "${VBFSYS}/lib/:${LD_LIBRARY_PATH}"
-ENV PATH ${VBFSYS}/bin:${PATH}
 ENV VBFSYS /workdir/VBF
 ENV LD_LIBRARY_PATH "${VBFSYS}/lib/:${LD_LIBRARY_PATH}"
 ENV PATH ${VBFSYS}/bin:${PATH}
