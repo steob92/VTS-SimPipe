@@ -2,13 +2,6 @@
 # Helper functions for mergevbf; called from prepare_production.sh
 
 #####################################################################
-# preparation of mergevbf containers
-prepare_mergevbf_containers()
-{
-    # no preparation needed
-}
-
-#####################################################################
 # generate mergevbf input files and submission scripts
 #
 # /workdir/external/log:     directory for run scripts and pilot files
@@ -22,6 +15,7 @@ generate_mergevbf_submission_script()
     rm -f "$OUTPUT_FILE.mergevbf.log"
     WOBBLE="$3"
     NSB="$4"
+    RUNNUMBER="$5"
 
     # mount directories
     CARE_DATA_DIR="${DATA_DIR}/CARE/W${WOBBLE}/NSB${NSB}"
@@ -33,8 +27,7 @@ generate_mergevbf_submission_script()
 
     MERGEVBF="./bin/mergeVBF \
      /workdir/external/mergevbf/vbf_files.list \
-     /workdir/external/mergevbf/${basename "$OUTPUT_FILE".vbf} \
-     $run_number"
+     /workdir/external/mergevbf/$(basename "$OUTPUT_FILE").vbf ${RUNNUMBER}"
 
     echo "#!/bin/bash" > "$MERGEVBFFSCRIPT.sh"
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
@@ -45,5 +38,5 @@ generate_mergevbf_submission_script()
     COLLECT_VBF="ls /workdir/external/care/*.vbf > /workdir/external/mergevbf/vbf_files.list"
     MERGEVBF_EXE="${CARE_EXE} bash -c \"cd /opt/Eventdisplay && ${COLLECT_VBF} && ${MERGEVBF}\""
     echo "$MERGEVBF_EXE > $MERGEVBF_DATA_DIR/$(basename "$OUTPUT_FILE").mergevbf.log 2>&1" >> "$MERGEVBFFSCRIPT.sh"
-    chmod u+x "$CAREFSCRIPT.sh"
+    chmod u+x "$MERGEVBFFSCRIPT.sh"
 }

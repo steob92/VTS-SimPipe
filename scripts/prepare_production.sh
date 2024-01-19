@@ -148,13 +148,11 @@ do
         for WOBBLE in ${WOBBLE_LIST}; do
             for NSB in ${NSB_LIST}; do
                 generate_mergevbf_submission_script "${FSCRIPT}_${WOBBLE}_${NSB}" "$OUTPUT_FILE" \
-                    "${WOBBLE}" "${NSB}"
+                    "${WOBBLE}" "${NSB}" "$run_number"
                 generate_htcondor_file "${FSCRIPT}_${WOBBLE}_${NSB}.sh"
             done
         done
     fi
-done
-
 done
 
 echo "End of job preparation for $SIM_TYPE ($LOG_DIR)."
