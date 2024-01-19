@@ -149,7 +149,9 @@ do
             for NSB in ${NSB_LIST}; do
                 generate_mergevbf_submission_script "${FSCRIPT}_${WOBBLE}_${NSB}" "$OUTPUT_FILE" \
                     "${WOBBLE}" "${NSB}" "$run_number"
-                generate_htcondor_file "${FSCRIPT}_${WOBBLE}_${NSB}.sh"
+                for sub_script in ${FSCRIPT}_${WOBBLE}_${NSB}*.sh; do
+                    generate_htcondor_file "$sub_script"
+                done
             done
         done
     fi
