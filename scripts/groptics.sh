@@ -63,8 +63,9 @@ generate_groptics_pilot_file()
 {
     LOG_DIR="$1"
     RUN_NUMBER="$2"
+    WOBBLE="$3"
 
-    PILOT="${LOG_DIR}/pilot_${RUN_NUMBER}.dat"
+    PILOT="${LOG_DIR}/pilot_${RUN_NUMBER}_W${WOBBLE}.dat"
     rm -f "$PILOT"
     touch "$PILOT"
 
@@ -95,13 +96,12 @@ generate_groptics_pilot_file()
 prepare_groptics_containers()
 {
     DATA_DIR="$1"
-    LOG_DIR="$2"
-    ATMOSPHERE="$3"
-    PULL="$4"
-    VTSSIMPIPE_CONTAINER="$5"
-    VTSSIMPIPE_GROPTICS_IMAGE="$6"
+    ATMOSPHERE="$2"
+    WOBBLE="$3"
 
-    TMP_CONFIG_DIR="${DATA_DIR}/GROPTICS/model_files/"
+    mkdir -p "$DATA_DIR"
+    GROPTICS_DATA_DIR="${DATA_DIR}/GROPTICS/W${WOBBLE}"
+    TMP_CONFIG_DIR="${GROPTICS_DATA_DIR}/model_files/"
     mkdir -p "$TMP_CONFIG_DIR"
 
     # copy file for atmospheric extinction (corsikaIOreader required "M5" in file name)
@@ -112,49 +112,42 @@ prepare_groptics_containers()
     cp -f "$(dirname "$0")"/../config/TELESCOPE_MODEL/"$TELESCOPE_MODEL" "${TMP_CONFIG_DIR}/"
     # copy file for GrOptics configuration
     cp -f "$(dirname "$0")"/../config/TELESCOPE_MODEL/"$GROPTICS_CONFIG" "${TMP_CONFIG_DIR}/"
-
-    # mount directories
-    CORSIKA_DATA_DIR="${DATA_DIR}/CORSIKA"
-    CONTAINER_EXTERNAL_DIR="-v \"${CORSIKA_DATA_DIR}:/workdir/external/corsika\""
-    CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"${DATA_DIR}/GROPTICS:/workdir/external/groptics\""
-    # corsikaIOreader expects the atmprof file in the /workdir/external/groptics/data directory
-    CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"${TMP_CONFIG_DIR}:/workdir/GrOptics/data\""
-    CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"$LOG_DIR:/workdir/external/log/\""
-
-    if [[ $PULL == "TRUE" ]]; then
-        if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
-            docker pull "$VTSSIMPIPE_GROPTICS_IMAGE"
-        elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-            apptainer pull --disable-cache --force docker://"$VTSSIMPIPE_GROPTICS_IMAGE"
-        fi
-    fi
 }
 
 #####################################################################
 # generate GrOptics input files and submission scripts
 generate_groptics_submission_script()
 {
-    FSCRIPT="$1"
-    LOG_DIR=$(dirname "$FSCRIPT")
+    GROPTICSFSCRIPT="$1"
+    LOG_DIR=$(dirname "$GROPTICSFSCRIPT")
     OUTPUT_FILE="$2"
     RUN_NUMBER="$3"
-    CONTAINER_EXTERNAL_DIR="$4"
+    WOBBLE="$4"
     rm -f "$OUTPUT_FILE.groptics.log"
 
+    GROPTICS_DATA_DIR="${DATA_DIR}/GROPTICS/W${WOBBLE}"
+    TMP_CONFIG_DIR="${GROPTICS_DATA_DIR}/model_files/"
+    # mount directories
+    CORSIKA_DATA_DIR="${DATA_DIR}/CORSIKA"
+    CONTAINER_EXTERNAL_DIR="-v \"${CORSIKA_DATA_DIR}:/workdir/external/corsika\""
+    CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"$GROPTICS_DATA_DIR:/workdir/external/groptics\""
     CORSIKA_FILE="${CORSIKA_DATA_DIR}/$(basename "$OUTPUT_FILE").telescope"
     CORSIKA_FILE="/workdir/external/corsika/$(basename "$CORSIKA_FILE")"
+    # corsikaIOreader expects the atmprof file in the /workdir/external/groptics/data directory
+    CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"${TMP_CONFIG_DIR}:/workdir/GrOptics/data\""
+    CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"$LOG_DIR:/workdir/external/log/\""
 
     CORSIKA_IO_READER=$(prepare_corsikaIOreader)
     GROPTICS="./grOptics -of /workdir/external/groptics/$(basename "$OUTPUT_FILE").groptics.root \
-     -p $(generate_groptics_pilot_file "$LOG_DIR" "$RUN_NUMBER")"
+     -p $(generate_groptics_pilot_file "$LOG_DIR" "$RUN_NUMBER" "$WOBBLE")"
 
-    echo "#!/bin/bash" > "$FSCRIPT.sh"
+    echo "#!/bin/bash" > "$GROPTICSFSCRIPT.sh"
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
         GROPTICS_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_GROPTICS_IMAGE"
     elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
         GROPTICS_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} --compat docker://$VTSSIMPIPE_GROPTICS_IMAGE"
     fi
     GROPTICS_EXE="${GROPTICS_EXE} bash -c \"cd /workdir/GrOptics && ${CORSIKA_IO_READER} | ${GROPTICS}\""
-    echo "$GROPTICS_EXE > $OUTPUT_FILE.groptics.log 2>&1" >> "$FSCRIPT.sh"
-    chmod u+x "$FSCRIPT.sh"
+    echo "$GROPTICS_EXE > $GROPTICS_DATA_DIR/$(basename "$OUTPUT_FILE").groptics.log 2>&1" >> "$GROPTICSFSCRIPT.sh"
+    chmod u+x "$GROPTICSFSCRIPT.sh"
 }
