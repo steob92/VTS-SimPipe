@@ -35,6 +35,12 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
+      - name: download CORSIKA package
+        if: matrix.type == 'corsika'
+        run: |
+          wget --no-verbose https://syncandshare.desy.de/index.php/s/${{ secrets.CLOUD_CORSIKA }}/download
+          mv download corsika-77500.tar.gz
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
