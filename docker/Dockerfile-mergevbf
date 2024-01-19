@@ -1,11 +1,6 @@
 FROM rootproject/root:6.24.06-centos7 AS build_image
-
-RUN yum install -y \
-    git \
-    makedepend \
-    imake \
-    which && \
-    yum clean all
+ARG VBF_VERSION=0.3.4
+ARG EVENTDISPLAY_VERSION=490.5
 
 # VBF
 ADD https://syncandshare.desy.de/index.php/s/gR5EtCo7PbpCpN5/download /workdir/VBF-0.3.4.tar.gz
@@ -19,16 +14,23 @@ ENV VBFSYS /workdir/VBF
 ENV LD_LIBRARY_PATH "${VBFSYS}/lib/:${LD_LIBRARY_PATH}"
 ENV PATH ${VBFSYS}/bin:${PATH}
 
-# mergeVBF in Eventdisplay
+# zstd
 WORKDIR /workdir
-RUN git clone https://github.com/VERITAS-Observatory/EventDisplay_v4 --depth 1
-WORKDIR /workdir/EventDisplay_v4
-RUN make mergeVBF && make clean
+ADD https://github.com/facebook/zstd/releases/download/v1.5.5/zstd-1.5.5.tar.gz /workdir/zstd-1.5.5.tar.gz
+WORKDIR /workdir/
+RUN mkdir zstd && tar -xzf zstd-1.5.5.tar.gz -C zstd --strip-components=1 && \
+    cd zstd && make && make install && make clean
+
+# mergeVBF in Eventdisplay
+ADD https://github.com/VERITAS-Observatory/EventDisplay_v4/archive/refs/tags/v490.5.tar.gz /workdir/
+RUN mkdir EventDisplay_v4 && tar -xzf v490.5.tar.gz -C EventDisplay_v4 --strip-components=1 && \
+    cd EventDisplay_v4 && make mergeVBF && make clean
 
 FROM rootproject/root:6.24.06-centos7
 WORKDIR /workdir
 COPY --from=build_image /workdir/VBF /workdir/VBF
 COPY --from=build_image /workdir/EventDisplay_v4 /workdir/EventDisplay_v4
+COPY --from=build_image /usr/local/bin /usr/local/bin
 ENV VBFSYS /workdir/VBF
 ENV LD_LIBRARY_PATH "${VBFSYS}/lib/:${LD_LIBRARY_PATH}"
 ENV PATH ${VBFSYS}/bin:${PATH}

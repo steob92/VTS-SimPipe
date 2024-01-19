@@ -53,8 +53,6 @@ for ID in $(seq 0 "$N_RUNS"); do
         echo "$PARENT_GROPTICS" >> "$DAG_FILE"
     done
     echo "$PARENT_CORSIKA" >> "$DAG_FILE"
-
-
 done
 
 echo "DAG directory: $DAG_DIR"

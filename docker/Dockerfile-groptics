@@ -1,23 +1,29 @@
 FROM rootproject/root:6.24.06-centos7 AS build_image
+ARG CORSIKAIOREADER_VERSION=2.0.0
+ARG GROPTICS_VERSION=4.2.2-GM
 
-RUN yum install -y \
-    git \
-    makedepend \
-    imake \
-    which && \
-    yum clean all
+# makedepend
+WORKDIR /workdir/
+ADD https://xorg.freedesktop.org/releases/individual/util/makedepend-1.0.8.tar.gz /workdir/
+RUN mkdir makedepend && tar -xzf makedepend-1.0.8.tar.gz -C makedepend --strip-components=1 && \
+    cd makedepend && ./configure && make && make install
+# imake
+ADD https://xorg.freedesktop.org/releases/individual/util/imake-1.0.10.tar.gz /workdir
+WORKDIR /workdir/
+RUN mkdir imake && tar -xzf imake-1.0.10.tar.gz -C imake --strip-components=1 && \
+    cd makedepend && ./configure && make && make install
 
 # corsikaIOreader
+ADD https://github.com/GernotMaier/corsikaIOreader/archive/refs/tags/v$CORSIKAIOREADER_VERSION.tar.gz /workdir/
 WORKDIR /workdir
-RUN git clone https://github.com/GernotMaier/corsikaIOreader.git --depth 1
-WORKDIR /workdir/corsikaIOreader
-RUN make && make clean
+RUN mkdir corsikaIOreader && tar -xzf v$CORSIKAIOREADER_VERSION.tar.gz -C corsikaIOreader --strip-components=1 && \
+    cd corsikaIOreader && make && make clean
 
 # GrOptics
+ADD https://github.com/GernotMaier/GrOptics/archive/refs/tags/v$GROPTICS_VERSION.tar.gz /workdir/
 WORKDIR /workdir
-RUN git clone https://github.com/GernotMaier/GrOptics --depth 1
-WORKDIR /workdir/GrOptics
-RUN make
+RUN mkdir GrOptics && tar -xzf v$GROPTICS_VERSION.tar.gz -C GrOptics --strip-components=1 && \
+    cd GrOptics && make
 
 FROM rootproject/root:6.24.06-centos7
 WORKDIR /workdir
