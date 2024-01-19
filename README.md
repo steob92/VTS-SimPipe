@@ -113,3 +113,34 @@ The simulation scripts are configured to use Apptainers with the correct paramet
 Note:
 
 - recommend to set `$APPTAINER_CACHEDIR` to a reasonable directory with sufficient disk space, as cluster jobs will use this directory to store the container images.
+
+## Submitting jobs
+
+The job submission scripts are written for HT Condor systems (as configured at DESY).
+The `prepare_production.sh` product scripts generates the condor files and submission scripts in the `VTSSIMPIPE_LOG_DIR` directory.
+
+To submit jobs, use the `submit_jobs_to_htcondor.sh` script:
+
+```bash
+./submit_jobs_to_htcondor.sh <directory with condor files / submission scripts> submit
+````
+
+This will submit all jobs in the directory to the HT Condor system.
+
+For efficiency reason, it is recommended to submit jobs using the DAG submission system (see [HTCondor DAGMan](https://htcondor.readthedocs.io/en/latest/automated-workflows/index.html)). This allows to run CORSIKA, followed by GrOptics, CARE, and the merging of the VBF files in a single job submission.
+
+To generate DAG files for the job submission:
+
+```bash
+./prepare_DAG_jobs.sh <config file>
+```
+
+This will generate the DAG files in the `VTSSIMPIPE_LOG_DIR/DAG` directory.
+
+To submit DAG jobs:
+
+```bash
+./submit_DAG_jobs.sh <directory with DAG files> submit
+```
+
+Note that on DESY DAG jobs need to be submitted from a special node.

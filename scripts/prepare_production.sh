@@ -9,7 +9,7 @@ echo
 if [ $# -lt 2 ]; then
 echo "./prepare_production.sh <simulation step> <config file> [input file template]
 
-Allowed simulation steps: CORSIKA, GROPTICS, CARE
+Allowed simulation steps: CORSIKA, GROPTICS, CARE, MERGEVBF, CLEANUP
 
 CORSIKA:
 - template configuration file, see ./config/config_ATM61_template.dat
@@ -140,7 +140,17 @@ do
                 generate_htcondor_file "${FSCRIPT}_${WOBBLE}_${NSB}.sh"
             done
         done
+    elif [[ $SIM_TYPE == "MERGEVBF" ]]; then
+        for WOBBLE in ${WOBBLE_LIST}; do
+            for NSB in ${NSB_LIST}; do
+                generate_mergevbf_submission_script "${FSCRIPT}_${WOBBLE}_${NSB}" "$OUTPUT_FILE" \
+                    "${WOBBLE}" "${NSB}"
+                generate_htcondor_file "${FSCRIPT}_${WOBBLE}_${NSB}.sh"
+            done
+        done
     fi
+done
+
 done
 
 echo "End of job preparation for $SIM_TYPE ($LOG_DIR)."

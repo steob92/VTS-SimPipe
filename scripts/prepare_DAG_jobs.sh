@@ -1,5 +1,5 @@
 #!/bin/sh
-# DAGMan Workflows to prepare all steps simulataneously
+# DAGMan Workflows to prepare all steps simultaneously
 #
 
 if [ $# -lt 1 ]; then
