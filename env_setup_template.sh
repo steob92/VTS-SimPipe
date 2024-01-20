@@ -9,10 +9,10 @@ export VTSSIMPIPE_DATA_DIR=vtssimpipe_corsika_dir
 # export VTSSIMPIPE_CONTAINER="apptainer"
 export VTSSIMPIPE_CONTAINER="docker"
 # CORSIKA
-export VTSSIMPIPE_CORSIKA_IMAGE="ghcr.io/gernotmaier/vtsimpipe-corsika:latest"
+export VTSSIMPIPE_CORSIKA_IMAGE="ghcr.io/gernotmaier/vtsimpipe-corsika:0.1.1"
 # GROPTICS
-export VTSSIMPIPE_GROPTICS_IMAGE="ghcr.io/gernotmaier/vtsimpipe-groptics"
+export VTSSIMPIPE_GROPTICS_IMAGE="ghcr.io/gernotmaier/vtsimpipe-groptics:0.1.1"
 # CARE
-export VTSSIMPIPE_CARE_IMAGE="ghcr.io/gernotmaier/vtsimpipe-care"
+export VTSSIMPIPE_CARE_IMAGE="ghcr.io/gernotmaier/vtsimpipe-care:0.1.1"
 # MERGEVBF
-export VTSSIMPIPE_MERGEVBF_IMAGE="ghcr.io/gernotmaier/vtsimpipe-mergevbf"
+export VTSSIMPIPE_MERGEVBF_IMAGE="ghcr.io/gernotmaier/vtsimpipe-mergevbf:0.1.1"
