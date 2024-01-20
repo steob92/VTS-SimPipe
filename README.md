@@ -21,6 +21,38 @@ Further documentation on VERITAS simulations:
 - [VERITAS Simulations (private wiki page)](https://veritas.sao.arizona.edu/wiki/index.php/Simulation)
 - [VERITAS CARE (private wiki page)](https://veritas.sao.arizona.edu/wiki/index.php/CARE)
 
+## Quick startup
+
+The following is all what you need to know to install and run the simulation pipeline.
+
+```bash
+# clone repository
+git clone https://github.com/GernotMaier/VTS-SimPipe.git
+cd VTS-SimPipe
+# prepare log files and directories
+cp env_setup_template.sh env_setup.sh
+# edit env_setup.sh to your needs
+# pull all container images from the registry
+cd scripts && ./pull.sh
+# prepare your configuration (e.g. zenith angle, number of events, etc.)
+# see example in config/config_ATM61_template.dat
+# prepare production
+cd scripts
+./prepare_all_production_steps.sh \
+   ../config/config_ATM61_template.dat
+   ../config/CORSIKA/input_template.dat
+# on DESY: log into the DAG submission node
+./prepare_DAG_jobs.sh ../config/config_ATM61_template.dat
+./submit_DAG_jobs.sh <directory with DAG files> submit
+# otherwise: submit jobs to HT Condor - for each step (CORSIKA, GROPTICS, CARE)
+./submit_jobs_to_htcondor.sh <directory with condor files / submission scripts> submit
+# now wait....for jobs to finish
+# merge vbf files
+./prepare_production.sh ../config/config_ATM61_template.dat
+./submit_jobs_to_htcondor.sh <directory with condor files for mergeVBF> submit
+# that's it
+```
+
 ## Required Software
 
 The simulation pipeline requires the following software to be installed:
