@@ -53,11 +53,11 @@ cd scripts
 # that's it
 ```
 
-## Required Software
+## Software packages
 
-The simulation pipeline requires the following software to be installed:
+Following software packages are used by the simulation pipeline and installed in the docker images:
 
-- [CORSIKA](https://web.ikp.kit.edu/corsika/) (tested with version 7.7500) for air shower and Cherenkov photon generation
+- [CORSIKA](https://web.ikp.kit.edu/corsika/) for air shower and Cherenkov photon generation
 - [corsikaIOreader](https://github.com/GernotMaier/corsikaIOreader/) for file format conversion and Cherenkov photon absorption and scattering.
 - [GrOptics](https://github.com/groptics/GrOptics/tree/master) for the optical ray tracing (uses [ROBAST](https://github.com/ROBAST/ROBAST)).
 - [CARE](https://github.com/nepomukotte/CARE) for the camera simulation.
