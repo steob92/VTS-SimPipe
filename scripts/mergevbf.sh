@@ -36,7 +36,6 @@ generate_mergevbf_submission_script()
     rm -f "$OUTPUT_FILE.mergevbf.log"
     WOBBLE="$3"
     NSB="$4"
-    RUNNUMBER="$5"
 
     # mount directories
     CARE_DATA_DIR="${DATA_DIR}/CARE/W${WOBBLE}/NSB${NSB}"
@@ -56,6 +55,7 @@ generate_mergevbf_submission_script()
         vbf_id="${flist##*_}"
 
         MERGEDFILE=$(get_merge_file_name "$WOBBLE" "$NSB" "$vbf_id")
+        RUNNUMBER=$(head -n 1 $flist | awk -F '[^0-9]+' '{print $2}')
 
         MERGEVBF="./bin/mergeVBF \
             /workdir/external/mergevbf/$(basename $flist) \
@@ -63,6 +63,7 @@ generate_mergevbf_submission_script()
 
         rm -f "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
         echo "#!/bin/bash" > "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
+        echo "set -e" >> "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
         if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
             CARE_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_MERGEVBF_IMAGE"
         elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
@@ -70,7 +71,12 @@ generate_mergevbf_submission_script()
         fi
         ZSTD_VBF="zstd /workdir/external/mergevbf/$MERGEDFILE"
         MERGEVBF_EXE="${CARE_EXE} bash -c \"cd /workdir/EventDisplay_v4 && ${MERGEVBF} && ${ZSTD_VBF}\""
-        echo "$MERGEVBF_EXE > $MERGEVBF_DATA_DIR/$(basename "$OUTPUT_FILE").mergevbf_${vbf_id}.log 2>&1" >> "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
+        echo "$MERGEVBF_EXE > ${MERGEVBF_DATA_DIR}/${MERGEDFILE}.log 2>&1" >> "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
+        (
+            echo "if [[ -e \"${MERGEVBF_DATA_DIR}/${MERGEDFILE}.zst\" ]]; then"
+            echo "    rm -f \"${MERGEVBF_DATA_DIR}/${MERGEDFILE}\""
+            echo "fi"
+        ) >> "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
         chmod u+x "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
     done
 }
