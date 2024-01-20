@@ -3,9 +3,8 @@
 #
 
 if [ $# -lt 1 ]; then
-echo "./prepare_DAG_jobs.sh <config file>
-"
-exit
+    echo "./prepare_DAG_jobs.sh <config file>"
+    exit
 fi
 
 CONFIG="$1"
@@ -18,6 +17,20 @@ CONFIG="$1"
 . "$(dirname "$0")"/../env_setup.sh
 
 DIRSUFF="ATM${ATMOSPHERE}/Zd${ZENITH}"
+
+# return string with CARE configs
+# in most cases, this is "std", "redHV", or "std redHV"
+get_care_configs()
+{
+    c_config=""
+    if [ ! -z "${CARE_CONFIG_std}" ]; then
+        c_config="$c_config std "
+    fi
+    if [ ! -z "${CARE_CONFIG_redHV}" ]; then
+        c_config="$c_config redHV "
+    fi
+    echo "$c_config"
+}
 
 # DAG directory
 DAG_DIR="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/DAG
@@ -45,16 +58,17 @@ for ID in $(seq 0 "$N_RUNS"); do
         echo "JOB GROPTICS_${run_number}_${WOBBLE} $job_groptics" >> "$DAG_FILE"
         PARENT_CORSIKA="$PARENT_CORSIKA GROPTICS_${run_number}_${WOBBLE}"
         PARENT_GROPTICS="PARENT GROPTICS_${run_number}_${WOBBLE} CHILD"
-        for NSB in ${NSB_LIST}; do
-            job_care="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CARE/run_CARE_${run_number}_${WOBBLE}_${NSB}.sh.condor
-            echo "JOB CARE_${run_number}_${WOBBLE}_${NSB} $job_care" >> "$DAG_FILE"
-            PARENT_GROPTICS="$PARENT_GROPTICS CARE_${run_number}_${WOBBLE}_${NSB}"
+        for config in $(get_care_configs); do
+            care_nsb_list="NSB_LIST_$config"
+            for NSB in ${!care_nsb_list}; do
+                job_care="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CARE/run_CARE_${run_number}_${config}_${WOBBLE}_${NSB}.sh.condor
+                echo "JOB CARE_${run_number}_${config}_${WOBBLE}_${NSB} $job_care" >> "$DAG_FILE"
+                PARENT_GROPTICS="$PARENT_GROPTICS CARE_${run_number}_${config}_${WOBBLE}_${NSB}"
+            done
         done
         echo "$PARENT_GROPTICS" >> "$DAG_FILE"
     done
     echo "$PARENT_CORSIKA" >> "$DAG_FILE"
-
-
 done
 
 echo "DAG directory: $DAG_DIR"
