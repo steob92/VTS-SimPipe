@@ -14,5 +14,5 @@ export VTSSIMPIPE_CORSIKA_IMAGE="ghcr.io/gernotmaier/vtsimpipe-corsika:latest"
 export VTSSIMPIPE_GROPTICS_IMAGE="ghcr.io/gernotmaier/vtsimpipe-groptics"
 # CARE
 export VTSSIMPIPE_CARE_IMAGE="ghcr.io/gernotmaier/vtsimpipe-care"
-# MERGEVBF (Eventdisplay)
-export VTSSIMPIPE_MERGEVBF_IMAGE="ghcr.io/veritas-observatory/eventdisplay_v4:latest"
+# MERGEVBF
+export VTSSIMPIPE_MERGEVBF_IMAGE="ghcr.io/gernotmaier/vtsimpipe-mergevbf"
