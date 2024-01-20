@@ -8,8 +8,9 @@ prepare_care_containers()
     DATA_DIR="$1"
     WOBBLE="$2"
     NSB="$3"
+    OBS_MODE="$4"
 
-    CARE_DATA_DIR="${DATA_DIR}/CARE/W${WOBBLE}/NSB${NSB}"
+    CARE_DATA_DIR="${DATA_DIR}/CARE_${OBS_MODE}/W${WOBBLE}/NSB${NSB}"
     TMP_CONFIG_DIR="${CARE_DATA_DIR}/model_files/"
     mkdir -p "$TMP_CONFIG_DIR"
 
@@ -36,10 +37,12 @@ generate_care_submission_script()
     rm -f "$OUTPUT_FILE.care.log"
     WOBBLE="$3"
     NSB="$4"
+    CARE_CONFIG="$5"
+    OBS_MODE="$6"
 
     # mount directories
     GROPTICS_DATA_DIR="${DATA_DIR}/GROPTICS/W${WOBBLE}"
-    CARE_DATA_DIR="${DATA_DIR}/CARE/W${WOBBLE}/NSB${NSB}"
+    CARE_DATA_DIR="${DATA_DIR}/CARE_${OBS_MODE}/W${WOBBLE}/NSB${NSB}"
     TMP_CONFIG_DIR="${CARE_DATA_DIR}/model_files/"
     CONTAINER_EXTERNAL_DIR="-v \"${GROPTICS_DATA_DIR}:/workdir/external/groptics\""
     CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"${CARE_DATA_DIR}:/workdir/external/care\""
