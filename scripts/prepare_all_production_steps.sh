@@ -17,13 +17,13 @@ CLEAN_ALL_FILES="$3"
 DIRSUFF="ATM${ATMOSPHERE}/Zd${ZENITH}"
 
 for step in CORSIKA GROPTICS CARE; do
-    if [ ! -z $CLEAN_ALL_FILES ] && [ $CLEAN_ALL_FILES == "clean_all_files" ]; then
+    if [ -n "$CLEAN_ALL_FILES" ] && [ "$CLEAN_ALL_FILES" == "clean_all_files" ]; then
         echo "cleaning $step"
-        rm -rf "$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/"$step"
-        rm -rf "$VTSSIMPIPE_DATA_DIR"/"$DIRSUFF"/"$step"
-        rm -rf "$VTSSIMPIPE_DATA_DIR"/"$DIRSUFF"/"${step}_std"
-        rm -rf "$VTSSIMPIPE_DATA_DIR"/"$DIRSUFF"/"${step}_redHV"
+        rm -rf "${VTSSIMPIPE_LOG_DIR:?}"/"$DIRSUFF"/"$step"
+        rm -rf "${VTSSIMPIPE_DATA_DIR:?}"/"$DIRSUFF"/"$step"
+        rm -rf "${VTSSIMPIPE_DATA_DIR:?}"/"$DIRSUFF"/"${step}_std"
+        rm -rf "${VTSSIMPIPE_DATA_DIR:?}"/"$DIRSUFF"/"${step}_redHV"
     fi
     echo "prepare $step"
-    ./prepare_production.sh $step ${CONFIG} ${INPUT}
+    ./prepare_production.sh $step "${CONFIG}" "${INPUT}"
 done
