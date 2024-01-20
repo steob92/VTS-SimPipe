@@ -52,7 +52,7 @@ generate_mergevbf_submission_script()
     find "$CARE_DATA_DIR" -type f -name "*.vbf" -exec basename {} \; | sed 's|^|/workdir/external/care/|' | sort -n > "$MERGEVBF_DATA_DIR"/file_list.dat
     split -d -l $batch_size "$MERGEVBF_DATA_DIR"/file_list.dat "$MERGEVBF_DATA_DIR"/split_file_list_
 
-    if [ -s"${MERGEVBF_DATA_DIR}/file_list.dat" ]; then
+    if [ ! -s "${MERGEVBF_DATA_DIR}"/file_list.dat ]; then
         return
     fi
 
