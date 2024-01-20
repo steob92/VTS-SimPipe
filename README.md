@@ -4,7 +4,13 @@
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![build-images](https://github.com/GernotMaier/VTS-SimPipe/actions/workflows/build-images.yml/badge.svg)](https://github.com/GernotMaier/VTS-SimPipe/actions/workflows/build-images.yml)
 
-This repository contains the simulation pipeline for [VERITAS](https://veritas.sao.arizona.edu/). This includes build scripts for the required simulation software and processing scripts.
+This repository stores a copy of the simulation model for the atmospheric conditions, telescope structure, and camera and readout of VERITAS. 
+A detailed documentation on the derivation of these parameters can be found on the VERITAS internal pages.
+ 
+VERITAS simulation pages:
+
+- [VERITAS Simulations (private wiki page)](https://veritas.sao.arizona.edu/wiki/index.php/Simulation)
+- [VERITAS CARE (private wiki page)](https://veritas.sao.arizona.edu/wiki/index.php/CARE)
 
 This work is built on a large effort from many people, especially:
 
@@ -14,20 +20,10 @@ This work is built on a large effort from many people, especially:
 - Raul Prado for an initial pipeline implementation for DESY (see [here](https://github.com/RaulRPrado/MC-DESY/tree/master))
 - Tony Lin for a Docker implementation of the pipeline (see [here](https://github.com/VERITAS-Observatory/Build_SimDockerImage/tree/master))
 
-Repository setup:
-
-- `config`: configuration files for the simulation pipeline
-- `docker`: Dockerfile for the simulation pipeline
-- `scripts`: run scripts for the simulation pipeline (i.e. HT Condor submission scripts)
-
-Further documentation on VERITAS simulations:
-
-- [VERITAS Simulations (private wiki page)](https://veritas.sao.arizona.edu/wiki/index.php/Simulation)
-- [VERITAS CARE (private wiki page)](https://veritas.sao.arizona.edu/wiki/index.php/CARE)
-
 ## Quick startup
 
 The following is all what you need to know to install and run the simulation pipeline.
+No compilation of any of the package is required.
 
 ```bash
 # clone repository
