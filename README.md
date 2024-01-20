@@ -1,5 +1,9 @@
 # VERITAS Simulation Pipeline
 
+[![DOI](https://zenodo.org/badge/738007615.svg)](https://zenodo.org/doi/10.5281/zenodo.10541349)
+[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![build-images](https://github.com/GernotMaier/VTS-SimPipe/actions/workflows/build-images.yml/badge.svg)](https://github.com/GernotMaier/VTS-SimPipe/actions/workflows/build-images.yml)
+
 This repository contains the simulation pipeline for [VERITAS](https://veritas.sao.arizona.edu/). This includes build scripts for the required simulation software and processing scripts.
 
 This work is built on a large effort from many people, especially:
