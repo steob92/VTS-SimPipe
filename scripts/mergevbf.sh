@@ -60,10 +60,10 @@ generate_mergevbf_submission_script()
         vbf_id="${flist##*_}"
 
         MERGEDFILE=$(get_merge_file_name "$WOBBLE" "$NSB" "$vbf_id")
-        RUNNUMBER=$(head -n 1 $flist | awk -F '[^0-9]+' '{print $2}')
+        RUNNUMBER=$(head -n 1 "$flist" | awk -F '[^0-9]+' '{print $2}')
 
         MERGEVBF="./bin/mergeVBF \
-            /workdir/external/mergevbf/$(basename $flist) \
+            /workdir/external/mergevbf/$(basename "$flist") \
             /workdir/external/mergevbf/$MERGEDFILE ${RUNNUMBER}"
 
         rm -f "${MERGEVBFFSCRIPT}_${vbf_id}.sh"

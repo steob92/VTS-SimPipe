@@ -96,10 +96,10 @@ EOL
 get_care_configs()
 {
     c_config=""
-    if [ ! -z "${CARE_CONFIG_std}" ]; then
+    if [ -n "${CARE_CONFIG_std}" ]; then
         c_config="$c_config std "
     fi
-    if [ ! -z "${CARE_CONFIG_redHV}" ]; then
+    if [ -n "${CARE_CONFIG_redHV}" ]; then
         c_config="$c_config redHV "
     fi
     echo "$c_config"
@@ -175,7 +175,7 @@ if [[ $SIM_TYPE == "MERGEVBF" ]]; then
             for NSB in ${!care_nsb_list}; do
                 generate_mergevbf_submission_script "${FSCRIPT}_${config}_${WOBBLE}_${NSB}" "$OUTPUT_FILE" \
                     "${WOBBLE}" "${NSB}" "${config}"
-                for sub_script in ${FSCRIPT}_${config}_${WOBBLE}_${NSB}*.sh; do
+                for sub_script in "${FSCRIPT}_${config}_${WOBBLE}_${NSB}"*.sh; do
                     generate_htcondor_file "$sub_script"
                 done
             done
