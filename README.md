@@ -27,11 +27,13 @@ The simulation pipeline requires the following software to be installed:
 
 - [CORSIKA](https://web.ikp.kit.edu/corsika/) (tested with version 7.7500) for air shower and Cherenkov photon generation
 - [corsikaIOreader](https://github.com/GernotMaier/corsikaIOreader/) for file format conversion and Cherenkov photon absorption and scattering.
-- [GrOptics](https://github.com/groptics/GrOptics/tree/master) (version **NN**) for the optical ray tracing.
-- [CARE](https://github.com/nepomukotte/CARE) (version **NN**) for the camera simulation.
-- [VBF](https://github.com/VERITAS-Observatory/VBF) (version **NN**) for the VBF file format (internal software of the VERITAS collaboration).
-- [ROOT](https://root.cern.ch/) (version **NN**) used by GrOptics and CARE.
-- [Eventdisplay](https://github.com/VERITAS-Observatory/EventDisplay_v4) (version **NN**) to merge several VBF files.
+- [GrOptics](https://github.com/groptics/GrOptics/tree/master) for the optical ray tracing (uses [ROBAST](https://github.com/ROBAST/ROBAST)).
+- [CARE](https://github.com/nepomukotte/CARE) for the camera simulation.
+- [VBF](https://github.com/VERITAS-Observatory/VBF) for the VBF file format (internal software of the VERITAS collaboration).
+- [ROOT](https://root.cern.ch/) used by GrOptics and CARE.
+- [Eventdisplay](https://github.com/VERITAS-Observatory/EventDisplay_v4) to merge several VBF files.
+
+For software versions, see the [docker files](docker/Dockerfile) and the [release notes](https://github.com/GernotMaier/VTS-SimPipe/releases).
 
 ## Installation
 
@@ -72,6 +74,8 @@ docker build -f ./docker/Dockerfile-groptics -t vts-simpipe-groptics .
 docker run --rm -it -v "$(pwd):/workdir/external" vts-simpipe-groptics bash
 ```
 
+Note that at this point a fork of GrOptics is used, fixing an issue to allow compiling on cent os7 (see [fork here](https://github.com/GernotMaier/GrOptics)).
+
 ### CARE containers
 
 The same base image for CARE is used as for GrOptics, including VBF and ROOT.
@@ -102,7 +106,9 @@ Directories:
 - `VTSSIMPIPE_LOG_DIR`: directory for log files, run scripts, and job submission files
 - `VTSSIMPIPE_DATA_DIR`: directory for simulation output files
 
-## CORSIKA air-shower simulations
+## Configuration
+
+### CORSIKA air-shower simulations
 
 The CORSIKA air-shower simulations require as environmental variables:
 
@@ -122,16 +128,31 @@ Usage of CORSIKA run script:
 ```
 
 The last parameter indicates to pull the container image from the registry.
-For using `apptainers`, the tables required by the interaction models are copied in this step also to the `VTSSIMPIPE_CORSIKA_DIR` (as apptainers wrie not writeable and QGSJet requires write access to the tables).
+For using `apptainers`, the tables required by the interaction models are copied in this step also to the `VTSSIMPIPE_CORSIKA_DIR` (as apptainers containers are not writeable and QGSJet requires write access to the tables).
 
-## Simulation Configuration
+### corsikaIOreader for absorption and scattering
+
+After the CORSIKA simulations, the Cherenkov photons are absorbed and scattered using the `corsikaIOreader` package.
+The optical depth as function of altitude and wavelength is stored in files for summer and winter in [config/ATMOSPHERE](config/ATMOSPHERE).
+For details on the derivation of these tables, see the [internal VERITAS wiki](https://veritas.sao.arizona.edu/wiki/Atmosphere) (plus pages linked from there).
+
+### GrOptics optical ray tracing
+
+see configuration files in [config/TELESCOPE_MODEL](config/TELESCOPE_MODEL).
+
+### CARE camera simulation
+
+see configuration files in [config/TELESCOPE_MODEL](config/TELESCOPE_MODEL).
 
 ## Processing Scripts
 
 Processing scripts are prepared for HT Condor systems.
 
-- run scripts like [scripts/run_corsika.sh](scripts/run_corsika.sh) prepare the job submission (see `*.condor` files in the `VTSSIMPIPE_LOG_DIR` directory).
+- prepare run scripts with [scripts/prepare_production.sh](scripts/prepare_production.sh) (see `*.sh` files in the `VTSSIMPIPE_LOG_DIR` directory).
 - job submission for the HT Condor system is done with [scripts/submit_jobs_to_htcondor.sh](scripts/submit_jobs_to_htcondor.sh).
+- DAG submission is done with [scripts/submit_DAG_jobs.sh](scripts/submit_DAG_jobs.sh).
+
+Note that configuration and output directories are fine tuned for this setup.
 
 ## Using Apptainers
 
