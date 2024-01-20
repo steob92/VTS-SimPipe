@@ -144,17 +144,19 @@ do
                 generate_htcondor_file "${FSCRIPT}_${WOBBLE}_${NSB}.sh"
             done
         done
-    elif [[ $SIM_TYPE == "MERGEVBF" ]]; then
-        for WOBBLE in ${WOBBLE_LIST}; do
-            for NSB in ${NSB_LIST}; do
-                generate_mergevbf_submission_script "${FSCRIPT}_${WOBBLE}_${NSB}" "$OUTPUT_FILE" \
-                    "${WOBBLE}" "${NSB}" "$run_number"
-                for sub_script in ${FSCRIPT}_${WOBBLE}_${NSB}*.sh; do
-                    generate_htcondor_file "$sub_script"
-                done
-            done
-        done
     fi
 done
+
+if [[ $SIM_TYPE == "MERGEVBF" ]]; then
+    for WOBBLE in ${WOBBLE_LIST}; do
+        for NSB in ${NSB_LIST}; do
+            generate_mergevbf_submission_script "${FSCRIPT}_${WOBBLE}_${NSB}" "$OUTPUT_FILE" \
+                "${WOBBLE}" "${NSB}"
+            for sub_script in ${FSCRIPT}_${WOBBLE}_${NSB}*.sh; do
+                generate_htcondor_file "$sub_script"
+            done
+        done
+    done
+fi
 
 echo "End of job preparation for $SIM_TYPE ($LOG_DIR)."
