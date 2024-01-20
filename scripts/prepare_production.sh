@@ -91,6 +91,20 @@ EOL
 # priority = 15
 }
 
+# return string with CARE configs
+# in most cases, this is "std", "redHV", or "std redHV"
+get_care_configs()
+{
+    c_config=""
+    if [ ! -z "${CARE_CONFIG_std}" ]; then
+        c_config="$c_config std "
+    fi
+    if [ ! -z "${CARE_CONFIG_redHV}" ]; then
+        c_config="$c_config redHV "
+    fi
+    echo "$c_config"
+}
+
 if [[ $SIM_TYPE == "CORSIKA" ]]; then
     prepare_corsika_containers "$DATA_DIR" "$LOG_DIR"
 elif [[ $SIM_TYPE == "GROPTICS" ]]; then
@@ -99,9 +113,12 @@ elif [[ $SIM_TYPE == "GROPTICS" ]]; then
     done
 elif [[ $SIM_TYPE == "CARE" ]]; then
     for WOBBLE in ${WOBBLE_LIST}; do
-        for NSB in ${NSB_LIST}; do
-            prepare_care_containers "$DATA_DIR" "$WOBBLE" "$NSB"
-        done
+        for config in $(get_care_configs); do
+            care_nsb_list="NSB_LIST_$config"
+            for NSB in ${!care_nsb_list}; do
+                prepare_care_containers "$DATA_DIR" "$WOBBLE" "$NSB" "$config"
+            done
+       done
     done
 elif [[ $SIM_TYPE == "MERGEVBF" ]]; then
     echo "(nothing to prepare for mergevbf)"
@@ -138,10 +155,14 @@ do
         done
     elif [[ $SIM_TYPE == "CARE" ]]; then
         for WOBBLE in ${WOBBLE_LIST}; do
-            for NSB in ${NSB_LIST}; do
-                generate_care_submission_script "${FSCRIPT}_${WOBBLE}_${NSB}" "$OUTPUT_FILE" \
-                    "${WOBBLE}" "${NSB}"
-                generate_htcondor_file "${FSCRIPT}_${WOBBLE}_${NSB}.sh"
+            for config in $(get_care_configs); do
+                care_nsb_list="NSB_LIST_$config"
+                care_config="CARE_CONFIG_$config"
+                for NSB in ${!care_nsb_list}; do
+                    generate_care_submission_script "${FSCRIPT}_${config}_${WOBBLE}_${NSB}" "$OUTPUT_FILE" \
+                        "${WOBBLE}" "${NSB}" "${!care_config}" "${config}"
+                    generate_htcondor_file "${FSCRIPT}_${config}_${WOBBLE}_${NSB}.sh"
+                done
             done
         done
     fi
@@ -149,11 +170,14 @@ done
 
 if [[ $SIM_TYPE == "MERGEVBF" ]]; then
     for WOBBLE in ${WOBBLE_LIST}; do
-        for NSB in ${NSB_LIST}; do
-            generate_mergevbf_submission_script "${FSCRIPT}_${WOBBLE}_${NSB}" "$OUTPUT_FILE" \
-                "${WOBBLE}" "${NSB}"
-            for sub_script in ${FSCRIPT}_${WOBBLE}_${NSB}*.sh; do
-                generate_htcondor_file "$sub_script"
+        for config in $(get_care_configs); do
+            care_nsb_list="NSB_LIST_$config"
+            for NSB in ${!care_nsb_list}; do
+                generate_mergevbf_submission_script "${FSCRIPT}_${config}_${WOBBLE}_${NSB}" "$OUTPUT_FILE" \
+                    "${WOBBLE}" "${NSB}" "${config}"
+                for sub_script in ${FSCRIPT}_${config}_${WOBBLE}_${NSB}*.sh; do
+                    generate_htcondor_file "$sub_script"
+                done
             done
         done
     done

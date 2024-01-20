@@ -36,10 +36,11 @@ generate_mergevbf_submission_script()
     rm -f "$OUTPUT_FILE.mergevbf.log"
     WOBBLE="$3"
     NSB="$4"
+    OBS_MODE="$5"
 
     # mount directories
-    CARE_DATA_DIR="${DATA_DIR}/CARE/W${WOBBLE}/NSB${NSB}"
-    MERGEVBF_DATA_DIR="${DATA_DIR}/MERGEVBF"
+    CARE_DATA_DIR="${DATA_DIR}/CARE_${OBS_MODE}/W${WOBBLE}/NSB${NSB}"
+    MERGEVBF_DATA_DIR="${DATA_DIR}/MERGEVBF_${OBS_MODE}"
     mkdir -p "$MERGEVBF_DATA_DIR"
     CONTAINER_EXTERNAL_DIR="-v \"${MERGEVBF_DATA_DIR}:/workdir/external/mergevbf\""
     CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"${CARE_DATA_DIR}:/workdir/external/care\""
@@ -50,6 +51,10 @@ generate_mergevbf_submission_script()
     rm -f "${MERGEVBF_DATA_DIR}/split_file_list_*"
     find "$CARE_DATA_DIR" -type f -name "*.vbf" -exec basename {} \; | sed 's|^|/workdir/external/care/|' | sort -n > "$MERGEVBF_DATA_DIR"/file_list.dat
     split -d -l $batch_size "$MERGEVBF_DATA_DIR"/file_list.dat "$MERGEVBF_DATA_DIR"/split_file_list_
+
+    if [ -s"${MERGEVBF_DATA_DIR}/file_list.dat" ]; then
+        return
+    fi
 
     for flist in "$MERGEVBF_DATA_DIR"/split_file_list_*; do
         vbf_id="${flist##*_}"
