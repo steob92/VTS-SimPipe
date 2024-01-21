@@ -11,7 +11,7 @@ TELESCOPE_MODEL="Upgrade_20120827_v420_3.cfg"
 GROPTICS_CONFIG="VERITAS_NewArray.cfg"
 
 # CARE
-CARE_CONFIG_std="CARE_VERITAS_AfterPMTUpgrade_V6Nahee_withPMTransitTimeSpread.cfg"
+CARE_CONFIG_std="CARE_V6_Std.txt"
 NSB_LIST_std="200 300"
 CARE_CONFIG_redHV="CARE_V6_RHV.txt"
 NSB_LIST_redHV="500 600"
