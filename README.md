@@ -4,9 +4,13 @@
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![build-images](https://github.com/GernotMaier/VTS-SimPipe/actions/workflows/build-images.yml/badge.svg)](https://github.com/GernotMaier/VTS-SimPipe/actions/workflows/build-images.yml)
 
-This repository stores a copy of the simulation model for the atmospheric conditions, telescope structure, and camera and readout of VERITAS. 
+[VERITAS](https://veritas.sao.arizona.edu/) is a ground-based gamma-ray observatory located at the Fred Lawrence Whipple Observatory in southern Arizona, USA.
+It explores the gamma-ray sky in the energy range from 100 GeV to 30 TeV.
+The VERITAS simulation pipeline **VTS-SimPipe** (this repository) is a set of scripts to run the simulation of air showers and the Cherenkov light emission, propagation, and detection in the VERITAS telescope system.
+
+This repository stores also a copy of the simulation model for the atmospheric conditions, telescope structure, and camera and readout of VERITAS.
 A detailed documentation on the derivation of these parameters can be found on the VERITAS internal pages.
- 
+
 VERITAS simulation pages:
 
 - [VERITAS Simulations (private wiki page)](https://veritas.sao.arizona.edu/wiki/index.php/Simulation)
