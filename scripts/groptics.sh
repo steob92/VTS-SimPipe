@@ -109,9 +109,9 @@ prepare_groptics_containers()
     # copy file for atmospheric profile (corsikaIOreader expect it in the /workdir/external/groptics/data directory)
     cp -f "$(dirname "$0")"/../config/ATMOSPHERE/atmprof"$ATMOSPHERE".dat "${TMP_CONFIG_DIR}/"
     # copy file for telescope model
-    cp -f "$(dirname "$0")"/../config/TELESCOPE_MODEL/"$TELESCOPE_MODEL" "${TMP_CONFIG_DIR}/"
+    cp -f "$(dirname "$0")"/../config/GROPTICS/"$TELESCOPE_MODEL" "${TMP_CONFIG_DIR}/"
     # copy file for GrOptics configuration
-    cp -f "$(dirname "$0")"/../config/TELESCOPE_MODEL/"$GROPTICS_CONFIG" "${TMP_CONFIG_DIR}/"
+    cp -f "$(dirname "$0")"/../config/GROPTICS/"$GROPTICS_CONFIG" "${TMP_CONFIG_DIR}/"
 }
 
 #####################################################################
@@ -134,6 +134,7 @@ generate_groptics_submission_script()
     CORSIKA_FILE="${CORSIKA_DATA_DIR}/$(basename "$OUTPUT_FILE").telescope"
     CORSIKA_FILE="/workdir/external/corsika/$(basename "$CORSIKA_FILE")"
     # corsikaIOreader expects the atmprof file in the /workdir/external/groptics/data directory
+    # groptics expect cfg files in the /workdir/external/groptics/data directory
     CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"${TMP_CONFIG_DIR}:/workdir/GrOptics/data\""
     CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"$LOG_DIR:/workdir/external/log/\""
 

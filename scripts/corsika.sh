@@ -45,7 +45,7 @@ generate_corsika_submission_script()
     chmod u+x "$FSCRIPT.sh"
 }
 
-# core scatter area
+# core scatter area (in m)
 get_corsika_core_scatter()
 {
     ZENITH="$1"
@@ -58,7 +58,7 @@ get_corsika_core_scatter()
     fi
 }
 
-# minimum energy
+# minimum energy (in GeV)
 get_corsika_energy_min()
 {
     ZENITH="$1"

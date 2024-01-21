@@ -88,12 +88,12 @@
 #The pulse shape ends with a line consisting only of the symbol *
 #note that the order of the pulse shapes in the file are with increasing signal amplitude, i.e. the pulse shape for
 #small signals comes before the signal shape for larger pulse shapes.
-* HIGHGAINPULSESHAPE 0 VERITASHighGainPulseShapeUpgradePMTFromFADCShifted.txt
+* HIGHGAINPULSESHAPE 0 VERITASHighGainPulseShapeHamamatsuPMT.txt
 
 #the file with the pulse shapes for the LowGain channel.
 #This will be used if the SINGLEPEWIDTH is set 0
 #The format is exactly as in the high gain case.
-* LOWGAINPULSESHAPE 0 VERITASLowGainPulseShapesUpgradePMTFromFADCWithInterpolationsShifted.txt
+* LOWGAINPULSESHAPE 0 VERITASLowGainPulseShapeHamamatsuPMT.txt
 
 #the pileup window is the window that is centered on each photon.The amplitudes of all the photons that are detected
 # within this window are summed up. The sum is used to find the right pulse shape that needs to be simulated for this photon.
@@ -157,16 +157,15 @@
 #changed it by multiplying the old value by 1.53 to account for difference between lab measured and insitu measurement
 * AFTERPULSINGSLOPE 0 -0.25
 
-#Transit time spread (RMS) of the photoelectrons making it through the PMT/SiPM in ns
+# Transit time spread (RMS) of the photoelectrons making it through the PMT/SiPM in ns
 * TRANSITTIMESPREAD 0 0
-
 
 #######################################################
 #TELESCOPE TRIGGER CONFIGURATION
 ######################################################
 
 # use trigger subfields, i.e. the trigger area  is not homogenous
-#the trigger topology has to be defined with the PATCH command
+# the trigger topology has to be defined with the PATCH command
 * USETRIGGERSUBFIELDS 0 1
 
 #------------------------------------------------
