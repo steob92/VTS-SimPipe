@@ -46,7 +46,7 @@ generate_mergevbf_submission_script()
     CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"${CARE_DATA_DIR}:/workdir/external/care\""
     CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"$LOG_DIR:/workdir/external/log/\""
 
-    batch_size=3
+    batch_size=100
     rm -f "$MERGEVBF_DATA_DIR"/file_list.dat
     rm -f "${MERGEVBF_DATA_DIR}/split_file_list_*"
     find "$CARE_DATA_DIR" -type f -name "*.vbf" -exec basename {} \; | sed 's|^|/workdir/external/care/|' | sort -n > "$MERGEVBF_DATA_DIR"/file_list.dat
@@ -74,7 +74,7 @@ generate_mergevbf_submission_script()
         elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
             CARE_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} --compat docker://$VTSSIMPIPE_MERGEVBF_IMAGE"
         fi
-        ZSTD_VBF="zstd /workdir/external/mergevbf/$MERGEDFILE"
+        ZSTD_VBF="zstd -f /workdir/external/mergevbf/$MERGEDFILE"
         MERGEVBF_EXE="${CARE_EXE} bash -c \"cd /workdir/EventDisplay_v4 && ${MERGEVBF} && ${ZSTD_VBF}\""
         echo "$MERGEVBF_EXE > ${MERGEVBF_DATA_DIR}/${MERGEDFILE}.log 2>&1" >> "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
         (
