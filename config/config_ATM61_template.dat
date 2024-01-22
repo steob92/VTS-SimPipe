@@ -3,17 +3,21 @@ N_RUNS=10
 N_SHOWER=2000
 ZENITH=20
 ATMOSPHERE=61
-WOBBLE_LIST="0.5 1.0"
 
 # GrOptics
+WOBBLE_LIST="0.5 1.0"
 EXTINCTION="Ext_results_VWinter_3_2_6.M5.txt"
 TELESCOPE_MODEL="Upgrade_20120827_v420_3.cfg"
 GROPTICS_CONFIG="VERITAS_NewArray.cfg"
 
-# CARE
+# CARE stdHV
 CARE_CONFIG_std="CARE_V6_Std.txt"
 NSB_LIST_std="200 300"
+
+# CARE redHV
 CARE_CONFIG_redHV="CARE_V6_RHV.txt"
 NSB_LIST_redHV="450 600"
+
+# CARE pulse shapes
 CARE_HIGH_GAIN="VERITASHighGainPulseShapeHamamatsuPMT.txt"
 CARE_LOW_GAIN="VERITASLowGainPulseShapeHamamatsuPMT.txt"
