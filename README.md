@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/738007615.svg)](https://zenodo.org/doi/10.5281/zenodo.10541349)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![build-images](https://github.com/GernotMaier/VTS-SimPipe/actions/workflows/build-images.yml/badge.svg)](https://github.com/GernotMaier/VTS-SimPipe/actions/workflows/build-images.yml)
+[![build-images](https://github.com/VERITAS-Observatory/VTS-SimPipe/actions/workflows/build-images.yml/badge.svg)](https://github.com/VERITAS-Observatory/VTS-SimPipe/actions/workflows/build-images.yml)
 
 [VERITAS](https://veritas.sao.arizona.edu/) is a ground-based gamma-ray observatory located at the Fred Lawrence Whipple Observatory in southern Arizona, USA.
 It explores the gamma-ray sky in the energy range from 100 GeV to 30 TeV.
@@ -30,7 +30,7 @@ No compilation of any of the package is required.
 
 ```bash
 # clone repository
-git clone https://github.com/GernotMaier/VTS-SimPipe.git
+git clone https://github.com/VERITAS-Observatory/VTS-SimPipe.git
 cd VTS-SimPipe
 # prepare log files and directories
 cp env_setup_template.sh env_setup.sh
@@ -68,7 +68,7 @@ Following software packages are used by the simulation pipeline and installed in
 - [ROOT](https://root.cern.ch/) used by GrOptics and CARE.
 - [Eventdisplay](https://github.com/VERITAS-Observatory/EventDisplay_v4) to merge several VBF files.
 
-For software versions, see the [docker files](docker/Dockerfile) and the [release notes](https://github.com/GernotMaier/VTS-SimPipe/releases).
+For software versions, see the [docker files](docker/Dockerfile) and the [release notes](https://github.com/VERITAS-Observatory/VTS-SimPipe/releases).
 
 ## Installation
 

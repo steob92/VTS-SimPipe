@@ -60,7 +60,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}.{{patch}}
             type=schedule,pattern={{date 'YYYYMMDD'}}
             type=raw,value={{date 'YYYYMMDD-HHmmss'}}
-          images: ${{ env.REGISTRY }}/GernotMaier/vtsimpipe-${{ matrix.type }}
+          images: ${{ env.REGISTRY }}/VERITAS-Observatory/vtsimpipe-${{ matrix.type }}
           flavor: latest=true
 
       - name: Build and push Docker image
