@@ -135,7 +135,6 @@ do
     FSCRIPT="$LOG_DIR"/"run_${SIM_TYPE}_$run_number"
     INPUT="$LOG_DIR"/"input_$run_number.dat"
     OUTPUT_FILE="${DATA_DIR}/${SIM_TYPE}/DAT${run_number}"
-    mkdir -p "${DATA_DIR}/${SIM_TYPE}"
 
     if [[ $SIM_TYPE == "CORSIKA" ]]; then
         if [[ ! -e "$INPUT_TEMPLATE" ]]; then
