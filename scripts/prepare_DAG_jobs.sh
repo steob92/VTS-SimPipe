@@ -56,6 +56,8 @@ for ID in $(seq 0 "$N_RUNS"); do
     for WOBBLE in ${WOBBLE_LIST}; do
         job_groptics="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/GROPTICS/run_GROPTICS_${run_number}_${WOBBLE}.sh.condor
         echo "JOB GROPTICS_${run_number}_${WOBBLE} $job_groptics" >> "$DAG_FILE"
+        job_cleanup="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CLEANUP/run_CLEANUP_${run_number}_${WOBBLE}.sh.condor
+        echo "JOB CLEANUP_${run_number}_${WOBBLE} $job_cleanup" >> "$DAG_FILE"
         PARENT_CORSIKA="$PARENT_CORSIKA GROPTICS_${run_number}_${WOBBLE}"
         PARENT_GROPTICS="PARENT GROPTICS_${run_number}_${WOBBLE} CHILD"
         PARENT_CLEANUP="PARENT"
@@ -69,7 +71,7 @@ for ID in $(seq 0 "$N_RUNS"); do
             done
         done
         echo "$PARENT_GROPTICS" >> "$DAG_FILE"
-        PARENT_CLEANUP="$PARENT_CLEANUP CHILD GROPTICS_${run_number}_${WOBBLE}"
+        PARENT_CLEANUP="$PARENT_CLEANUP CHILD CLEANUP_${run_number}_${WOBBLE}"
         echo "$PARENT_CLEANUP" >> "$DAG_FILE"
 
     done
