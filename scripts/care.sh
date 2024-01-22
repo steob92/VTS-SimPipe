@@ -51,6 +51,8 @@ generate_care_submission_script()
 
     CARE="./CameraAndReadout \
      NSBRATEPERPIXEL \\\"0 0 ${NSB}\\\" \
+     HIGHGAINPULSESHAPE \\\"0 /workdir/CARE/data/${CARE_HIGH_GAIN}\\\" \
+     LOWGAINPULSESHAPE \\\"0 /workdir/CARE/data/${CARE_LOW_GAIN}\\\" \
      --notraces \
      --seed $((RANDOM % 900000000 - 1)) \
      --vbfrunnumber 10000 \
