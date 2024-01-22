@@ -68,9 +68,7 @@ DIRSUFF="ATM${ATMOSPHERE}/Zd${ZENITH}"
 LOG_DIR="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/"$SIM_TYPE"
 DATA_DIR="$VTSSIMPIPE_DATA_DIR"/"$DIRSUFF"
 mkdir -p "${LOG_DIR}"
-mkdir -p "${DATA_DIR}"
 echo "Log directory: $LOG_DIR"
-echo "Data directory: $DATA_DIR"
 
 # generate HT condor file
 generate_htcondor_file()
