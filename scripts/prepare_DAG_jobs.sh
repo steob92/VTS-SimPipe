@@ -58,15 +58,20 @@ for ID in $(seq 0 "$N_RUNS"); do
         echo "JOB GROPTICS_${run_number}_${WOBBLE} $job_groptics" >> "$DAG_FILE"
         PARENT_CORSIKA="$PARENT_CORSIKA GROPTICS_${run_number}_${WOBBLE}"
         PARENT_GROPTICS="PARENT GROPTICS_${run_number}_${WOBBLE} CHILD"
+        PARENT_CLEANUP="PARENT"
         for config in $(get_care_configs); do
             care_nsb_list="NSB_LIST_$config"
             for NSB in ${!care_nsb_list}; do
                 job_care="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CARE/run_CARE_${run_number}_${config}_${WOBBLE}_${NSB}.sh.condor
                 echo "JOB CARE_${run_number}_${config}_${WOBBLE}_${NSB} $job_care" >> "$DAG_FILE"
                 PARENT_GROPTICS="$PARENT_GROPTICS CARE_${run_number}_${config}_${WOBBLE}_${NSB}"
+                PARENT_CLEANUP="$PARENT_CLEANUP CARE_${run_number}_${config}_${WOBBLE}_${NSB}"
             done
         done
         echo "$PARENT_GROPTICS" >> "$DAG_FILE"
+        PARENT_CLEANUP="$PARENT_CLEANUP CHILD GROPTICS_${run_number}_${WOBBLE}"
+        echo "$PARENT_CLEANUP" >> "$DAG_FILE"
+
     done
     echo "$PARENT_CORSIKA" >> "$DAG_FILE"
 done

@@ -16,7 +16,7 @@ CLEAN_ALL_FILES="$3"
 . "$CONFIG"
 DIRSUFF="ATM${ATMOSPHERE}/Zd${ZENITH}"
 
-for step in CORSIKA GROPTICS CARE; do
+for step in CORSIKA GROPTICS CARE CLEANUP; do
     if [ -n "$CLEAN_ALL_FILES" ] && [ "$CLEAN_ALL_FILES" == "clean_all_files" ]; then
         echo "cleaning $step"
         rm -rf "${VTSSIMPIPE_LOG_DIR:?}"/"$DIRSUFF"/"$step"

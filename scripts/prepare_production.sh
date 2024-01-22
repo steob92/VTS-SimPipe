@@ -38,6 +38,8 @@ echo "Simulation type: $SIM_TYPE"
 # shellcheck source=/dev/null
 . mergevbf.sh
 # shellcheck source=/dev/null
+. cleanup.sh
+# shellcheck source=/dev/null
 . "$CONFIG"
 
 # env variables
@@ -122,6 +124,8 @@ elif [[ $SIM_TYPE == "CARE" ]]; then
     done
 elif [[ $SIM_TYPE == "MERGEVBF" ]]; then
     echo "(nothing to prepare for mergevbf)"
+elif [[ $SIM_TYPE == "CLEANUP" ]]; then
+    echo "(nothing to prepare for cleanup)"
 else
     echo "Unknown simulation type $SIM_TYPE."
     exit
@@ -133,6 +137,7 @@ do
     FSCRIPT="$LOG_DIR"/"run_${SIM_TYPE}_$run_number"
     INPUT="$LOG_DIR"/"input_$run_number.dat"
     OUTPUT_FILE="${DATA_DIR}/${SIM_TYPE}/DAT${run_number}"
+    mkdir -p "${DATA_DIR}/${SIM_TYPE}"
 
     if [[ $SIM_TYPE == "CORSIKA" ]]; then
         if [[ ! -e "$INPUT_TEMPLATE" ]]; then
@@ -164,6 +169,12 @@ do
                     generate_htcondor_file "${FSCRIPT}_${config}_${WOBBLE}_${NSB}.sh"
                 done
             done
+        done
+    elif [[ $SIM_TYPE == "CLEANUP" ]]; then
+        for WOBBLE in ${WOBBLE_LIST}; do
+            generate_cleanup_submission_script "${FSCRIPT}_${WOBBLE}" "$OUTPUT_FILE" \
+                "$run_number" "${WOBBLE}"
+            generate_htcondor_file "${FSCRIPT}_${WOBBLE}.sh"
         done
     fi
 done
