@@ -4,7 +4,16 @@
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![build-images](https://github.com/GernotMaier/VTS-SimPipe/actions/workflows/build-images.yml/badge.svg)](https://github.com/GernotMaier/VTS-SimPipe/actions/workflows/build-images.yml)
 
-This repository contains the simulation pipeline for [VERITAS](https://veritas.sao.arizona.edu/). This includes build scripts for the required simulation software and processing scripts.
+[VERITAS](https://veritas.sao.arizona.edu/) is a ground-based gamma-ray observatory located at the Fred Lawrence Whipple Observatory in southern Arizona, USA.
+It explores the gamma-ray sky in the energy range from 100 GeV to 30 TeV.
+
+The VERITAS simulation pipeline **VTS-SimPipe** (this repository) is a set of scripts to run the simulation of air showers and the Cherenkov light emission, propagation, and detection in the VERITAS telescope system.
+This repository stores also a copy of the simulation model for the atmospheric conditions, telescope structure, and camera and readout of VERITAS.
+
+A detailed documentation on the derivation of these parameters can be found on the VERITAS internal pages:
+
+- [VERITAS Simulations (private wiki page)](https://veritas.sao.arizona.edu/wiki/Corsika) (quite outdated)
+- [VERITAS CARE (private wiki page)](https://veritas.sao.arizona.edu/wiki/index.php/CARE)
 
 This work is built on a large effort from many people, especially:
 
@@ -14,20 +23,10 @@ This work is built on a large effort from many people, especially:
 - Raul Prado for an initial pipeline implementation for DESY (see [here](https://github.com/RaulRPrado/MC-DESY/tree/master))
 - Tony Lin for a Docker implementation of the pipeline (see [here](https://github.com/VERITAS-Observatory/Build_SimDockerImage/tree/master))
 
-Repository setup:
-
-- `config`: configuration files for the simulation pipeline
-- `docker`: Dockerfile for the simulation pipeline
-- `scripts`: run scripts for the simulation pipeline (i.e. HT Condor submission scripts)
-
-Further documentation on VERITAS simulations:
-
-- [VERITAS Simulations (private wiki page)](https://veritas.sao.arizona.edu/wiki/index.php/Simulation)
-- [VERITAS CARE (private wiki page)](https://veritas.sao.arizona.edu/wiki/index.php/CARE)
-
 ## Quick startup
 
 The following is all what you need to know to install and run the simulation pipeline.
+No compilation of any of the package is required.
 
 ```bash
 # clone repository
@@ -57,11 +56,11 @@ cd scripts
 # that's it
 ```
 
-## Required Software
+## Software packages
 
-The simulation pipeline requires the following software to be installed:
+Following software packages are used by the simulation pipeline and installed in the docker images:
 
-- [CORSIKA](https://web.ikp.kit.edu/corsika/) (tested with version 7.7500) for air shower and Cherenkov photon generation
+- [CORSIKA](https://web.ikp.kit.edu/corsika/) for air shower and Cherenkov photon generation
 - [corsikaIOreader](https://github.com/GernotMaier/corsikaIOreader/) for file format conversion and Cherenkov photon absorption and scattering.
 - [GrOptics](https://github.com/groptics/GrOptics/tree/master) for the optical ray tracing (uses [ROBAST](https://github.com/ROBAST/ROBAST)).
 - [CARE](https://github.com/nepomukotte/CARE) for the camera simulation.
@@ -186,7 +185,9 @@ Processing scripts are prepared for HT Condor systems.
 
 - prepare run scripts with [scripts/prepare_production.sh](scripts/prepare_production.sh) (see `*.sh` files in the `VTSSIMPIPE_LOG_DIR` directory).
 - job submission for the HT Condor system is done with [scripts/submit_jobs_to_htcondor.sh](scripts/submit_jobs_to_htcondor.sh).
+- production scripts for all steps can be prepared with [scripts/prepare_all_production_steps.sh](scripts/prepare_all_production_steps.sh).
 - DAG submission is done with [scripts/submit_DAG_jobs.sh](scripts/submit_DAG_jobs.sh).
+- note that the `MERGEVBF` step is not included in the DAG submission, as it combines all runs of a production. Run this as a final step at the ned of the production.
 
 Note that configuration and output directories are fine tuned for this setup.
 
@@ -229,3 +230,63 @@ To submit DAG jobs:
 ```
 
 Note that on DESY DAG jobs need to be submitted from a special node.
+
+## Notes on simulation model and configuration parameters
+
+- v0.1.0: initial version with configuration parameters as used at the DESY production site
+- v0.2.0: optimized configuration parameters for the CORSIKA simulations
+
+Configuration:
+
+- CORSIKA: NSHOW 2000 (roughly 10h per job; 2 GB)
+- used 5x (core scatter) -> 10,000 events for GrOptics / CARE per file
+- total number of event stdHV: `1.e7`
+- total number of events redHV: `1.5e+07`
+- ze: `0 00 20 30 35 40 45 50 55 60 65`
+- az: [0, 360] deg
+- wobble offsets: `0.0 0.25 0.5 0.75 1.0 1.25 1.5 1.75 2.0`
+- NSB std: `50 75 100 130 160 200 250 300 350 400 450 600`
+- NSB redHV: `150 300 450 600 750 900`
+
+### CORSIKA parameters
+
+
+#### 2017 production:
+
+```Text
+Monte Carlo run header
+======================
+run number: 1
+code version: shower prog 1 (7000), detector prog 0 (0), convert 1440
+date: 170529    20210301
+number of showers: 0 (each shower used 5 times)
+Primary 1
+Energy range: [0.03, 200] TeV, powerlaw index -1.5
+Core scattering: 750    0 [m] (circular)
+Azimuth range: [0, 360]
+Zenith range: [20, 20]
+Viewcone: [0, 0] (0)
+Observatory height 1270 [m]
+B-Field: 48.0231 microT (58.3487,0.1815)
+Atmospheric model: 61
+Cherenkov photon wavelength range: [200, 700]
+CORSIKA interaction detail: lowE 0, highE 0, interaction models: lowE 2, highE 3, transition energy 100 GeV
+CORSIKA iact options: 62907
+CERENKOV 1
+IACT 1
+CEFFIC 0
+ATMEXT 1
+ATMEXT with refraction 1
+VOLUMEDET 1
+CURVED 0
+SLANT 1
+```
+
+#### 2024 production
+
+- changed wavelength range from [200, 700] to [300, 600] nm
+
+
+### corsikaIOreader parameters
+
+- apply pre-efficiency cut of 50%
