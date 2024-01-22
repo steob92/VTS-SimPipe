@@ -5,7 +5,6 @@ get_merge_file_name()
 {
     WOBBLE="$1"
     NSB="$2"
-    VBF_ID="$3"
 
     # gamma_V6_CARE_std_Atmosphere61_zen20deg_1.0wob_160MHz_1.vbf.zst
     FNAME="gamma_V6_CARE"
@@ -17,7 +16,7 @@ get_merge_file_name()
     FNAME="${FNAME}_Atmosphere${ATMOSPHERE}"
     FNAME="${FNAME}_zen${ZENITH}deg"
     FNAME="${FNAME}_${WOBBLE}wob"
-    FNAME="${FNAME}_${NSB}MHz_${VBF_ID}.vbf"
+    FNAME="${FNAME}_${NSB}MHz_"
     echo "$FNAME"
 }
 
@@ -46,42 +45,41 @@ generate_mergevbf_submission_script()
     CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"${CARE_DATA_DIR}:/workdir/external/care\""
     CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"$LOG_DIR:/workdir/external/log/\""
 
-    batch_size=100
-    rm -f "$MERGEVBF_DATA_DIR"/file_list.dat
-    rm -f "${MERGEVBF_DATA_DIR}/split_file_list_*"
-    find "$CARE_DATA_DIR" -type f -name "*.vbf" -exec basename {} \; | sed 's|^|/workdir/external/care/|' | sort -n > "$MERGEVBF_DATA_DIR"/file_list.dat
-    split -d -l $batch_size "$MERGEVBF_DATA_DIR"/file_list.dat "$MERGEVBF_DATA_DIR"/split_file_list_
-
-    if [ ! -s "${MERGEVBF_DATA_DIR}"/file_list.dat ]; then
-        return
+    if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
+        CARE_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_MERGEVBF_IMAGE"
+    elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
+        CARE_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} --compat docker://$VTSSIMPIPE_MERGEVBF_IMAGE"
     fi
 
-    for flist in "$MERGEVBF_DATA_DIR"/split_file_list_*; do
-        vbf_id="${flist##*_}"
+    batch_size=100
+    vbf_id="0"
+    MERGEDFILE=$(get_merge_file_name "$WOBBLE" "$NSB" "$vbf_id")
+    TMP_FL_LIST="$MERGEVBF_DATA_DIR"/tmp_file_list_${WOBBLE}_${NSB}.dat
+    rm -f "$TMP_FL_LIST"
+    TMP_FL_SPLIT_LIST="$MERGEVBF_DATA_DIR/tmp_file_list_split_${WOBBLE}_${NSB}_"
+    rm -f "${TMP_FL_SPLIT_LIST:?}*"
+    rm -f "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
 
-        MERGEDFILE=$(get_merge_file_name "$WOBBLE" "$NSB" "$vbf_id")
-        RUNNUMBER=$(head -n 1 "$flist" | awk -F '[^0-9]+' '{print $2}')
-
-        MERGEVBF="./bin/mergeVBF \
-            /workdir/external/mergevbf/$(basename "$flist") \
-            /workdir/external/mergevbf/$MERGEDFILE ${RUNNUMBER}"
-
-        rm -f "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
-        echo "#!/bin/bash" > "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
-        echo "set -e" >> "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
-        if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
-            CARE_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_MERGEVBF_IMAGE"
-        elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-            CARE_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} --compat docker://$VTSSIMPIPE_MERGEVBF_IMAGE"
-        fi
-        ZSTD_VBF="zstd -f /workdir/external/mergevbf/$MERGEDFILE"
-        MERGEVBF_EXE="${CARE_EXE} bash -c \"cd /workdir/EventDisplay_v4 && ${MERGEVBF} && ${ZSTD_VBF}\""
-        echo "$MERGEVBF_EXE > ${MERGEVBF_DATA_DIR}/${MERGEDFILE}.log 2>&1" >> "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
-        (
-            echo "if [[ -e \"${MERGEVBF_DATA_DIR}/${MERGEDFILE}.zst\" ]]; then"
-            echo "    rm -f \"${MERGEVBF_DATA_DIR}/${MERGEDFILE}\""
-            echo "fi"
-        ) >> "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
-        chmod u+x "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
-    done
+    # all below is running in the submitted script
+    (
+        echo "#!/bin/bash"
+        echo "set -e"
+        echo
+        echo "MERGEDFILE=$MERGEDFILE"
+        echo
+        echo "find \"$CARE_DATA_DIR\" -type f -name \"*.vbf\" -exec basename {} \; | sed 's|^|/workdir/external/care/|' | sort -n > \"$TMP_FL_LIST\""
+        echo "split -d -l $batch_size \"$TMP_FL_LIST\" \"$TMP_FL_SPLIT_LIST\""
+        echo
+        echo "for flist in \"$TMP_FL_SPLIT_LIST\"*; do"
+        echo "   RUNNUMBER=\$(head -n 1 \"\$flist\" | awk -F '[^0-9]+' '{print \$2}')"
+        echo "   echo \$RUNNUMBER"
+        echo "   MERGEVBF=\"./bin/mergeVBF /workdir/external/mergevbf/\$(basename \"\$flist\")  /workdir/external/mergevbf/\${MERGEDFILE}\${RUNNUMBER}.vbf \${RUNNUMBER}\""
+        echo "   ZSTD_VBF=\"zstd -f /workdir/external/mergevbf/${MERGEDFILE}\${RUNNUMBER}.vbf\""
+        echo "   echo \"LOG FILE ${MERGEVBF_DATA_DIR}/${MERGEDFILE}\${RUNNUMBER}.log\""
+        echo "   ${CARE_EXE} bash -c \"cd /workdir/EventDisplay_v4 && \${MERGEVBF} && \${ZSTD_VBF}\" > ${MERGEVBF_DATA_DIR}/${MERGEDFILE}\${RUNNUMBER}.log 2>&1"
+        echo
+        echo "   [ -e \"${MERGEVBF_DATA_DIR}/${MERGEDFILE}\${RUNNUMBER}.vbf.zst\" ] && rm -f \"${MERGEVBF_DATA_DIR}/${MERGEDFILE}\${RUNNUMBER}.vbf\""
+        echo "done"
+    ) >> "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
+    chmod u+x "${MERGEVBFFSCRIPT}_${vbf_id}.sh"
 }
