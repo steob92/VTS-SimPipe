@@ -22,16 +22,20 @@ generate_cleanup_submission_script()
     LOG_DIR=$(dirname "$CLEANUPSCRIPT")
     OUTPUT_FILE="$2"
     RUN_NUMBER="$3"
-    WOBBLE="$4"
-    rm -f "$OUTPUT_FILE.cleanup.log"
+    WOFF_LIST="$4"
+    CLEANUP_DATA_DIR="${DATA_DIR}/CLEANUP/"
+    rm -f "$CLEANUP_DATA_DIR/$(basename "$OUTPUT_FILE").cleanup.log"
 
-    # CORSIKA - no cleanup (yet)
+    # CORSIKA - files are bzipped2
     CORSIKA_DATA_DIR="${DATA_DIR}/CORSIKA"
-    # GROPTICS - files are removed
-    GROPTICS_DATA_DIR="${DATA_DIR}/GROPTICS/W${WOBBLE}"
 
     echo "#!/bin/bash" > "$CLEANUPSCRIPT.sh"
-    CLEANUP_GROPTICS="ls -l ${GROPTICS_DATA_DIR}"
-    echo "$CLEANUP_GROPTICS > "$OUTPUT_FILE".cleanup.log 2>&1" >> "$CLEANUPSCRIPT.sh"
+    for WOBBLE in ${WOFF_LIST}; do
+        # GROPTICS - files are removed
+        GROPTICS_DATA_DIR="${DATA_DIR}/GROPTICS/W${WOBBLE}"
+        CLEANUP_GROPTICS="rm -f -v ${GROPTICS_DATA_DIR}/*.groptics.root"
+        echo "$CLEANUP_GROPTICS > $CLEANUP_DATA_DIR/$(basename "$OUTPUT_FILE").cleanup.log 2>&1" >> "$CLEANUPSCRIPT.sh"
+    done
+    echo "bzip2 -f -v ${CORSIKA_DATA_DIR}/$(basename "$OUTPUT_FILE").telescope >> $CLEANUP_DATA_DIR/$(basename "$OUTPUT_FILE").cleanup.log 2>&1" >> "$CLEANUPSCRIPT.sh"
     chmod u+x "$CLEANUPSCRIPT.sh"
 }

@@ -171,11 +171,9 @@ do
             done
         done
     elif [[ $SIM_TYPE == "CLEANUP" ]]; then
-        for WOBBLE in ${WOBBLE_LIST}; do
-            generate_cleanup_submission_script "${FSCRIPT}_${WOBBLE}" "$OUTPUT_FILE" \
-                "$run_number" "${WOBBLE}"
-            generate_htcondor_file "${FSCRIPT}_${WOBBLE}.sh"
-        done
+        generate_cleanup_submission_script "${FSCRIPT}" "$OUTPUT_FILE" \
+            "$run_number" "${WOBBLE_LIST}" "${CLEANUP_CORSIKA}"
+        generate_htcondor_file "${FSCRIPT}.sh"
     fi
 done
 
