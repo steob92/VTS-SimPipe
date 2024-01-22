@@ -324,7 +324,7 @@
 * WRITEVBF 1
 
 #Name of the person in charge of executing the simulation
-* SIMULATORNAME Nepomuk
+* SIMULATORNAME NOT_SET
 
 #Atmospheric model
 * ATMOSPHERICMODEL 0
