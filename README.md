@@ -185,7 +185,9 @@ Processing scripts are prepared for HT Condor systems.
 
 - prepare run scripts with [scripts/prepare_production.sh](scripts/prepare_production.sh) (see `*.sh` files in the `VTSSIMPIPE_LOG_DIR` directory).
 - job submission for the HT Condor system is done with [scripts/submit_jobs_to_htcondor.sh](scripts/submit_jobs_to_htcondor.sh).
+- production scripts for all steps can be prepared with [scripts/prepare_all_production_steps.sh](scripts/prepare_all_production_steps.sh).
 - DAG submission is done with [scripts/submit_DAG_jobs.sh](scripts/submit_DAG_jobs.sh).
+- note that the `MERGEVBF` step is not included in the DAG submission, as it combines all runs of a production. Run this as a final step at the ned of the production.
 
 Note that configuration and output directories are fine tuned for this setup.
 
@@ -236,7 +238,7 @@ Note that on DESY DAG jobs need to be submitted from a special node.
 
 Configuration:
 
-- CORSIKA: NSHOW 2000
+- CORSIKA: NSHOW 2000 (roughly 10h per job; 2 GB)
 - used 5x (core scatter) -> 10,000 events for GrOptics / CARE per file
 - total number of event stdHV: `1.e7`
 - total number of events redHV: `1.5e+07`
