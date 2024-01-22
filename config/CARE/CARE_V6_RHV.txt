@@ -88,12 +88,12 @@
 #The pulse shape ends with a line consisting only of the symbol *
 #note that the order of the pulse shapes in the file are with increasing signal amplitude, i.e. the pulse shape for
 #small signals comes before the signal shape for larger pulse shapes.
-* HIGHGAINPULSESHAPE 0 VERITASHighGainPulseShapeUpgradePMTFromFADCShifted.txt
+* HIGHGAINPULSESHAPE 0 VERITASHighGainPulseShapeHamamatsuPMT.txt
 
 #the file with the pulse shapes for the LowGain channel.
 #This will be used if the SINGLEPEWIDTH is set 0
 #The format is exactly as in the high gain case.
-* LOWGAINPULSESHAPE 0 VERITASLowGainPulseShapesUpgradePMTFromFADCWithInterpolationsShifted.txt
+* LOWGAINPULSESHAPE 0 VERITASLowGainPulseShapeHamamatsuPMT.txt
 
 #the pileup window is the window that is centered on each photon.The amplitudes of all the photons that are detected
 # within this window are summed up. The sum is used to find the right pulse shape that needs to be simulated for this photon.
@@ -157,12 +157,15 @@
 #changed it by multiplying the old value by 1.53 to account for difference between lab measured and insitu measurement
 * AFTERPULSINGSLOPE 0 -0.25
 
+# Transit time spread (RMS) of the photoelectrons making it through the PMT/SiPM in ns
+* TRANSITTIMESPREAD 0 0
+
 #######################################################
 #TELESCOPE TRIGGER CONFIGURATION
 ######################################################
 
 # use trigger subfields, i.e. the trigger area  is not homogenous
-#the trigger topology has to be defined with the PATCH command
+# the trigger topology has to be defined with the PATCH command
 * USETRIGGERSUBFIELDS 0 1
 
 #------------------------------------------------
@@ -170,10 +173,11 @@
 
 # Conversion factor of pe amplitude to mV at discriminator input [mV/pe]
 #5.73 * 2ns *  0.21 * 7.84 * 0.68 * 1.07  = 13.7
-* DISCPETOMVCONVERSION 0 13.7
+# for RHV 13.7*0.3
+* DISCPETOMVCONVERSION 0 4.11
 
 #Threshold in mV of the discriminator
-* DISCTHRESHOLD 0 -45
+* DISCTHRESHOLD 0 -25
 
 #width of the discriminator output signal in ns
 * DISCWIDTH 0 2.5
@@ -244,7 +248,8 @@
 
 # gain conversion digital counts per photoelectron [dc/pe] (Amplitude)
 # 5.73dc/pe * 2ns *  0.21 =2.41 dc/pe (amplitude) (0.21 comes from the high gain pulse shape (peak/area))
-* FADCPETODCCONVERSION 0 2.41
+# for RHV 2.41*0.3=0.723
+* FADCPETODCCONVERSION 0 0.723
 
 
 # conversion factor mV per dc [mV/dc] in the high gain channel and in the
@@ -321,7 +326,7 @@
 * WRITEVBF 1
 
 #Name of the person in charge of executing the simulation
-* SIMULATORNAME Nepomuk
+* SIMULATORNAME NOT_SET
 
 #Atmospheric model
 * ATMOSPHERICMODEL 0

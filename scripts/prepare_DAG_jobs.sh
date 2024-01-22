@@ -52,6 +52,11 @@ for ID in $(seq 0 "$N_RUNS"); do
     } >> "$DAG_FILE"
     PARENT_CORSIKA="PARENT CORSIKA_${run_number} CHILD"
 
+    # CLEANUP
+    PARENT_CLEANUP="PARENT"
+    job_cleanup="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CLEANUP/run_CLEANUP_${run_number}.sh.condor
+    echo "JOB CLEANUP_${run_number} $job_cleanup" >> "$DAG_FILE"
+
     # GROPTICS and CARE
     for WOBBLE in ${WOBBLE_LIST}; do
         job_groptics="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/GROPTICS/run_GROPTICS_${run_number}_${WOBBLE}.sh.condor
@@ -64,10 +69,13 @@ for ID in $(seq 0 "$N_RUNS"); do
                 job_care="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CARE/run_CARE_${run_number}_${config}_${WOBBLE}_${NSB}.sh.condor
                 echo "JOB CARE_${run_number}_${config}_${WOBBLE}_${NSB} $job_care" >> "$DAG_FILE"
                 PARENT_GROPTICS="$PARENT_GROPTICS CARE_${run_number}_${config}_${WOBBLE}_${NSB}"
+                PARENT_CLEANUP="$PARENT_CLEANUP CARE_${run_number}_${config}_${WOBBLE}_${NSB}"
             done
         done
         echo "$PARENT_GROPTICS" >> "$DAG_FILE"
     done
+    PARENT_CLEANUP="$PARENT_CLEANUP CHILD CLEANUP_${run_number}"
+    echo "$PARENT_CLEANUP" >> "$DAG_FILE"
     echo "$PARENT_CORSIKA" >> "$DAG_FILE"
 done
 

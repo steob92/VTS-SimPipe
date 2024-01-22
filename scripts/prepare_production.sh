@@ -38,6 +38,8 @@ echo "Simulation type: $SIM_TYPE"
 # shellcheck source=/dev/null
 . mergevbf.sh
 # shellcheck source=/dev/null
+. cleanup.sh
+# shellcheck source=/dev/null
 . "$CONFIG"
 
 # env variables
@@ -66,9 +68,7 @@ DIRSUFF="ATM${ATMOSPHERE}/Zd${ZENITH}"
 LOG_DIR="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/"$SIM_TYPE"
 DATA_DIR="$VTSSIMPIPE_DATA_DIR"/"$DIRSUFF"
 mkdir -p "${LOG_DIR}"
-mkdir -p "${DATA_DIR}"
 echo "Log directory: $LOG_DIR"
-echo "Data directory: $DATA_DIR"
 
 # generate HT condor file
 generate_htcondor_file()
@@ -122,6 +122,8 @@ elif [[ $SIM_TYPE == "CARE" ]]; then
     done
 elif [[ $SIM_TYPE == "MERGEVBF" ]]; then
     echo "(nothing to prepare for mergevbf)"
+elif [[ $SIM_TYPE == "CLEANUP" ]]; then
+    echo "(nothing to prepare for cleanup)"
 else
     echo "Unknown simulation type $SIM_TYPE."
     exit
@@ -165,6 +167,10 @@ do
                 done
             done
         done
+    elif [[ $SIM_TYPE == "CLEANUP" ]]; then
+        generate_cleanup_submission_script "${FSCRIPT}" "$OUTPUT_FILE" \
+            "$run_number" "${WOBBLE_LIST}" "${CLEANUP_CORSIKA}"
+        generate_htcondor_file "${FSCRIPT}.sh"
     fi
 done
 

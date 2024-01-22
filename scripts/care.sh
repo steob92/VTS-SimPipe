@@ -15,7 +15,7 @@ prepare_care_containers()
     mkdir -p "$TMP_CONFIG_DIR"
 
     # copy telescope model files for CARE (copy all files, although not all are needed)
-    cp -f "$(dirname "$0")"/../config/TELESCOPE_MODEL/* "${TMP_CONFIG_DIR}/"
+    cp -f "$(dirname "$0")"/../config/CARE/* "${TMP_CONFIG_DIR}/"
 }
 
 #####################################################################
@@ -53,6 +53,9 @@ generate_care_submission_script()
      NSBRATEPERPIXEL \\\"0 0 ${NSB}\\\" \
      HIGHGAINPULSESHAPE \\\"0 /workdir/CARE/data/${CARE_HIGH_GAIN}\\\" \
      LOWGAINPULSESHAPE \\\"0 /workdir/CARE/data/${CARE_LOW_GAIN}\\\" \
+     SIMULATORNAME \\\"$(echo $LOGNAME)\\\" \
+     ATMOSPHERICMODEL \\\"$ATMOSPHERE\\\" \
+     DAYOFSIMULATEDEVENTS \\\"$(date +'%Y-%m-%d')\\\" \
      --notraces \
      --seed $((RANDOM % 900000000 - 1)) \
      --vbfrunnumber 10000 \

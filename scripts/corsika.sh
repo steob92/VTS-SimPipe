@@ -6,6 +6,7 @@ prepare_corsika_containers()
 {
     DATA_DIR="$1"
     LOG_DIR="$2"
+    mkdir -p ${DATA_DIR}
 
     CONTAINER_EXTERNAL_DIR="-v \"${DATA_DIR}/CORSIKA:/workdir/external/data\" -v \"$LOG_DIR:/workdir/external/log\""
     CORSIKA_DATA_DIR="/workdir/external/data"
@@ -45,7 +46,7 @@ generate_corsika_submission_script()
     chmod u+x "$FSCRIPT.sh"
 }
 
-# core scatter area
+# core scatter area (in m)
 get_corsika_core_scatter()
 {
     ZENITH="$1"
@@ -58,7 +59,7 @@ get_corsika_core_scatter()
     fi
 }
 
-# minimum energy
+# minimum energy (in GeV)
 get_corsika_energy_min()
 {
     ZENITH="$1"
