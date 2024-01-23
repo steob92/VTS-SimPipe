@@ -20,10 +20,10 @@ echo "VTSSIMPIPE_MERGEVBF_IMAGE: $VTSSIMPIPE_MERGEVBF_IMAGE"
 
 if [[ "$VTSSIMPIPE_CONTAINER" == "apptainer" ]]; then
     echo "Pulling apptainer images."
-    apptainer pull --disable-cache --force docker://"$VTSSIMPIPE_CORSIKA_IMAGE"
-    apptainer pull --disable-cache --force docker://"$VTSSIMPIPE_GROPTICS_IMAGE"
-    apptainer pull --disable-cache --force docker://"$VTSSIMPIPE_CARE_IMAGE"
-    apptainer pull --disable-cache --force docker://"$VTSSIMPIPE_MERGEVBF_IMAGE"
+    apptainer pull docker://"$VTSSIMPIPE_CORSIKA_IMAGE"
+    apptainer pull docker://"$VTSSIMPIPE_GROPTICS_IMAGE"
+    apptainer pull docker://"$VTSSIMPIPE_CARE_IMAGE"
+    apptainer pull docker://"$VTSSIMPIPE_MERGEVBF_IMAGE"
 elif [[ "$VTSSIMPIPE_CONTAINER" == "docker" ]]; then
     echo "Pulling docker images."
     docker pull "$VTSSIMPIPE_CORSIKA_IMAGE"
