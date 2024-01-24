@@ -7,20 +7,26 @@
 #
 set -e
 
-if [ $# -lt 1 ]
+if [ $# -lt 2 ]
 then
     echo "
-    ./submit_DAG_jobs.sh <dag directory> <submit/nosubmit>
+    ./submit_DAG_jobs.sh <config file> <dag directory>
 
     "
     exit
 fi
 
+CONFIG="$1"
+
 export _condor_SEC_TOKEN_DIRECTORY=$(mktemp -d)
 condor_token_fetch -lifetime $((7*24*60*60)) -token dag
 
-for dag_file in "${1}"/*.dag; do
-    condor_submit_dag "$dag_file"
+# shellcheck source=/dev/null
+. "$CONFIG"
+
+for ID in $(seq 0 "$N_RUNS"); do
+    run_number=$((ID + RUN_START))
+    condor_submit_dag "${2}/run_${run_number}.dag"
 done
 
 exit $?
