@@ -46,7 +46,7 @@ cd scripts
    ../config/CORSIKA/input_template.dat
 # on DESY: log into the DAG submission node
 ./prepare_DAG_jobs.sh ../config/config_ATM61_template.dat
-./submit_DAG_jobs.sh <directory with DAG files> submit
+./submit_DAG_jobs.sh ../config/config_ATM61_template.dat <directory with DAG files>
 # otherwise: submit jobs to HT Condor - for each step (CORSIKA, GROPTICS, CARE)
 ./submit_jobs_to_htcondor.sh <directory with condor files / submission scripts> submit
 # now wait....for jobs to finish
@@ -226,7 +226,7 @@ This will generate the DAG files in the `VTSSIMPIPE_LOG_DIR/DAG` directory.
 To submit DAG jobs:
 
 ```bash
-./submit_DAG_jobs.sh <directory with DAG files> submit
+./submit_DAG_jobs.sh <config file> <directory with DAG files>
 ```
 
 Note that on DESY DAG jobs need to be submitted from a special node.
