@@ -19,7 +19,7 @@ fi
 CONFIG="$1"
 
 export _condor_SEC_TOKEN_DIRECTORY=$(mktemp -d)
-condor_token_fetch -lifetime $((7*24*60*60)) -token dag
+condor_token_fetch -lifetime $((30*24*60*60)) -token dag
 
 # shellcheck source=/dev/null
 . "$CONFIG"

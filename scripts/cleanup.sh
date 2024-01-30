@@ -38,5 +38,6 @@ generate_cleanup_submission_script()
         echo "$CLEANUP_GROPTICS > $CLEANUP_DATA_DIR/$(basename "$OUTPUT_FILE").cleanup.log 2>&1" >> "$CLEANUPSCRIPT.sh"
     done
     echo "bzip2 -f -v ${CORSIKA_DATA_DIR}/$(basename "$OUTPUT_FILE").telescope >> $CLEANUP_DATA_DIR/$(basename "$OUTPUT_FILE").cleanup.log 2>&1" >> "$CLEANUPSCRIPT.sh"
+    echo "bzip2 -f -v ${CORSIKA_DATA_DIR}/$(basename "$OUTPUT_FILE").log >> $CLEANUP_DATA_DIR/$(basename "$OUTPUT_FILE").cleanup.log 2>&1" >> "$CLEANUPSCRIPT.sh"
     chmod u+x "$CLEANUPSCRIPT.sh"
 }
