@@ -8,11 +8,15 @@ export VTSSIMPIPE_DATA_DIR=vtssimpipe_corsika_dir
 # container type
 # export VTSSIMPIPE_CONTAINER="apptainer"
 export VTSSIMPIPE_CONTAINER="docker"
+# package url (docker style)
+export VTSSIMPIPE_CONTAINER_URL="ghcr.io/veritas-observatory/"
+# apptainers are stored in this directory
+export VTSSIMPIPE_CONTAINER_DIR=vtssimpipe_containe_dir
 # CORSIKA
-export VTSSIMPIPE_CORSIKA_IMAGE="ghcr.io/veritas-observatory/vtsimpipe-corsika:1.0.0"
+export VTSSIMPIPE_CORSIKA_IMAGE="vtsimpipe-corsika:1.0.0"
 # GROPTICS
-export VTSSIMPIPE_GROPTICS_IMAGE="ghcr.io/veritas-observatory/vtsimpipe-groptics:1.0.0"
+export VTSSIMPIPE_GROPTICS_IMAGE="vtsimpipe-groptics:1.0.0"
 # CARE
-export VTSSIMPIPE_CARE_IMAGE="ghcr.io/veritas-observatory/vtsimpipe-care:1.0.0"
+export VTSSIMPIPE_CARE_IMAGE="vtsimpipe-care:1.0.0"
 # MERGEVBF
-export VTSSIMPIPE_MERGEVBF_IMAGE="ghcr.io/veritas-observatory/vtsimpipe-mergevbf:1.0.0"
+export VTSSIMPIPE_MERGEVBF_IMAGE="vtsimpipe-mergevbf:1.0.0"
