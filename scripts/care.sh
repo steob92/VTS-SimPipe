@@ -66,9 +66,9 @@ generate_care_submission_script()
 
     echo "#!/bin/bash" > "$CAREFSCRIPT.sh"
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
-        CARE_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_CARE_IMAGE"
+        CARE_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR ${VTSSIMPIPE_CONTAINER_URL}${VTSSIMPIPE_CARE_IMAGE}"
     elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-        CARE_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} --compat docker://$VTSSIMPIPE_CARE_IMAGE"
+        CARE_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_URL}${VTSSIMPIPE_CARE_IMAGE/:/_}.sif"
     fi
     CARE_EXE="${CARE_EXE} bash -c \"cd /workdir/CARE && ${CARE}\""
     echo "$CARE_EXE > $CARE_DATA_DIR/$(basename "$OUTPUT_FILE").care.log 2>&1" >> "$CAREFSCRIPT.sh"
