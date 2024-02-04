@@ -13,7 +13,7 @@ prepare_corsika_containers()
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
         COPY_COMMAND="docker run --rm $CONTAINER_EXTERNAL_DIR ${VTSSIMPIPE_CONTAINER_URL}${VTSSIMPIPE_CORSIKA_IMAGE}"
     elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-        COPY_COMMAND="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_URL}${VTSSIMPIPE_CORSIKA_IMAGE/:/_}.sif"
+        COPY_COMMAND="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_CORSIKA_IMAGE/:/_}.sif"
     fi
     # copy corsika directory to data dir (as apptainers are readonly)
     echo "Copy CORSIKA files to ${DATA_DIR}/CORSIKA/tmp_corsika_run_files"
@@ -40,7 +40,7 @@ generate_corsika_submission_script()
 #    if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
 #        CORSIKA_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR ${VTSSIMPIPE_CONTAINER_URL}${VTSSIMPIPE_CORSIKA_IMAGE}"
 #    elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-#        CORSIKA_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_URL}${VTSSIMPIPE_CORSIKA_IMAGE/:/_}.sif"
+#        CORSIKA_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_CORSIKA_IMAGE/:/_}.sif"
 #    fi
 #    CORSIKA_EXE="${CORSIKA_EXE} bash -c \"cd /workdir/corsika-run && ./corsika77500Linux_QGSII_urqmd < $INPUT\""
 #    echo "$CORSIKA_EXE > $OUTPUT_FILE.log" >> "$FSCRIPT.sh"

@@ -146,7 +146,7 @@ generate_groptics_submission_script()
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
         GROPTICS_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR ${VTSSIMPIPE_CONTAINER_URL}${VTSSIMPIPE_GROPTICS_IMAGE}"
     elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-        GROPTICS_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_URL}${VTSSIMPIPE_GROPTICS_IMAGE/:/_}.sif"
+        GROPTICS_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_GROPTICS_IMAGE/:/_}.sif"
     fi
     GROPTICS_EXE="${GROPTICS_EXE} bash -c \"cd /workdir/GrOptics && ${CORSIKA_IO_READER} | ${GROPTICS}\""
     echo "$GROPTICS_EXE > $GROPTICS_DATA_DIR/$(basename "$OUTPUT_FILE").groptics.log 2>&1" >> "$GROPTICSFSCRIPT.sh"
