@@ -190,6 +190,7 @@ Processing scripts are prepared for HT Condor systems.
 - note that the `MERGEVBF` step is not included in the DAG submission, as it combines all runs of a production. Run this as a final step at the ned of the production.
 
 Note that configuration and output directories are fine tuned for this setup.
+The preparation of the all temporary submission scripts is not very efficient in both time and number of files written (could be significantly improved).
 
 ## Using Apptainers
 
@@ -199,6 +200,7 @@ The simulation scripts are configured to use Apptainers with the correct paramet
 Note:
 
 - recommend to set `$APPTAINER_CACHEDIR` to a reasonable directory with sufficient disk space, as cluster jobs will use this directory to store the container images.
+- set `$VTSSIMPIPE_CONTAINER_DIR` to the directory where the container images are stored. This should be a "fast" disk, as each job will access the image files.
 
 ## Submitting jobs
 

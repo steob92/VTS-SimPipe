@@ -35,15 +35,13 @@ generate_corsika_submission_script()
 
     echo "#!/bin/bash" > "$FSCRIPT.sh"
     mkdir -p "$(dirname $OUTPUT_FILE)"
-    # TMP rm -f "$OUTPUT_FILE".telescope
-    echo "cp -v /lustre/fs24/group/cta/tmp_corsika/CORSIKA/Data/$(basename $OUTPUT_FILE.telescope) $OUTPUT_FILE.telescope" >> "$FSCRIPT.sh"
-#    if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
-#        CORSIKA_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR ${VTSSIMPIPE_CONTAINER_URL}${VTSSIMPIPE_CORSIKA_IMAGE}"
-#    elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-#        CORSIKA_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_CORSIKA_IMAGE/:/_}.sif"
-#    fi
-#    CORSIKA_EXE="${CORSIKA_EXE} bash -c \"cd /workdir/corsika-run && ./corsika77500Linux_QGSII_urqmd < $INPUT\""
-#    echo "$CORSIKA_EXE > $OUTPUT_FILE.log" >> "$FSCRIPT.sh"
+    if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
+        CORSIKA_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR ${VTSSIMPIPE_CONTAINER_URL}${VTSSIMPIPE_CORSIKA_IMAGE}"
+    elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
+        CORSIKA_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_CORSIKA_IMAGE/:/_}.sif"
+    fi
+    CORSIKA_EXE="${CORSIKA_EXE} bash -c \"cd /workdir/corsika-run && ./corsika77500Linux_QGSII_urqmd < $INPUT\""
+    echo "$CORSIKA_EXE > $OUTPUT_FILE.log" >> "$FSCRIPT.sh"
     chmod u+x "$FSCRIPT.sh"
 }
 
