@@ -6,7 +6,7 @@ prepare_corsika_containers()
 {
     DATA_DIR="$1"
     LOG_DIR="$2"
-    mkdir -p ${DATA_DIR}
+    mkdir -p "${DATA_DIR}"
 
     CONTAINER_EXTERNAL_DIR="-v \"${DATA_DIR}/CORSIKA:/workdir/external/data\" -v \"$LOG_DIR:/workdir/external/log\""
     CORSIKA_DATA_DIR="/workdir/external/data"

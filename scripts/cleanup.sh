@@ -19,9 +19,7 @@
 generate_cleanup_submission_script()
 {
     CLEANUPSCRIPT="$1"
-    LOG_DIR=$(dirname "$CLEANUPSCRIPT")
     OUTPUT_FILE="$2"
-    RUN_NUMBER="$3"
     WOFF_LIST="$4"
     CLEANUP_DATA_DIR="${DATA_DIR}/CLEANUP/"
     mkdir -p "${CLEANUP_DATA_DIR}"

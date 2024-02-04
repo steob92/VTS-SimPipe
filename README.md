@@ -252,8 +252,7 @@ Configuration:
 
 ### CORSIKA parameters
 
-
-#### 2017 production:
+#### 2017 production
 
 ```Text
 Monte Carlo run header
@@ -287,7 +286,6 @@ SLANT 1
 #### 2024 production
 
 - changed wavelength range from [200, 700] to [300, 600] nm
-
 
 ### corsikaIOreader parameters
 
