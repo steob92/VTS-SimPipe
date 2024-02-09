@@ -48,7 +48,7 @@ generate_mergevbf_submission_script()
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
         CARE_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR ${VTSSIMPIPE_CONTAINER_URL}${VTSSIMPIPE_MERGEVBF_IMAGE}"
     elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-        CARE_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_URL}${VTSSIMPIPE_MERGEVBF_IMAGE/:/_}.sif"
+        CARE_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_MERGEVBF_IMAGE/:/_}.sif"
     fi
 
     batch_size=250
