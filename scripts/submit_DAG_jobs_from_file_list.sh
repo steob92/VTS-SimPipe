@@ -24,6 +24,7 @@ condor_token_fetch -lifetime $((30*24*60*60)) -token dag
 FLIST=$(cat $FILELIST)
 for F in ${FLIST}; do
     echo $F
+    rm -f -v ${F}.*
     condor_submit_dag ${F}
 done
 
