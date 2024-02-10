@@ -8,7 +8,7 @@ get_merge_file_name()
 
     # gamma_V6_CARE_std_Atmosphere61_zen20deg_1.0wob_160MHz_1.vbf.zst
     FNAME="gamma_V6_CARE"
-    if [[ $CARE_CONFIG == *"RHV"* ]]; then
+    if [[ $OBS_MODE == *"redHV"* ]]; then
         FNAME="${FNAME}_redHV"
     else
         FNAME="${FNAME}_std"
