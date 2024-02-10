@@ -36,6 +36,8 @@ RUN mkdir CARE && tar -xzf v$CARE_VERSION.tar.gz -C CARE --strip-components=1 &&
     make && make clean && rm -f *.tar.gz
 
 FROM rootproject/root:6.24.06-centos7
+LABEL maintainer.name="VERITAS Collaboration"
+LABEL maintainer.email="gernot.maier@desy.de"
 WORKDIR /workdir
 COPY --from=build_image /workdir/VBF /workdir/VBF
 COPY --from=build_image /workdir/CARE /workdir/CARE

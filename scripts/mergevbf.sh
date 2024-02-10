@@ -8,7 +8,7 @@ get_merge_file_name()
 
     # gamma_V6_CARE_std_Atmosphere61_zen20deg_1.0wob_160MHz_1.vbf.zst
     FNAME="gamma_V6_CARE"
-    if [[ $CARE_CONFIG == *"RHV"* ]]; then
+    if [[ $OBS_MODE == *"redHV"* ]]; then
         FNAME="${FNAME}_redHV"
     else
         FNAME="${FNAME}_std"
@@ -46,12 +46,12 @@ generate_mergevbf_submission_script()
     CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"$LOG_DIR:/workdir/external/log/\""
 
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
-        CARE_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR $VTSSIMPIPE_MERGEVBF_IMAGE"
+        CARE_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR ${VTSSIMPIPE_CONTAINER_URL}${VTSSIMPIPE_MERGEVBF_IMAGE}"
     elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-        CARE_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} --compat docker://$VTSSIMPIPE_MERGEVBF_IMAGE"
+        CARE_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_MERGEVBF_IMAGE/:/_}.sif"
     fi
 
-    batch_size=100
+    batch_size=250
     vbf_id="0"
     MERGEDFILE=$(get_merge_file_name "$WOBBLE" "$NSB" "$vbf_id")
     TMP_FL_LIST="$MERGEVBF_DATA_DIR"/tmp_file_list_${WOBBLE}_${NSB}.dat

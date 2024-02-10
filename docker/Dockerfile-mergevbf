@@ -27,6 +27,8 @@ RUN mkdir EventDisplay_v4 && tar -xzf v490.5.tar.gz -C EventDisplay_v4 --strip-c
     cd EventDisplay_v4 && make mergeVBF && make clean
 
 FROM rootproject/root:6.24.06-centos7
+LABEL maintainer.name="VERITAS Collaboration"
+LABEL maintainer.email="gernot.maier@desy.de"
 WORKDIR /workdir
 COPY --from=build_image /workdir/VBF /workdir/VBF
 COPY --from=build_image /workdir/EventDisplay_v4 /workdir/EventDisplay_v4

@@ -77,6 +77,7 @@ for ID in $(seq 0 "$N_RUNS"); do
     PARENT_CLEANUP="$PARENT_CLEANUP CHILD CLEANUP_${run_number}"
     echo "$PARENT_CLEANUP" >> "$DAG_FILE"
     echo "$PARENT_CORSIKA" >> "$DAG_FILE"
+    echo "DOT $DAG_DIR/run_${run_number}.dot" >> "$DAG_FILE"
 done
 
 echo "DAG directory: $DAG_DIR"

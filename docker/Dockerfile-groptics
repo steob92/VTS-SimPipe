@@ -26,6 +26,8 @@ RUN mkdir GrOptics && tar -xzf v$GROPTICS_VERSION.tar.gz -C GrOptics --strip-com
     cd GrOptics && make
 
 FROM rootproject/root:6.24.06-centos7
+LABEL maintainer.name="VERITAS Collaboration"
+LABEL maintainer.email="gernot.maier@desy.de"
 WORKDIR /workdir
 COPY --from=build_image /workdir/corsikaIOreader/corsikaIOreader /workdir/corsikaIOreader/corsikaIOreader
 COPY --from=build_image /workdir/GrOptics /workdir/GrOptics

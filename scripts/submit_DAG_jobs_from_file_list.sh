@@ -1,5 +1,5 @@
 #!/bin/bash
-# submit DAG jobs in DESY environment
+# submit DAG jobs in DESY environment from a list of files
 # use htc-submit.zeuthen.desy.de
 # see https://dv-zeuthen.desy.de/services/batch/job_submission/ for details
 #
@@ -7,26 +7,25 @@
 #
 set -e
 
-if [ $# -lt 2 ]
+if [ $# -lt 1 ]
 then
     echo "
-    ./submit_DAG_jobs.sh <config file> <dag directory>
+    ./submit_DAG_jobs_from_file_list.sh <file list>
 
     "
     exit
 fi
 
-CONFIG="$1"
+FILELIST="$1"
 
 export _condor_SEC_TOKEN_DIRECTORY=$(mktemp -d)
 condor_token_fetch -lifetime $((30*24*60*60)) -token dag
 
-# shellcheck source=/dev/null
-. "$CONFIG"
-
-for ID in $(seq 0 "$N_RUNS"); do
-    run_number=$((ID + RUN_START))
-    condor_submit_dag "${2}/run_${run_number}.dag"
+FLIST=$(cat $FILELIST)
+for F in ${FLIST}; do
+    echo $F
+    rm -f -v ${F}.*
+    condor_submit_dag ${F}
 done
 
 exit $?

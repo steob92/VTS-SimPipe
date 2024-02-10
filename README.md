@@ -46,7 +46,7 @@ cd scripts
    ../config/CORSIKA/input_template.dat
 # on DESY: log into the DAG submission node
 ./prepare_DAG_jobs.sh ../config/config_ATM61_template.dat
-./submit_DAG_jobs.sh <directory with DAG files> submit
+./submit_DAG_jobs.sh ../config/config_ATM61_template.dat <directory with DAG files>
 # otherwise: submit jobs to HT Condor - for each step (CORSIKA, GROPTICS, CARE)
 ./submit_jobs_to_htcondor.sh <directory with condor files / submission scripts> submit
 # now wait....for jobs to finish
@@ -190,6 +190,7 @@ Processing scripts are prepared for HT Condor systems.
 - note that the `MERGEVBF` step is not included in the DAG submission, as it combines all runs of a production. Run this as a final step at the ned of the production.
 
 Note that configuration and output directories are fine tuned for this setup.
+The preparation of the all temporary submission scripts is not very efficient in both time and number of files written (could be significantly improved).
 
 ## Using Apptainers
 
@@ -199,6 +200,7 @@ The simulation scripts are configured to use Apptainers with the correct paramet
 Note:
 
 - recommend to set `$APPTAINER_CACHEDIR` to a reasonable directory with sufficient disk space, as cluster jobs will use this directory to store the container images.
+- set `$VTSSIMPIPE_CONTAINER_DIR` to the directory where the container images are stored. This should be a "fast" disk, as each job will access the image files.
 
 ## Submitting jobs
 
@@ -226,7 +228,7 @@ This will generate the DAG files in the `VTSSIMPIPE_LOG_DIR/DAG` directory.
 To submit DAG jobs:
 
 ```bash
-./submit_DAG_jobs.sh <directory with DAG files> submit
+./submit_DAG_jobs.sh <config file> <directory with DAG files>
 ```
 
 Note that on DESY DAG jobs need to be submitted from a special node.
@@ -250,8 +252,7 @@ Configuration:
 
 ### CORSIKA parameters
 
-
-#### 2017 production:
+#### 2017 production
 
 ```Text
 Monte Carlo run header
@@ -285,7 +286,6 @@ SLANT 1
 #### 2024 production
 
 - changed wavelength range from [200, 700] to [300, 600] nm
-
 
 ### corsikaIOreader parameters
 

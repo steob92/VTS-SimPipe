@@ -129,8 +129,7 @@ else
     exit
 fi
 
-for ID in $(seq 0 "$N_RUNS");
-do
+for ((ID=0; ID<N_RUNS; ID++)); do
     run_number=$((ID + RUN_START))
     FSCRIPT="$LOG_DIR"/"run_${SIM_TYPE}_$run_number"
     INPUT="$LOG_DIR"/"input_$run_number.dat"
