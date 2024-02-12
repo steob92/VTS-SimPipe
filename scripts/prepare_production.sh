@@ -73,7 +73,7 @@ generate_htcondor_file()
 
     cat > "${SUBFIL}" <<EOL
 Executable = ${SUBSCRIPT}
-Arguments = \$(run_number)
+Arguments = \$(run_number) \$(wobble_offset) \$(nsb_level)
 Log = ${SUBSCRIPT}.\$(Cluster)_\$(Process).log
 Output = ${SUBSCRIPT}.\$(Cluster)_\$(Process).output
 Error = ${SUBSCRIPT}.\$(Cluster)_\$(Process).error
@@ -107,13 +107,8 @@ elif [[ $SIM_TYPE == "GROPTICS" ]]; then
         prepare_groptics_containers "$DATA_DIR" "$ATMOSPHERE" "$WOBBLE"
     done
 elif [[ $SIM_TYPE == "CARE" ]]; then
-    for WOBBLE in ${WOBBLE_LIST}; do
-        for config in $(get_care_configs); do
-            care_nsb_list="NSB_LIST_$config"
-            for NSB in ${!care_nsb_list}; do
-                prepare_care_containers "$DATA_DIR" "$WOBBLE" "$NSB" "$config"
-            done
-       done
+    for config in $(get_care_configs); do
+        prepare_care_containers "$DATA_DIR" "$config"
     done
 elif [[ $SIM_TYPE == "MERGEVBF" ]]; then
     echo "(nothing to prepare for mergevbf)"
@@ -131,38 +126,20 @@ if [[ $SIM_TYPE == "CORSIKA" ]]; then
         "$FSCRIPT" "$OUTPUT_DIR" "$CONTAINER_EXTERNAL_DIR" \
         "$N_SHOWER" "$ZENITH" "$ATMOSPHERE" "$CORSIKA_DATA_DIR" "$VTSSIMPIPE_CONTAINER"
     generate_htcondor_file "$FSCRIPT.sh"
+elif [[ $SIM_TYPE == "GROPTICS" ]]; then
+    generate_groptics_submission_script "${FSCRIPT}" "$OUTPUT_DIR"
+    generate_htcondor_file "${FSCRIPT}.sh"
+elif [[ $SIM_TYPE == "CLEANUP" ]]; then
+    generate_cleanup_submission_script "${FSCRIPT}" "$OUTPUT_DIR"
+    generate_htcondor_file "${FSCRIPT}.sh"
+elif [[ $SIM_TYPE == "CARE" ]]; then
+    for config in $(get_care_configs); do
+        care_config="CARE_CONFIG_$config"
+        generate_care_submission_script "${FSCRIPT}_${config}" "$OUTPUT_DIR" \
+            "${!care_config}" "${config}"
+        generate_htcondor_file "${FSCRIPT}_${config}.sh"
+    done
 fi
-
-for ((ID=0; ID<N_RUNS; ID++)); do
-    run_number=$((ID + RUN_START))
-    FSCRIPT="$LOG_DIR"/"run_${SIM_TYPE}_$run_number"
-    INPUT="$LOG_DIR"/"input_$run_number.dat"
-    OUTPUT_FILE="${DATA_DIR}/${SIM_TYPE}/DAT${run_number}"
-
-    if [[ $SIM_TYPE == "GROPTICS" ]]; then
-        for WOBBLE in ${WOBBLE_LIST}; do
-            generate_groptics_submission_script "${FSCRIPT}_${WOBBLE}" "$OUTPUT_FILE" \
-                "$run_number" "${WOBBLE}"
-            generate_htcondor_file "${FSCRIPT}_${WOBBLE}.sh"
-        done
-    elif [[ $SIM_TYPE == "CARE" ]]; then
-        for WOBBLE in ${WOBBLE_LIST}; do
-            for config in $(get_care_configs); do
-                care_nsb_list="NSB_LIST_$config"
-                care_config="CARE_CONFIG_$config"
-                for NSB in ${!care_nsb_list}; do
-                    generate_care_submission_script "${FSCRIPT}_${config}_${WOBBLE}_${NSB}" "$OUTPUT_FILE" \
-                        "${WOBBLE}" "${NSB}" "${!care_config}" "${config}"
-                    generate_htcondor_file "${FSCRIPT}_${config}_${WOBBLE}_${NSB}.sh"
-                done
-            done
-        done
-    elif [[ $SIM_TYPE == "CLEANUP" ]]; then
-        generate_cleanup_submission_script "${FSCRIPT}" "$OUTPUT_FILE" \
-            "$run_number" "${WOBBLE_LIST}" "${CLEANUP_CORSIKA}"
-        generate_htcondor_file "${FSCRIPT}.sh"
-    fi
-done
 
 if [[ $SIM_TYPE == "MERGEVBF" ]]; then
     for WOBBLE in ${WOBBLE_LIST}; do

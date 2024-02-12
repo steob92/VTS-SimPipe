@@ -1,14 +1,13 @@
 #!/bin/bash
 # Prepare all simulation production steps
 
-if [ $# -lt 2 ]; then
-    echo "./prepare_all_production_steps.sh <config file> <corsika input file> [remove previous file (Dangerous!)"
+if [ $# -lt 1 ]; then
+    echo "./prepare_all_production_steps.sh <config file> [remove previous file (Dangerous!)"
     exit
 fi
 
 CONFIG="$1"
-INPUT="$2"
-CLEAN_ALL_FILES="$3"
+CLEAN_ALL_FILES="$2"
 
 # shellcheck source=/dev/null
 . "$(dirname "$0")"/../env_setup.sh
@@ -25,5 +24,5 @@ for step in CORSIKA GROPTICS CARE MERGEVBF CLEANUP; do
         rm -rf "${VTSSIMPIPE_DATA_DIR:?}"/"$DIRSUFF"/"${step}_redHV"
     fi
     echo "prepare $step"
-    ./prepare_production.sh $step "${CONFIG}" "${INPUT}"
+    ./prepare_production.sh $step "${CONFIG}"
 done
