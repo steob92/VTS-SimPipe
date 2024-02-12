@@ -28,29 +28,6 @@ prepare_corsikaIOreader()
     echo "$CORSIKA_IO_READER"
 }
 
-
-#####################################################################
-# get wobble direction (use run number)
-get_wobble()
-{
-    RUN_NUMBER="$1"
-    WOBBLE="$2"
-    if [[ $((RUN_NUMBER % 4)) == 0 ]]; then
-        # North
-        echo "0.0 ${WOBBLE}"
-    elif [[ $((RUN_NUMBER % 4)) == 1 ]]; then
-        # East
-        echo "${WOBBLE} 0.0"
-    elif [[ $((RUN_NUMBER % 4)) == 2 ]]; then
-        # South
-        echo "0.0 -${WOBBLE}"
-    else
-        # West
-        echo "-${WOBBLE} 0.0"
-    fi
-}
-
-
 #####################################################################
 # generate GrOptics pilot file
 #
