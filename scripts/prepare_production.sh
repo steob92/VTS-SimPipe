@@ -1,26 +1,24 @@
 #!/bin/bash
-# Generate CORSIKA input files and submission scripts
+# Generate simulation submission scripts
 #
 set -e
 
-echo "Generate simulation input files and submission scripts."
+echo "Generate simulation submission scripts."
 echo
 
 if [ $# -lt 2 ]; then
-echo "./prepare_production.sh <simulation step> <config file> [input file template]
+echo "./prepare_production.sh <simulation step> <config file>
 
 Allowed simulation steps: CORSIKA, GROPTICS, CARE, MERGEVBF, CLEANUP
 
 CORSIKA:
 - template configuration file, see ./config/config_ATM61_template.dat
-- input file template, see ./config/CORSIKA/input_template.dat
 "
 exit
 fi
 
 SIM_TYPE="$1"
 CONFIG="$2"
-[[ "$3" ]] && INPUT_TEMPLATE=$3 || INPUT_TEMPLATE=""
 
 if [[ ! -e "$CONFIG" ]]; then
     echo "Configuration file $CONFIG does not exist."
@@ -52,16 +50,12 @@ echo "VTSSIMPIPE_CORSIKA_IMAGE: $VTSSIMPIPE_CORSIKA_IMAGE"
 echo "VTSSIMPIPE_GROPTICS_IMAGE: $VTSSIMPIPE_GROPTICS_IMAGE"
 echo "VTSSIMPIPE_CARE_IMAGE: $VTSSIMPIPE_CARE_IMAGE"
 
-echo "Generating for $SIM_TYPE $N_RUNS input files and submission scripts (starting from run number $RUN_START)."
+echo "Generating for $SIM_TYPE $N_RUNS submission scripts (starting from run number $RUN_START)."
 echo "Number of showers per run: $N_SHOWER"
 echo "Atmosphere: $ATMOSPHERE"
 echo "Zenith angle: $ZENITH deg"
 echo "Wobble angle: $WOBBLE_LIST deg"
 echo "NSB rate: $NSB_LIST MHz"
-if [[ $SIM_TYPE == "CORSIKA" ]]; then
-    S1=$((RANDOM % 900000000 - 1))
-    echo "First CORSIKA seed: $S1"
-fi
 
 # directories
 DIRSUFF="ATM${ATMOSPHERE}/Zd${ZENITH}"
@@ -79,6 +73,7 @@ generate_htcondor_file()
 
     cat > "${SUBFIL}" <<EOL
 Executable = ${SUBSCRIPT}
+Arguments = \$(run_number)
 Log = ${SUBSCRIPT}.\$(Cluster)_\$(Process).log
 Output = ${SUBSCRIPT}.\$(Cluster)_\$(Process).output
 Error = ${SUBSCRIPT}.\$(Cluster)_\$(Process).error
@@ -129,26 +124,22 @@ else
     exit
 fi
 
+FSCRIPT="$LOG_DIR"/"run_${SIM_TYPE}"
+OUTPUT_DIR="${DATA_DIR}/${SIM_TYPE}"
+if [[ $SIM_TYPE == "CORSIKA" ]]; then
+    generate_corsika_submission_script \
+        "$FSCRIPT" "$OUTPUT_DIR" "$CONTAINER_EXTERNAL_DIR" \
+        "$N_SHOWER" "$ZENITH" "$ATMOSPHERE" "$CORSIKA_DATA_DIR" "$VTSSIMPIPE_CONTAINER"
+    generate_htcondor_file "$FSCRIPT.sh"
+fi
+
 for ((ID=0; ID<N_RUNS; ID++)); do
     run_number=$((ID + RUN_START))
     FSCRIPT="$LOG_DIR"/"run_${SIM_TYPE}_$run_number"
     INPUT="$LOG_DIR"/"input_$run_number.dat"
     OUTPUT_FILE="${DATA_DIR}/${SIM_TYPE}/DAT${run_number}"
 
-    if [[ $SIM_TYPE == "CORSIKA" ]]; then
-        if [[ ! -e "$INPUT_TEMPLATE" ]]; then
-            echo "Input file template $INPUT_TEMPLATE does not exist."
-            exit
-        fi
-        S4=$(generate_corsika_input_card \
-           "$LOG_DIR" "$run_number" "$S1" \
-           "$INPUT_TEMPLATE" "$N_SHOWER" "$ZENITH" "$ATMOSPHERE" \
-           "$CORSIKA_DATA_DIR" "$VTSSIMPIPE_CONTAINER")
-        S1=$((S4 + 2))
-
-        generate_corsika_submission_script "$FSCRIPT" "$INPUT" "$OUTPUT_FILE" "$CONTAINER_EXTERNAL_DIR"
-        generate_htcondor_file "$FSCRIPT.sh"
-    elif [[ $SIM_TYPE == "GROPTICS" ]]; then
+    if [[ $SIM_TYPE == "GROPTICS" ]]; then
         for WOBBLE in ${WOBBLE_LIST}; do
             generate_groptics_submission_script "${FSCRIPT}_${WOBBLE}" "$OUTPUT_FILE" \
                 "$run_number" "${WOBBLE}"

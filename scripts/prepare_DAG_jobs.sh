@@ -45,12 +45,14 @@ for ID in $(seq 0 "$N_RUNS"); do
     touch "$DAG_FILE"
 
     # CORSIKA
-    job_corsika="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CORSIKA/run_CORSIKA_${run_number}.sh.condor
+    job_corsika="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CORSIKA/run_CORSIKA.sh.condor
     {
         echo "# DAG file for run $run_number"
         echo "JOB CORSIKA_${run_number} $job_corsika"
+        echo "VARS CORSIKA_${run_number} run_number=\"${run_number}\""
     } >> "$DAG_FILE"
     PARENT_CORSIKA="PARENT CORSIKA_${run_number} CHILD"
+    continue
 
     # CLEANUP
     PARENT_CLEANUP="PARENT"
