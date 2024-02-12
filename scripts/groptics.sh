@@ -173,7 +173,7 @@ EOF
     echo "rm -f \"\$(dirname \$0)/pilot_\${RUN_NUMBER}_W\${WOBBLE_OFFSET}.dat\"" >> "$GROPTICSFSCRIPT.sh"
     generate_groptics_pilot_file "$GROPTICSFSCRIPT.sh" "$PILOTFILE"
     echo "PILOT=\" \$(dirname \$0)/pilot_\${RUN_NUMBER}_W\${WOBBLE_OFFSET}.dat\"" >> "$GROPTICSFSCRIPT.sh"
-    echo "sed -n '/* FILEOUT/,/* DEBUGBRANCHES/{/*FILEOUT/!{/*DEBUGBRANCHES /!s/# GROPTICSCONFIG//p}}' "\$0" > \$PILOT" >> "$GROPTICSFSCRIPT.sh"
+    echo "sed -n '/* FILEOUT/,/* DEBUGBRANCHES/{/*FILEOUT/!{/*DEBUGBRANCHES /!s/# GROPTICSCONFIG //p}}' "\$0" > \$PILOT" >> "$GROPTICSFSCRIPT.sh"
     echo "sed -i \"s/WOBBLE_STRING/\$WOBBLE_STRING/\" \$PILOT" >> "$GROPTICSFSCRIPT.sh"
 
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
@@ -181,6 +181,7 @@ EOF
     elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
         GROPTICS_EXE="apptainer exec --cleanenv --no-mount bind-paths ${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_GROPTICS_IMAGE/:/_}.sif"
     fi
+    GROPTICS="./grOptics -of /workdir/external/groptics/DAT\${RUN_NUMBER}.groptics.root -p /workdir/external/log/pilot_\${RUN_NUMBER}_W\${WOBBLE_OFFSET}.dat"
     GROPTICS_EXE="${GROPTICS_EXE} bash -c \"cd /workdir/GrOptics && ${CORSIKA_IO_READER} | ${GROPTICS}\""
     echo "$GROPTICS_EXE > \$GROPTICS_DATA_DIR/DAT\${RUN_NUMBER}.groptics.log 2>&1" >> "$GROPTICSFSCRIPT.sh"
     chmod u+x "$GROPTICSFSCRIPT.sh"

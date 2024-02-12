@@ -27,7 +27,7 @@ generate_cleanup_submission_script()
 
     echo "#!/bin/bash" > "$CLEANUPSCRIPT.sh"
     echo "RUN_NUMBER=\$1" >> "$CLEANUPSCRIPT.sh"
-    echo "rm -f \"$CLEANUP_DATA_DIR/DAT\${RUN_NUMBER}.cleanup.log\"" >> "$$CLEANUPSCRIPT.sh"
+    echo "rm -f \"$CLEANUP_DATA_DIR/DAT\${RUN_NUMBER}.cleanup.log\"" >> "$CLEANUPSCRIPT.sh"
     # GROPTICS - files are removed
     # TODO - not removed yet
     CLEANUP_GROPTICS="find ${DATA_DIR}/GROPTICS/ -name \"DAT\${RUN_NUMBER}*.groptics.root\" -print" >> "$CLEANUPSCRIPT.sh"
