@@ -122,8 +122,7 @@ generate_groptics_submission_script()
     OUTPUT="/workdir/external/data/DAT\${RUN_NUMBER}"
 
     CORSIKA_DATA_DIR="${DATA_DIR}/CORSIKA"
-    CORSIKA_FILE="${CORSIKA_DATA_DIR}/$(basename "$OUTPUT_FILE").telescope"
-    CORSIKA_FILE="/workdir/external/corsika/$(basename "$CORSIKA_FILE")"
+    CORSIKA_FILE="/workdir/external/corsika/DAT\${RUN_NUMBER}.telescope"
     CORSIKA_IO_READER=$(prepare_corsikaIOreader)
 #    GROPTICS="./grOptics -of /workdir/external/groptics/$(basename "$OUTPUT_FILE").groptics.root \
 #     -p $(generate_groptics_pilot_file "$LOG_DIR" "$RUN_NUMBER" "$WOBBLE")"
