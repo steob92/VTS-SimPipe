@@ -29,8 +29,7 @@ generate_cleanup_submission_script()
     echo "RUN_NUMBER=\$1" >> "$CLEANUPSCRIPT.sh"
     echo "rm -f \"$CLEANUP_DATA_DIR/DAT\${RUN_NUMBER}.cleanup.log\"" >> "$CLEANUPSCRIPT.sh"
     # GROPTICS - files are removed
-    # TODO - not removed yet
-    CLEANUP_GROPTICS="find ${DATA_DIR}/GROPTICS/ -name \"DAT\${RUN_NUMBER}*.groptics.root\" -print" >> "$CLEANUPSCRIPT.sh"
+    CLEANUP_GROPTICS="find ${DATA_DIR}/GROPTICS/ -name \"DAT\${RUN_NUMBER}*.groptics.root\" -print -exec rm -f -v {} \\;" >> "$CLEANUPSCRIPT.sh"
     echo "$CLEANUP_GROPTICS > $CLEANUP_DATA_DIR/DAT\${RUN_NUMBER}.cleanup.log 2>&1" >> "$CLEANUPSCRIPT.sh"
     echo "bzip2 -f -v ${CORSIKA_DATA_DIR}/DAT\${RUN_NUMBER}.telescope >> $CLEANUP_DATA_DIR/DAT\${RUN_NUMBER}.cleanup.log 2>&1" >> "$CLEANUPSCRIPT.sh"
     echo "bzip2 -f -v ${CORSIKA_DATA_DIR}/DAT\${RUN_NUMBER}.log >> $CLEANUP_DATA_DIR/DAT\${RUN_NUMBER}.cleanup.log 2>&1" >> "$CLEANUPSCRIPT.sh"
