@@ -36,6 +36,10 @@ get_care_configs()
 DAG_DIR="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/DAG
 mkdir -p "$DAG_DIR"
 
+rm -f "${DAG_DIR}/config.dag.config"
+echo "DAGMAN_MAX_JOBS_SUBMITTED 200" > "${DAG_DIR}/config.dag.config"
+
+
 for ID in $(seq 0 "$N_RUNS"); do
     run_number=$((ID + RUN_START))
 
@@ -69,7 +73,7 @@ for ID in $(seq 0 "$N_RUNS"); do
         for config in $(get_care_configs); do
             care_nsb_list="NSB_LIST_$config"
             for NSB in ${!care_nsb_list}; do
-                job_care="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CARE/run_CARE_${run_number}_${config}_${WOBBLE}_${NSB}.sh.condor
+                job_care="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CARE/run_CARE_${config}.sh.condor
                 echo "JOB CARE_${run_number}_${config}_${WOBBLE}_${NSB} $job_care" >> "$DAG_FILE"
                 echo "VARS CARE_${run_number}_${config}_${WOBBLE}_${NSB} run_number=\"${run_number}\" wobble_offset=\"${WOBBLE}\" nsb_level=\"${NSB}\"" >> "$DAG_FILE"
                 PARENT_GROPTICS="$PARENT_GROPTICS CARE_${run_number}_${config}_${WOBBLE}_${NSB}"
@@ -82,6 +86,7 @@ for ID in $(seq 0 "$N_RUNS"); do
     echo "$PARENT_CLEANUP" >> "$DAG_FILE"
     echo "$PARENT_CORSIKA" >> "$DAG_FILE"
     echo "DOT $DAG_DIR/run_${run_number}.dot" >> "$DAG_FILE"
+    echo "CONFIG ${DAG_DIR}/config.dag.config" >> "$DAG_FILE"
 done
 
 echo "DAG directory: $DAG_DIR"

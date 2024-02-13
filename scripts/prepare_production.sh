@@ -78,7 +78,7 @@ Log = ${SUBSCRIPT}.\$(Cluster)_\$(Process).log
 Output = ${SUBSCRIPT}.\$(Cluster)_\$(Process).output
 Error = ${SUBSCRIPT}.\$(Cluster)_\$(Process).error
 Log = ${SUBSCRIPT}.\$(Cluster)_\$(Process).log
-request_memory = 2000M
+request_memory = 4000M
 getenv = True
 max_materialize = 250
 queue 1
