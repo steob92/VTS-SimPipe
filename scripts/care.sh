@@ -74,7 +74,7 @@ EOF
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
         CARE_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR ${VTSSIMPIPE_CONTAINER_URL}${VTSSIMPIPE_CARE_IMAGE}"
     elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-        CARE_EXE="apptainer exec --cleanenv --no-mount bind-paths ${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_CARE_IMAGE/:/_}.sif"
+        CARE_EXE="apptainer exec --cleanenv --no-mount bind-paths \${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_CARE_IMAGE/:/_}.sif"
     fi
     CARE_EXE="${CARE_EXE} bash -c \"cd /workdir/CARE && ${CARE}\""
     echo "$CARE_EXE > \${CARE_DATA_DIR}/DAT\${RUN_NUMBER}.care.log 2>&1" >> "$CAREFSCRIPT.sh"

@@ -137,12 +137,12 @@ cat << EOF
 GROPTICS_DATA_DIR="${DATA_DIR}/GROPTICS/W\${WOBBLE_OFFSET}"
 TMP_CONFIG_DIR="\${GROPTICS_DATA_DIR}/model_files/"
 # mount directories
-CONTAINER_EXTERNAL_DIR="-v \"${CORSIKA_DATA_DIR}:/workdir/external/corsika\""
-CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"\$GROPTICS_DATA_DIR:/workdir/external/groptics\""
+CONTAINER_EXTERNAL_DIR="-v ${CORSIKA_DATA_DIR}:/workdir/external/corsika"
+CONTAINER_EXTERNAL_DIR="\$CONTAINER_EXTERNAL_DIR -v \$GROPTICS_DATA_DIR:/workdir/external/groptics"
 # corsikaIOreader expects the atmprof file in the /workdir/external/groptics/data directory
 # groptics expect cfg files in the /workdir/external/groptics/data directory
-CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"\${TMP_CONFIG_DIR}:/workdir/GrOptics/data\""
-CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"$LOG_DIR:/workdir/external/log/\""
+CONTAINER_EXTERNAL_DIR="\$CONTAINER_EXTERNAL_DIR -v \${TMP_CONFIG_DIR}:/workdir/GrOptics/data"
+CONTAINER_EXTERNAL_DIR="\$CONTAINER_EXTERNAL_DIR -v $LOG_DIR:/workdir/external/log/"
 EOF
 } >> "$GROPTICSFSCRIPT.sh"
 
@@ -156,7 +156,7 @@ EOF
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
         GROPTICS_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR ${VTSSIMPIPE_CONTAINER_URL}${VTSSIMPIPE_GROPTICS_IMAGE}"
     elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-        GROPTICS_EXE="apptainer exec --cleanenv --no-mount bind-paths ${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_GROPTICS_IMAGE/:/_}.sif"
+        GROPTICS_EXE="apptainer exec --cleanenv --no-mount bind-paths \${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_GROPTICS_IMAGE/:/_}.sif"
     fi
     GROPTICS="./grOptics -of /workdir/external/groptics/DAT\${RUN_NUMBER}.groptics.root -p /workdir/external/log/pilot_\${RUN_NUMBER}_W\${WOBBLE_OFFSET}.dat"
     GROPTICS_EXE="${GROPTICS_EXE} bash -c \"cd /workdir/GrOptics && ${CORSIKA_IO_READER} | ${GROPTICS}\""
