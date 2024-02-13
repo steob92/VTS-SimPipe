@@ -36,10 +36,6 @@ get_care_configs()
 DAG_DIR="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/DAG
 mkdir -p "$DAG_DIR"
 
-rm -f "${DAG_DIR}/config.dag.config"
-echo "DAGMAN_MAX_JOBS_SUBMITTED 200" > "${DAG_DIR}/config.dag.config"
-
-
 for ID in $(seq 0 "$N_RUNS"); do
     run_number=$((ID + RUN_START))
 
@@ -86,7 +82,6 @@ for ID in $(seq 0 "$N_RUNS"); do
     echo "$PARENT_CLEANUP" >> "$DAG_FILE"
     echo "$PARENT_CORSIKA" >> "$DAG_FILE"
     echo "DOT $DAG_DIR/run_${run_number}.dot" >> "$DAG_FILE"
-    echo "CONFIG ${DAG_DIR}/config.dag.config" >> "$DAG_FILE"
 done
 
 echo "DAG directory: $DAG_DIR"
