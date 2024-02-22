@@ -45,29 +45,33 @@ for ID in $(seq 0 "$N_RUNS"); do
     touch "$DAG_FILE"
 
     # CORSIKA
-    job_corsika="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CORSIKA/run_CORSIKA_${run_number}.sh.condor
+    job_corsika="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CORSIKA/run_CORSIKA.sh.condor
     {
         echo "# DAG file for run $run_number"
         echo "JOB CORSIKA_${run_number} $job_corsika"
+        echo "VARS CORSIKA_${run_number} run_number=\"${run_number}\""
     } >> "$DAG_FILE"
     PARENT_CORSIKA="PARENT CORSIKA_${run_number} CHILD"
 
     # CLEANUP
     PARENT_CLEANUP="PARENT"
-    job_cleanup="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CLEANUP/run_CLEANUP_${run_number}.sh.condor
+    job_cleanup="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CLEANUP/run_CLEANUP.sh.condor
     echo "JOB CLEANUP_${run_number} $job_cleanup" >> "$DAG_FILE"
+    echo "VARS CLEANUP_${run_number} run_number=\"${run_number}\"" >> "$DAG_FILE"
 
     # GROPTICS and CARE
     for WOBBLE in ${WOBBLE_LIST}; do
-        job_groptics="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/GROPTICS/run_GROPTICS_${run_number}_${WOBBLE}.sh.condor
+        job_groptics="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/GROPTICS/run_GROPTICS.sh.condor
         echo "JOB GROPTICS_${run_number}_${WOBBLE} $job_groptics" >> "$DAG_FILE"
+        echo "VARS GROPTICS_${run_number}_${WOBBLE} run_number=\"${run_number}\" wobble_offset=\"${WOBBLE}\"" >> "$DAG_FILE"
         PARENT_CORSIKA="$PARENT_CORSIKA GROPTICS_${run_number}_${WOBBLE}"
         PARENT_GROPTICS="PARENT GROPTICS_${run_number}_${WOBBLE} CHILD"
         for config in $(get_care_configs); do
             care_nsb_list="NSB_LIST_$config"
             for NSB in ${!care_nsb_list}; do
-                job_care="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CARE/run_CARE_${run_number}_${config}_${WOBBLE}_${NSB}.sh.condor
+                job_care="$VTSSIMPIPE_LOG_DIR"/"$DIRSUFF"/CARE/run_CARE_${config}.sh.condor
                 echo "JOB CARE_${run_number}_${config}_${WOBBLE}_${NSB} $job_care" >> "$DAG_FILE"
+                echo "VARS CARE_${run_number}_${config}_${WOBBLE}_${NSB} run_number=\"${run_number}\" wobble_offset=\"${WOBBLE}\" nsb_level=\"${NSB}\"" >> "$DAG_FILE"
                 PARENT_GROPTICS="$PARENT_GROPTICS CARE_${run_number}_${config}_${WOBBLE}_${NSB}"
                 PARENT_CLEANUP="$PARENT_CLEANUP CARE_${run_number}_${config}_${WOBBLE}_${NSB}"
             done
