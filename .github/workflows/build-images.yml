@@ -26,7 +26,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        type: ['corsika', 'corsika-ax2', 'groptics', 'care', 'mergevbf']
+        type: ['corsika', 'corsika-noopt', 'corsika-ax2', 'groptics', 'care', 'mergevbf']
 
     steps:
       - name: Checkout repository
@@ -39,6 +39,12 @@ jobs:
         if: matrix.type == 'corsika'
         run: |
           wget --no-verbose https://syncandshare.desy.de/index.php/s/${{ secrets.CLOUD_CORSIKA }}/download
+          mv download corsika-77500.tar.gz
+
+      - name: download CORSIKA package (non-optimised version)
+        if: matrix.type == 'corsika-noopt'
+        run: |
+          wget --no-verbose https://syncandshare.desy.de/index.php/s/${{ secrets.CLOUD_CORSIKA_CTA }}/download
           mv download corsika-77500.tar.gz
 
       - name: download CORSIKA package (optimised version)

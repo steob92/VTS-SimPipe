@@ -14,23 +14,12 @@ RUN yum update -y && yum install -y \
 
 ADD corsika-77500.tar.gz .
 RUN cd ./corsika-77500/bernlohr && tar -xvzf bernlohr-1.66.tar.gz
-ADD corsikaOptPatch-77500_2024-02-05.tar.gz ./corsika-77500
-RUN cd ./corsika-77500 && ./corsika_opt_patching.sh && autoreconf
 # CORSIKA compile options derived with coconut
 COPY ./docker/corsika-config-ax2.h corsika-77500/include/config.h
 #
 # build corsika
 WORKDIR /workdir/corsika-77500
 RUN ./coconut < /dev/null
-ENV GCC_PATH=/usr/bin
-ENV AVX_FLAG=mavx2
-RUN make clean && \
-    make \
-    CFLAGS="-g -DCERENKOPT -DVLIBM -std=c99 -O3 -${AVX_FLAG} -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
-    CXXFLAGS="-g -DCERENKOPT -DVLIBM -std=c99 -O3 -${AVX_FLAG} -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
-    FFLAGS="-g -ffixed-line-length-132 -fno-automatic -frecord-marker=4 -std=legacy -DCERENKOPT -DVLIBM -std=c99 -O3 -${AVX_FLAG} -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
-    install
-RUN mv run/corsika77500Linux_QGSII_urqmdceropt run/corsika77500Linux_QGSII_urqmd
 
 SHELL ["/bin/bash", "-c"]
 WORKDIR /workdir/
