@@ -1,4 +1,4 @@
-name: build-images
+name: build-optimized-corsika
 
 on:
   workflow_dispatch:
@@ -26,7 +26,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        type: ['corsika', 'corsika-noopt', 'corsika-ax2', 'groptics', 'care', 'mergevbf']
+        type: ['noopt', 'avx2', 'avx512', 'avx', 'sse4']
 
     steps:
       - name: Checkout repository
@@ -35,20 +35,7 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: download CORSIKA package (standard)
-        if: matrix.type == 'corsika'
-        run: |
-          wget --no-verbose https://syncandshare.desy.de/index.php/s/${{ secrets.CLOUD_CORSIKA }}/download
-          mv download corsika-77500.tar.gz
-
-      - name: download CORSIKA package (non-optimised version)
-        if: matrix.type == 'corsika-noopt'
-        run: |
-          wget --no-verbose https://syncandshare.desy.de/index.php/s/${{ secrets.CLOUD_CORSIKA_CTA }}/download
-          mv download corsika-77500.tar.gz
-
       - name: download CORSIKA package (optimised version)
-        if: matrix.type == 'corsika-ax2'
         run: |
           wget --no-verbose https://syncandshare.desy.de/index.php/s/${{ secrets.CLOUD_CORSIKA_CTA }}/download
           mv download corsika-77500.tar.gz
@@ -74,7 +61,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}.{{patch}}
             type=schedule,pattern={{date 'YYYYMMDD'}}
             type=raw,value={{date 'YYYYMMDD-HHmmss'}}
-          images: ${{ env.REGISTRY }}/VERITAS-Observatory/vtsimpipe-${{ matrix.type }}
+          images: ${{ env.REGISTRY }}/VERITAS-Observatory/vtsimpipe-corsika-${{ matrix.type }}
           flavor: latest=true
 
       - name: Build and push Docker image
@@ -82,8 +69,9 @@ jobs:
         with:
           context: .
           platforms: linux/amd64
+          build-args: ${{ matrix.type }}
           push:
             ${{ github.event_name == 'release' || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' }}
-          file: ./docker/Dockerfile-${{ matrix.type }}
+          file: ./docker/Dockerfile-optimzied
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}-vtssimpipe-${{ matrix.type }}
+          labels: ${{ steps.meta.outputs.labels }}-vtssimpipe-corsika-${{ matrix.type }}

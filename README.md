@@ -22,6 +22,7 @@ This work is built on a large effort from many people, especially:
 - Nepomuk Otte for the [CARE](https://github.com/nepomukotte/CARE) package
 - Raul Prado for an initial pipeline implementation for DESY (see [here](https://github.com/RaulRPrado/MC-DESY/tree/master))
 - Tony Lin for a Docker implementation of the pipeline (see [here](https://github.com/VERITAS-Observatory/Build_SimDockerImage/tree/master))
+- Luisa Arrabito and Orel Gueta on providing the optimized CORSIKA code and help with compilation
 
 ## Quick startup
 
@@ -78,8 +79,13 @@ Images can be downloaded from the package registry of this repository.
 ### CORSIKA containers
 
 Requires the tar package with the CORSIKA tar software to be available in the main directory of `VTSSimPipe`.
+Note that the CI on github will build three different containers for CORSIKA:
 
-To build the CORSIKA container:
+1. [vts-simpipe-corsika](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika) based on [docker/Dockerfile-corsika](docker/Dockerfile-corsika) with the standard CORSIKA software (as used in VERITAS for productions in the past)
+2. [vts-simpipe-corsika-noopt](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-noopt) based on [docker/Dockerfile-corsika-noopt](docker/Dockerfile-corsika-noopt) using CORSIKA 7.7500 with minor updates to the Bernlohr package (this is the package used for the generation and propagation of Cherenkov photons).
+3. [vts-simpipe-corsika-ax2](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-ax2) based on [docker/Dockerfile-corsika-ax2](docker/Dockerfile-corsika-ax2) using CORSIKA 7.7500 with minor updates to the Bernlohr package (this is the package used for the generation and propagation of Cherenkov photons). A patch is applied to the Cherenkov photon code to allow to use vector instructions and improve runtime performance.
+
+To build the CORSIKA container (similar for all):
 
 ```bash
 docker build -f ./docker/Dockerfile-corsika -t vts-simpipe-corsika .
@@ -98,7 +104,7 @@ options:   VOLUMEDET TIMEAUTO URQMD QGSJETII
 selection: BERNLOHRDIR SLANT CERENKOV IACT IACTDIR ATMEXT
 ```
 
-The file [docker/corsika-config.h](docker/corsika-config.h) contains the configuration file for CORSIKA and is used for the compilation.
+The file [docker/corsika-config.h](docker/corsika-config.h) contains the configuration file for CORSIKA and is used for the compilation ([docker/corsika-config-ax2.h](docker/corsika-config-ax2.h) for the `vts-simpipe-corsika-noopt` and `vts-simpipe-corsika-axi2` options).
 
 ### GrOptics and corsikaIOreader containers
 
