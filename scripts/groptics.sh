@@ -28,29 +28,6 @@ prepare_corsikaIOreader()
     echo "$CORSIKA_IO_READER"
 }
 
-
-#####################################################################
-# get wobble direction (use run number)
-get_wobble()
-{
-    RUN_NUMBER="$1"
-    WOBBLE="$2"
-    if [[ $((RUN_NUMBER % 4)) == 0 ]]; then
-        # North
-        echo "0.0 ${WOBBLE}"
-    elif [[ $((RUN_NUMBER % 4)) == 1 ]]; then
-        # East
-        echo "${WOBBLE} 0.0"
-    elif [[ $((RUN_NUMBER % 4)) == 2 ]]; then
-        # South
-        echo "0.0 -${WOBBLE}"
-    else
-        # West
-        echo "-${WOBBLE} 0.0"
-    fi
-}
-
-
 #####################################################################
 # generate GrOptics pilot file
 #
@@ -61,24 +38,41 @@ get_wobble()
 # SEED:       seed for the random number generator (0=machine clock)
 generate_groptics_pilot_file()
 {
-    LOG_DIR="$1"
-    RUN_NUMBER="$2"
-    WOBBLE="$3"
-
-    PILOT="${LOG_DIR}/pilot_${RUN_NUMBER}_W${WOBBLE}.dat"
-    rm -f "$PILOT"
-    touch "$PILOT"
+    OFILE="$1"
 
     {
-        # (dummy file name; groptics is executed with the "-of" flag)
-        echo "* FILEOUT photonLocation.root allT T 0"
-        echo "* NSHOWER -1 -1"
-        echo "* WOBBLE $(get_wobble "${RUN_NUMBER}" "${WOBBLE}") 0.0 0.0 90."
-        echo "* ARRAYCONFIG ./data/${GROPTICS_CONFIG}"
-        echo "* SEED 0"
-        echo "* DEBUGBRANCHES 1"
-    } >> "$PILOT"
-    echo "/workdir/external/log/$(basename "$PILOT")"
+        cat << EOF
+get_wobble()
+{
+    RUN_NUMBER="\$1"
+    WOBBLE="\$2"
+    if [[ \$((RUN_NUMBER % 4)) == 0 ]]; then
+        # North
+        echo "0.0 \${WOBBLE}"
+    elif [[ \$((RUN_NUMBER % 4)) == 1 ]]; then
+        # East
+        echo "\${WOBBLE} 0.0"
+    elif [[ \$((RUN_NUMBER % 4)) == 2 ]]; then
+        # South
+        echo "0.0 -\${WOBBLE}"
+    else
+        # West
+        echo "-\${WOBBLE} 0.0"
+    fi
+}
+
+WOBBLE_STRING="\$(get_wobble "\${RUN_NUMBER}" "\${WOBBLE_OFFSET}") 0.0 0.0 90."
+        
+# (dummy file name; groptics is executed with the "-of" flag)
+# GROPTICSCONFIG * FILEOUT photonLocation.root allT T 0
+# GROPTICSCONFIG * NSHOWER -1 -1
+# GROPTICSCONFIG * WOBBLE WOBBLE_STRING
+# GROPTICSCONFIG * ARRAYCONFIG ./data/${GROPTICS_CONFIG}
+# GROPTICSCONFIG * SEED 0
+# GROPTICSCONFIG * DEBUGBRANCHES 1
+EOF
+} >> "$OFILE"
+
 }
 
 #####################################################################
@@ -125,30 +119,46 @@ generate_groptics_submission_script()
     WOBBLE="$4"
     rm -f "$OUTPUT_FILE.groptics.log"
 
-    GROPTICS_DATA_DIR="${DATA_DIR}/GROPTICS/W${WOBBLE}"
-    TMP_CONFIG_DIR="${GROPTICS_DATA_DIR}/model_files/"
-    # mount directories
-    CORSIKA_DATA_DIR="${DATA_DIR}/CORSIKA"
-    CONTAINER_EXTERNAL_DIR="-v \"${CORSIKA_DATA_DIR}:/workdir/external/corsika\""
-    CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"$GROPTICS_DATA_DIR:/workdir/external/groptics\""
-    CORSIKA_FILE="${CORSIKA_DATA_DIR}/$(basename "$OUTPUT_FILE").telescope"
-    CORSIKA_FILE="/workdir/external/corsika/$(basename "$CORSIKA_FILE")"
-    # corsikaIOreader expects the atmprof file in the /workdir/external/groptics/data directory
-    # groptics expect cfg files in the /workdir/external/groptics/data directory
-    CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"${TMP_CONFIG_DIR}:/workdir/GrOptics/data\""
-    CONTAINER_EXTERNAL_DIR="$CONTAINER_EXTERNAL_DIR -v \"$LOG_DIR:/workdir/external/log/\""
+    OUTPUT="/workdir/external/data/DAT\${RUN_NUMBER}"
 
+    CORSIKA_DATA_DIR="${DATA_DIR}/CORSIKA"
+    CORSIKA_FILE="/workdir/external/corsika/DAT\${RUN_NUMBER}.telescope"
     CORSIKA_IO_READER=$(prepare_corsikaIOreader)
-    GROPTICS="./grOptics -of /workdir/external/groptics/$(basename "$OUTPUT_FILE").groptics.root \
-     -p $(generate_groptics_pilot_file "$LOG_DIR" "$RUN_NUMBER" "$WOBBLE")"
+#    GROPTICS="./grOptics -of /workdir/external/groptics/$(basename "$OUTPUT_FILE").groptics.root \
+#     -p $(generate_groptics_pilot_file "$LOG_DIR" "$RUN_NUMBER" "$WOBBLE")"
 
     echo "#!/bin/bash" > "$GROPTICSFSCRIPT.sh"
+    echo "RUN_NUMBER=\$1" >> "$GROPTICSFSCRIPT.sh"
+    echo "WOBBLE_OFFSET=\$2" >> "$GROPTICSFSCRIPT.sh"
+
+{
+cat << EOF
+GROPTICS_DATA_DIR="${DATA_DIR}/GROPTICS/W\${WOBBLE_OFFSET}"
+TMP_CONFIG_DIR="\${GROPTICS_DATA_DIR}/model_files/"
+# mount directories
+CONTAINER_EXTERNAL_DIR="-v ${CORSIKA_DATA_DIR}:/workdir/external/corsika"
+CONTAINER_EXTERNAL_DIR="\$CONTAINER_EXTERNAL_DIR -v \$GROPTICS_DATA_DIR:/workdir/external/groptics"
+# corsikaIOreader expects the atmprof file in the /workdir/external/groptics/data directory
+# groptics expect cfg files in the /workdir/external/groptics/data directory
+CONTAINER_EXTERNAL_DIR="\$CONTAINER_EXTERNAL_DIR -v \${TMP_CONFIG_DIR}:/workdir/GrOptics/data"
+CONTAINER_EXTERNAL_DIR="\$CONTAINER_EXTERNAL_DIR -v $LOG_DIR:/workdir/external/log/"
+EOF
+} >> "$GROPTICSFSCRIPT.sh"
+
+    echo "PILOTFILE=\"/workdir/external/log/pilot_\${RUN_NUMBER}_W\${WOBBLE_OFFSET}.dat\"" >> "$GROPTICSFSCRIPT.sh"
+    echo "rm -f \"\$(dirname \$0)/pilot_\${RUN_NUMBER}_W\${WOBBLE_OFFSET}.dat\"" >> "$GROPTICSFSCRIPT.sh"
+    generate_groptics_pilot_file "$GROPTICSFSCRIPT.sh" "$PILOTFILE"
+    echo "PILOT=\" \$(dirname \$0)/pilot_\${RUN_NUMBER}_W\${WOBBLE_OFFSET}.dat\"" >> "$GROPTICSFSCRIPT.sh"
+    echo "sed -n '/* FILEOUT/,/* DEBUGBRANCHES/{/*FILEOUT/!{/*DEBUGBRANCHES /!s/# GROPTICSCONFIG //p}}' "\$0" > \$PILOT" >> "$GROPTICSFSCRIPT.sh"
+    echo "sed -i \"s/WOBBLE_STRING/\$WOBBLE_STRING/\" \$PILOT" >> "$GROPTICSFSCRIPT.sh"
+
     if [[ $VTSSIMPIPE_CONTAINER == "docker" ]]; then
         GROPTICS_EXE="docker run --rm $CONTAINER_EXTERNAL_DIR ${VTSSIMPIPE_CONTAINER_URL}${VTSSIMPIPE_GROPTICS_IMAGE}"
     elif [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
-        GROPTICS_EXE="apptainer exec --cleanenv ${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_GROPTICS_IMAGE/:/_}.sif"
+        GROPTICS_EXE="apptainer exec --cleanenv --no-mount bind-paths \${CONTAINER_EXTERNAL_DIR//-v/--bind} ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_GROPTICS_IMAGE/:/_}.sif"
     fi
+    GROPTICS="./grOptics -of /workdir/external/groptics/DAT\${RUN_NUMBER}.groptics.root -p /workdir/external/log/pilot_\${RUN_NUMBER}_W\${WOBBLE_OFFSET}.dat"
     GROPTICS_EXE="${GROPTICS_EXE} bash -c \"cd /workdir/GrOptics && ${CORSIKA_IO_READER} | ${GROPTICS}\""
-    echo "$GROPTICS_EXE > $GROPTICS_DATA_DIR/$(basename "$OUTPUT_FILE").groptics.log 2>&1" >> "$GROPTICSFSCRIPT.sh"
+    echo "$GROPTICS_EXE > \$GROPTICS_DATA_DIR/DAT\${RUN_NUMBER}.groptics.log 2>&1" >> "$GROPTICSFSCRIPT.sh"
     chmod u+x "$GROPTICSFSCRIPT.sh"
 }
