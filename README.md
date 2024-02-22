@@ -80,11 +80,11 @@ Images can be downloaded from the package registry of this repository.
 Requires the tar package with the CORSIKA tar software to be available in the main directory of `VTSSimPipe`.
 Note that the CI on github will build three different containers for CORSIKA:
 
-1. `vts-simpipe-corsika` with the standard CORSIKA software (as used in VERITAS for productions in the past)
-2. [vts-simpipe-corsika-noopt](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-noopt) based on [docker/Dockerfile-corsika-noopt](docker/Dockerfile-corsika-noopt) using CORSIKA 7.7500 with minor changes to the Bernlohr package (this is the package used for the generation and propagation of Cherenkov photons).
-3. [vts-simpipe-corsika-ax2](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-ax2) based on [docker/Dockerfile-corsika-ax2](docker/Dockerfile-corsika-ax2) using CORSIKA 7.7500 with minor changes to the Bernlohr package (this is the package used for the generation and propagation of Cherenkov photons). A patch is applied to the Cherenkov photon code to allow to use vector instructions and improve runtime performance.
+1. [vts-simpipe-corsika](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika) based on [docker/Dockerfile-corsika](docker/Dockerfile-corsika) with the standard CORSIKA software (as used in VERITAS for productions in the past)
+2. [vts-simpipe-corsika-noopt](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-noopt) based on [docker/Dockerfile-corsika-noopt](docker/Dockerfile-corsika-noopt) using CORSIKA 7.7500 with minor updates to the Bernlohr package (this is the package used for the generation and propagation of Cherenkov photons).
+3. [vts-simpipe-corsika-ax2](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-ax2) based on [docker/Dockerfile-corsika-ax2](docker/Dockerfile-corsika-ax2) using CORSIKA 7.7500 with minor updates to the Bernlohr package (this is the package used for the generation and propagation of Cherenkov photons). A patch is applied to the Cherenkov photon code to allow to use vector instructions and improve runtime performance.
 
-To build the CORSIKA container (same for all):
+To build the CORSIKA container (similar for all):
 
 ```bash
 docker build -f ./docker/Dockerfile-corsika -t vts-simpipe-corsika .
