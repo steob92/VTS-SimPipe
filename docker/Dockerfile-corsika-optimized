@@ -36,6 +36,8 @@ RUN make clean && \
         make \
         CFLAGS="-DCERENKOPT -DVLIBM -std=c99 -O3 -m${AVX_FLAG} -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
         CXXFLAGS="-DCERENKOPT -DVLIBM -std=c99 -O3 -m${AVX_FLAG} -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
+        FFLAGS="-ffixed-line-length-132 -fno-automatic -frecord-marker=4 -std=legacy -DCERENKOPT -DVLIBM -std=c99 -O3 -mavx512f -ffp-contract=off -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
+        install; \
     else \
         make \
         CFLAGS="-std=c99 -O3 -mavx2" \
