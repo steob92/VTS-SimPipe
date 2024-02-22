@@ -22,6 +22,7 @@ This work is built on a large effort from many people, especially:
 - Nepomuk Otte for the [CARE](https://github.com/nepomukotte/CARE) package
 - Raul Prado for an initial pipeline implementation for DESY (see [here](https://github.com/RaulRPrado/MC-DESY/tree/master))
 - Tony Lin for a Docker implementation of the pipeline (see [here](https://github.com/VERITAS-Observatory/Build_SimDockerImage/tree/master))
+- Luisa Arrabito and Orel Gueta on providing the optimized CORSIKA code and help with compilation
 
 ## Quick startup
 
