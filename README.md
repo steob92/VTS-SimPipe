@@ -78,8 +78,13 @@ Images can be downloaded from the package registry of this repository.
 ### CORSIKA containers
 
 Requires the tar package with the CORSIKA tar software to be available in the main directory of `VTSSimPipe`.
+Note that the CI on github will build three different containers for CORSIKA:
 
-To build the CORSIKA container:
+1. `vts-simpipe-corsika` with the standard CORSIKA software (as used in VERITAS for productions in the past)
+2. [vts-simpipe-corsika-noopt](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-noopt) based on [docker/Dockerfile-corsika-noopt](docker/Dockerfile-corsika-noopt) using CORSIKA 7.7500 with minor changes to the Bernlohr package (this is the package used for the generation and propagation of Cherenkov photons).
+3. [vts-simpipe-corsika-ax2](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-ax2) based on [docker/Dockerfile-corsika-ax2](docker/Dockerfile-corsika-ax2) using CORSIKA 7.7500 with minor changes to the Bernlohr package (this is the package used for the generation and propagation of Cherenkov photons). A patch is applied to the Cherenkov photon code to allow to use vector instructions and improve runtime performance.
+
+To build the CORSIKA container (same for all):
 
 ```bash
 docker build -f ./docker/Dockerfile-corsika -t vts-simpipe-corsika .
@@ -98,7 +103,7 @@ options:   VOLUMEDET TIMEAUTO URQMD QGSJETII
 selection: BERNLOHRDIR SLANT CERENKOV IACT IACTDIR ATMEXT
 ```
 
-The file [docker/corsika-config.h](docker/corsika-config.h) contains the configuration file for CORSIKA and is used for the compilation.
+The file [docker/corsika-config.h](docker/corsika-config.h) contains the configuration file for CORSIKA and is used for the compilation ([docker/corsika-config-ax2.h](docker/corsika-config-ax2.h) for the `vts-simpipe-corsika-noopt` and `vts-simpipe-corsika-axi2` options).
 
 ### GrOptics and corsikaIOreader containers
 
