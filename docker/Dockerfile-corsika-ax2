@@ -1,0 +1,54 @@
+FROM almalinux:9.3 AS build_image
+WORKDIR /workdir
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN yum update -y && yum install -y \
+    autoconf \
+    automake \
+    csh \
+    perl \
+    gcc-fortran \
+    gfortran \
+    patch &&  \
+    yum clean all
+
+ADD corsika-77500.tar.gz .
+RUN cd ./corsika-77500/bernlohr && tar -xvzf bernlohr-1.66.tar.gz
+ADD corsikaOptPatch-77500_2024-02-05.tar.gz ./corsika-77500
+RUN cd ./corsika-77500 && ./corsika_opt_patching.sh && autoreconf
+# # CORSIKA compile options derived with coconut
+COPY ./docker/corsika-config-ax2.h corsika-77500/include/config.h
+#
+# # build corsika
+WORKDIR /workdir/corsika-77500
+RUN ./coconut < /dev/null
+ENV GCC_PATH=/usr/bin
+ENV AVX_FLAG=mavx2
+RUN make clean && \
+    make \
+    CFLAGS="-g -DCERENKOPT -DVLIBM -std=c99 -O3 -${AVX_FLAG} -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
+    CXXFLAGS="-g -DCERENKOPT -DVLIBM -std=c99 -O3 -${AVX_FLAG} -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
+    FFLAGS="-g -ffixed-line-length-132 -fno-automatic -frecord-marker=4 -std=legacy -DCERENKOPT -DVLIBM -std=c99 -O3 -${AVX_FLAG} -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
+    install
+
+SHELL ["/bin/bash", "-c"]
+WORKDIR /workdir/
+
+FROM almalinux:9.3-minimal
+LABEL maintainer.name="VERITAS Collaboration"
+LABEL maintainer.email="gernot.maier@desy.de"
+WORKDIR /workdir
+ENV DEBIAN_FRONTEND=noninteractive
+ARG CORSIKA=corsika-77500
+COPY --from=build_image /workdir/corsika-77500/run /workdir/corsika-run
+
+RUN microdnf update -y && microdnf install -y \
+    gcc-fortran && \
+    microdnf clean all
+
+COPY ./config/ATMOSPHERE/atmprof*.dat /workdir/corsika-run/
+# qgsjet tables (otherwise CORSIKA generates these tables during startup)
+ADD https://syncandshare.desy.de/index.php/s/X9a4c5bYzy5p6nF/download /workdir/corsika-run/tables.dat
+
+SHELL ["/bin/bash", "-c"]
+WORKDIR /workdir/
