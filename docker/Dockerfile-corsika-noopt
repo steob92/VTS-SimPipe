@@ -20,6 +20,11 @@ COPY ./docker/corsika-config-ax2.h corsika-77500/include/config.h
 # build corsika
 WORKDIR /workdir/corsika-77500
 RUN ./coconut < /dev/null
+RUN make clean && \
+    make \
+    CFLAGS="-std=c99 -O3" \
+    CXXFLAGS="-std=c99 -O3" \
+    install
 
 SHELL ["/bin/bash", "-c"]
 WORKDIR /workdir/
