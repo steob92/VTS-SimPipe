@@ -25,7 +25,7 @@ COPY ./docker/corsika-config-optimized.h corsika-77500/include/config.h
 # build corsika
 WORKDIR /workdir/corsika-77500
 RUN ./coconut < /dev/null
-RUN make clean && \
+RUN make clean && rm -f */*.a lib/*/*.a && \
     if [ "$AVX_FLAG" == "avx512" ]; then \
         make \
         CFLAGS="-DCERENKOPT -DVLIBM -std=c99 -O3 -mavx512f -ffp-contract=off -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
@@ -36,7 +36,7 @@ RUN make clean && \
         make \
         CFLAGS="-DCERENKOPT -DVLIBM -std=c99 -O3 -m${AVX_FLAG} -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
         CXXFLAGS="-DCERENKOPT -DVLIBM -std=c99 -O3 -m${AVX_FLAG} -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
-        FFLAGS="-ffixed-line-length-132 -fno-automatic -frecord-marker=4 -std=legacy -DCERENKOPT -DVLIBM -std=c99 -O3 -mavx512f -ffp-contract=off -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
+        FFLAGS="-ffixed-line-length-132 -fno-automatic -frecord-marker=4 -std=legacy -DCERENKOPT -DVLIBM -std=c99 -O3 -m${AVX_FLAG} -ffp-contract=off -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
         install; \
     else \
         make \
