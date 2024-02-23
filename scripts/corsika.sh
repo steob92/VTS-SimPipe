@@ -142,7 +142,7 @@ generate_corsika_submission_script()
     OUTPUT="/workdir/external/data/DAT\${RUN_NUMBER}"
 
     echo "#!/bin/bash" > "$FSCRIPT.sh"
-    echo "RUN_NUMBER=\$1" >> "$FSCRIPT.sh" 
+    echo "RUN_NUMBER=\$1" >> "$FSCRIPT.sh"
 
     generate_corsika_input_card $FSCRIPT.sh "$N_SHOWER" "$ZENITH" "$ATMOSPHERE" "$CORSIKA_DATA_DIR"
     echo "rm -f ${OUTPUT_DIR}/DAT\${RUN_NUMBER}.log" >> "$FSCRIPT.sh"
@@ -154,5 +154,8 @@ generate_corsika_submission_script()
     fi
     CORSIKA_EXE="${CORSIKA_EXE} bash -c \"cd /workdir/external/data/tmp_corsika_run_files && /workdir/corsika-run/corsika77500Linux_QGSII_urqmd < $INPUT\""
     echo "$CORSIKA_EXE > ${OUTPUT_DIR}/DAT\${RUN_NUMBER}.log" >> "$FSCRIPT.sh"
+    if [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
+        echo "apptainer inspect ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_CORSIKA_IMAGE/:/_}.sif >> ${OUTPUT_DIR}/DAT\${RUN_NUMBER}.log" >> "$FSCRIPT.sh"
+    fi
     chmod u+x "$FSCRIPT.sh"
 }

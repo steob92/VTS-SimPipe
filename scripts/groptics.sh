@@ -62,7 +62,7 @@ get_wobble()
 }
 
 WOBBLE_STRING="\$(get_wobble "\${RUN_NUMBER}" "\${WOBBLE_OFFSET}") 0.0 0.0 90."
-        
+
 # (dummy file name; groptics is executed with the "-of" flag)
 # GROPTICSCONFIG * FILEOUT photonLocation.root allT T 0
 # GROPTICSCONFIG * NSHOWER -1 -1
@@ -160,5 +160,8 @@ EOF
     GROPTICS="./grOptics -of /workdir/external/groptics/DAT\${RUN_NUMBER}.groptics.root -p /workdir/external/log/pilot_\${RUN_NUMBER}_W\${WOBBLE_OFFSET}.dat"
     GROPTICS_EXE="${GROPTICS_EXE} bash -c \"cd /workdir/GrOptics && ${CORSIKA_IO_READER} | ${GROPTICS}\""
     echo "$GROPTICS_EXE > \$GROPTICS_DATA_DIR/DAT\${RUN_NUMBER}.groptics.log 2>&1" >> "$GROPTICSFSCRIPT.sh"
+    if [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
+        echo "apptainer inspect ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_GROPTICS_IMAGE/:/_}.sif >> \$GROPTICS_DATA_DIR/DAT\${RUN_NUMBER}.groptics.log" >> "$GROPTICSFSCRIPT.sh"
+    fi
     chmod u+x "$GROPTICSFSCRIPT.sh"
 }
