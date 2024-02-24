@@ -124,8 +124,6 @@ generate_groptics_submission_script()
     CORSIKA_DATA_DIR="${DATA_DIR}/CORSIKA"
     CORSIKA_FILE="/workdir/external/corsika/DAT\${RUN_NUMBER}.telescope"
     CORSIKA_IO_READER=$(prepare_corsikaIOreader)
-#    GROPTICS="./grOptics -of /workdir/external/groptics/$(basename "$OUTPUT_FILE").groptics.root \
-#     -p $(generate_groptics_pilot_file "$LOG_DIR" "$RUN_NUMBER" "$WOBBLE")"
 
     echo "#!/bin/bash" > "$GROPTICSFSCRIPT.sh"
     echo "RUN_NUMBER=\$1" >> "$GROPTICSFSCRIPT.sh"
