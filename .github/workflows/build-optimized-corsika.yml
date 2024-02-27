@@ -32,15 +32,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
       - name: download CORSIKA package (optimised version)
         run: |
           wget --no-verbose https://syncandshare.desy.de/index.php/s/${{ secrets.CLOUD_CORSIKA_CTA }}/download
           mv download corsika-77500.tar.gz
           wget --no-verbose https://syncandshare.desy.de/index.php/s/${{ secrets.CLOUD_CORSIKA_OPT }}/download
           mv download corsikaOptPatch-77500_2024-02-05.tar.gz
+      - name: Set up QEMU
+
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -69,9 +69,9 @@ jobs:
         with:
           context: .
           platforms: linux/amd64
-          build-args: ${{ matrix.type }}
+          build-args: AVX_FLAG=${{ matrix.type }}
           push:
             ${{ github.event_name == 'release' || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' }}
-          file: ./docker/Dockerfile-optimzied
+          file: ./docker/Dockerfile-corsika-optimized
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}-vtssimpipe-corsika-${{ matrix.type }}

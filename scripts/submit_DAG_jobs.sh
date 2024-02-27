@@ -1,6 +1,7 @@
 #!/bin/bash
 # submit DAG jobs in DESY environment
 # use htc-submit.zeuthen.desy.de
+# e.g., ssh htc-submit.zeuthen.desy.de 'cd "$(pwd)" && ./submit_DAG_jobs.sh <config file> <dag directory>'
 # see https://dv-zeuthen.desy.de/services/batch/job_submission/ for details
 #
 # Submits all *.dag files in the given directory

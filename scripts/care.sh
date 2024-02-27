@@ -57,7 +57,7 @@ generate_care_submission_script()
     echo "NSB_LEVEL=\$3" >> "$CAREFSCRIPT.sh"
     echo "" >> "$CAREFSCRIPT.sh"
     echo "mkdir -p ${DATA_DIR}/CARE_${OBS_MODE}/W\${WOBBLE_OFFSET}/NSB\${NSB_LEVEL}" >> "$CAREFSCRIPT.sh"
-    
+
     # mount directories
 {
 cat << EOF
@@ -78,5 +78,8 @@ EOF
     fi
     CARE_EXE="${CARE_EXE} bash -c \"cd /workdir/CARE && ${CARE}\""
     echo "$CARE_EXE > \${CARE_DATA_DIR}/DAT\${RUN_NUMBER}.care.log 2>&1" >> "$CAREFSCRIPT.sh"
+    if [[ $VTSSIMPIPE_CONTAINER == "apptainer" ]]; then
+        echo "apptainer inspect ${VTSSIMPIPE_CONTAINER_DIR}/${VTSSIMPIPE_CARE_IMAGE/:/_}.sif >> \$CARE_DATA_DIR/DAT\${RUN_NUMBER}.care.log" >> "$CAREFSCRIPT.sh"
+    fi
     chmod u+x "$CAREFSCRIPT.sh"
 }

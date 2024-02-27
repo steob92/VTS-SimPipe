@@ -6,7 +6,7 @@ ATMOSPHERE=62
 
 # GrOptics
 WOBBLE_LIST="0.5 1.0"
-EXTINCTION_FILE="Ext_results_VSummer_6_1_6.M5.txt"
+EXTINCTION="Ext_results_VSummer_6_1_6.M5.txt"
 TELESCOPE_MODEL="Upgrade_20120827_v420_3.cfg"
 GROPTICS_CONFIG="VERITAS_NewArray.cfg"
 
