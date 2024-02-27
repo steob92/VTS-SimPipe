@@ -26,7 +26,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        type: ['corsika', 'corsika-noopt', 'corsika-ax2', 'groptics', 'care', 'mergevbf']
+        type: ['corsika', 'groptics', 'care', 'mergevbf']
 
     steps:
       - name: Checkout repository
