@@ -310,5 +310,7 @@ VTS-SimPipe is able to use the same optimized CORSIKA, thanks to for Luisa Arrab
 | VTS-sse4 | 7.7500 | 1.66 (2023-02-03) | sse4 [container](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-sse4/182679278?tag=20240223-115831), [docker (sse4 arg)](https://github.com/VERITAS-Observatory/VTS-SimPipe/blob/main/docker/Dockerfile-corsika-optimized) | 12.5 | 2.7 |
 | VTS-avx512f | 7.7500 | 1.66 (2023-02-03) | avx51f [container](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-avx512/182679206?tag=20240223-115833), [docker (avx512 arg)](https://github.com/VERITAS-Observatory/VTS-SimPipe/blob/main/docker/Dockerfile-corsika-optimized) | 17.37 | 1.9 |
 
+### Remarks
+
 - default Coconut C compile flags (VTS-SimPipe): `cc -DHAVE_CONFIG_H -I. -I../include  -DMAX_IO_BUFFER=200000000 -DCORSIKA_VERSION=77500   -g -D_FILE_OFFSET_BITS=64 -MT libiact_a-eventio.o -MD -MP -MF .deps/libiact_a-eventio.Tpo -c -o libiact_a-eventio.o `test -f 'eventio.c'` (**no optimisation at all?**)
 - VTS-noopt compile flags: `cc -DHAVE_CONFIG_H -I. -I../include  -DMAX_IO_BUFFER=200000000 -DCORSIKA_VERSION=77500   -std=c99 -O3 -MT libiact_a-eventio.o -MD -MP -MF .deps/libiact_a-eventio.Tpo -c -o libiact_a-eventio.o `test -f 'eventio.c'
