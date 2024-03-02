@@ -28,6 +28,9 @@ RUN mkdir GrOptics && tar -xzf v$GROPTICS_VERSION.tar.gz -C GrOptics --strip-com
 FROM rootproject/root:6.24.06-centos7
 LABEL maintainer.name="VERITAS Collaboration"
 LABEL maintainer.email="gernot.maier@desy.de"
+LABEL org.opencontainers.image.source="https://github.com/VERITAS-Observatory/VTS-SimPipe"
+LABEL org.opencontainers.image.description="GrOptics as used for the VERITAS simulation pipeline."
+LABEL org.opencontainers.image.licenses="BSD-3-Clause"
 WORKDIR /workdir
 COPY --from=build_image /workdir/corsikaIOreader/corsikaIOreader /workdir/corsikaIOreader/corsikaIOreader
 COPY --from=build_image /workdir/GrOptics /workdir/GrOptics
