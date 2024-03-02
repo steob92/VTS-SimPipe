@@ -3,6 +3,7 @@
 [![DOI](https://zenodo.org/badge/738007615.svg)](https://zenodo.org/doi/10.5281/zenodo.10541349)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![build-images](https://github.com/VERITAS-Observatory/VTS-SimPipe/actions/workflows/build-images.yml/badge.svg)](https://github.com/VERITAS-Observatory/VTS-SimPipe/actions/workflows/build-images.yml)
+[![build-optimized-corsika](https://github.com/VERITAS-Observatory/VTS-SimPipe/actions/workflows/build-optimized-corsika.yml/badge.svg)](https://github.com/VERITAS-Observatory/VTS-SimPipe/actions/workflows/build-optimized-corsika.yml)
 
 [VERITAS](https://veritas.sao.arizona.edu/) is a ground-based gamma-ray observatory located at the Fred Lawrence Whipple Observatory in southern Arizona, USA.
 It explores the gamma-ray sky in the energy range from 100 GeV to 30 TeV.
@@ -22,7 +23,7 @@ This work is built on a large effort from many people, especially:
 - Nepomuk Otte for the [CARE](https://github.com/nepomukotte/CARE) package
 - Raul Prado for an initial pipeline implementation for DESY (see [here](https://github.com/RaulRPrado/MC-DESY/tree/master))
 - Tony Lin for a Docker implementation of the pipeline (see [here](https://github.com/VERITAS-Observatory/Build_SimDockerImage/tree/master))
-- Luisa Arrabito and Orel Gueta on providing the optimized CORSIKA code and help with compilation
+- Luisa Arrabito and Orel Gueta on providing the optimized CORSIKA code and help with compilation issues.
 
 ## Quick startup
 
@@ -42,9 +43,7 @@ cd scripts && ./pull.sh
 # see example in config/config_ATM61_template.dat
 # prepare production
 cd scripts
-./prepare_all_production_steps.sh \
-   ../config/config_ATM61_template.dat
-   ../config/CORSIKA/input_template.dat
+./prepare_all_production_steps.sh ../config/config_ATM61_template.dat
 # on DESY: log into the DAG submission node
 ./prepare_DAG_jobs.sh ../config/config_ATM61_template.dat
 ./submit_DAG_jobs.sh ../config/config_ATM61_template.dat <directory with DAG files>
@@ -81,9 +80,9 @@ Images can be downloaded from the package registry of this repository.
 Requires the tar package with the CORSIKA tar software to be available in the main directory of `VTSSimPipe`.
 Note that the CI on github will build three different containers for CORSIKA:
 
-1. [vts-simpipe-corsika](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika) based on [docker/Dockerfile-corsika](docker/Dockerfile-corsika) with the standard CORSIKA software (as used in VERITAS for productions in the past)
-2. [vts-simpipe-corsika-noopt](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-noopt) based on [docker/Dockerfile-corsika-noopt](docker/Dockerfile-corsika-noopt) using CORSIKA 7.7500 with minor updates to the Bernlohr package (this is the package used for the generation and propagation of Cherenkov photons).
-3. [vts-simpipe-corsika-ax2](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-ax2) based on [docker/Dockerfile-corsika-ax2](docker/Dockerfile-corsika-ax2) using CORSIKA 7.7500 with minor updates to the Bernlohr package (this is the package used for the generation and propagation of Cherenkov photons). A patch is applied to the Cherenkov photon code to allow to use vector instructions and improve runtime performance.
+1. [vts-simpipe-corsika](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika) based on [docker/Dockerfile-corsika](docker/Dockerfile-corsika) with the standard CORSIKA software (as used in VERITAS for productions in the past); configuration and compilation using the `coconut` tools.
+2. [vts-simpipe-corsika-noopt](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-noopt) based on [docker/Dockerfile-corsika-noopt](docker/Dockerfile-corsika-noopt) using CORSIKA 7.7500 used compile coptions as outlined in the Docker file (in contrast to 1., uses the `O3` flags, but it does not use the vectorization code of 3.)
+3. [vts-simpipe-corsika-ax2](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-ax2) based on [docker/Dockerfile-corsika-ax2](docker/Dockerfile-corsika-ax2) using CORSIKA 7.7500 with minor updates to the Bernlohr package (this is the package used for the generation and propagation of Cherenkov photons). A patch is applied to the Cherenkov photon code to allow to use vector instructions and improve runtime performance, see discussions in L. Arrabito et al, *Optimizing Cherenkov photons generation and propagation in CORSIKA for CTA Monte-Carlo simulations*, [arXiv.2006.14927](https://arxiv.org/abs/2006.14927)
 
 To build the CORSIKA container (similar for all):
 
@@ -296,3 +295,20 @@ SLANT 1
 ### corsikaIOreader parameters
 
 - apply pre-efficiency cut of 50%
+
+## Optimization of CORSIKA
+
+The CTA simulation pipeline uses vector-optimization of the Cherenkov photon generation and propagation code in CORSIKA with notable performance improvements, see the discussion in L. Arrabito et al, *Optimizing Cherenkov photons generation and propagation in CORSIKA for CTA Monte-Carlo simulations*, [arXiv.2006.14927](https://arxiv.org/abs/2006.14927).
+
+VTS-SimPipe is able to use the same optimized CORSIKA, thanks to for Luisa Arrabito for providing it. Below a comparison of the runtime of the optimized and non-optimized CORSIKA for the same simulation setup:
+
+| Type | CORSIKA version | IACT/ATMO version | Remarks | Run Time [s] / event | Ratio to VTS-SimPipe |
+| -------- | -------- | -------- | -------- | -------- | -------- |
+| VTS-SimPipe | 7.7500 | 1.66 (2023-02-03) | default coconut build (see remarks below); [container](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika/177291090?tag=1.1.0), [docker](https://github.com/VERITAS-Observatory/VTS-SimPipe/blob/main/docker/Dockerfile-corsika); SLANT option; no VIEWCONE | 33.6 | 1. |
+| VTS-noopt | 7.7500 | 1.66 (2023-02-03) | no specific optimization (O3; see remarks below); [container](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-noopt/182679178?tag=20240223-115829) [docker (noopt arg)](https://github.com/VERITAS-Observatory/VTS-SimPipe/blob/main/docker/Dockerfile-corsika-optimized) | 17.2 | 2.0 |
+| VTS-avx2 | 7.7500 | 1.66 (2023-02-03) | avx2 [container](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-avx2/182679269?tag=20240223-115831), [docker (avx2 arg)](https://github.com/VERITAS-Observatory/VTS-SimPipe/blob/main/docker/Dockerfile-corsika-optimized) | 14.42 | 2.3 |
+| VTS-sse4 | 7.7500 | 1.66 (2023-02-03) | sse4 [container](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-sse4/182679278?tag=20240223-115831), [docker (sse4 arg)](https://github.com/VERITAS-Observatory/VTS-SimPipe/blob/main/docker/Dockerfile-corsika-optimized) | 12.5 | 2.7 |
+| VTS-avx512f | 7.7500 | 1.66 (2023-02-03) | avx51f [container](https://github.com/VERITAS-Observatory/VTS-SimPipe/pkgs/container/vtsimpipe-corsika-avx512/182679206?tag=20240223-115833), [docker (avx512 arg)](https://github.com/VERITAS-Observatory/VTS-SimPipe/blob/main/docker/Dockerfile-corsika-optimized) | 17.37 | 1.9 |
+
+- default Coconut C compile flags (VTS-SimPipe): `cc -DHAVE_CONFIG_H -I. -I../include  -DMAX_IO_BUFFER=200000000 -DCORSIKA_VERSION=77500   -g -D_FILE_OFFSET_BITS=64 -MT libiact_a-eventio.o -MD -MP -MF .deps/libiact_a-eventio.Tpo -c -o libiact_a-eventio.o `test -f 'eventio.c'` (**no optimisation at all?**)
+- VTS-noopt compile flags: `cc -DHAVE_CONFIG_H -I. -I../include  -DMAX_IO_BUFFER=200000000 -DCORSIKA_VERSION=77500   -std=c99 -O3 -MT libiact_a-eventio.o -MD -MP -MF .deps/libiact_a-eventio.Tpo -c -o libiact_a-eventio.o `test -f 'eventio.c'
