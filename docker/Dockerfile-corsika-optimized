@@ -28,18 +28,18 @@ WORKDIR /workdir/corsika-77500
 RUN ./coconut < /dev/null
 ENV GCC_PATH="/usr/bin/"
 RUN make clean && rm -f */*.a lib/*/*.a && \
-    if [ "$AVX_FLAG" == "avx512" ]; then \
-        make \
-        CC="${GCC_PATH}/gcc -static" \
-        CXX="${GCC_PATH}/g++ -static" \
-        CPP="${GCC_PATH}/gcc -static -E" \
-        F77="${GCC_PATH}/gfortran" \
+#    if [ "$AVX_FLAG" == "avx512" ]; then \
+#        make \
+#        CC="${GCC_PATH}/gcc -static" \
+#        CXX="${GCC_PATH}/g++ -static" \
+#        CPP="${GCC_PATH}/gcc -static -E" \
+#        F77="${GCC_PATH}/gfortran" \
 #        F77="${GCC_PATH}/gfortran -static-libgfortran" \
-        CFLAGS="-DCERENKOPT -DVLIBM -std=c99 -O3 -mavx512f -ffp-contract=off -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
-        CXXFLAGS="-DCERENKOPT -DVLIBM -std=c99 -O3 -mavx512f -ffp-contract=off -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
-        FFLAGS="-ffixed-line-length-132 -fno-automatic -frecord-marker=4 -std=legacy -DCERENKOPT -DVLIBM -std=c99 -O3 -mavx512f -ffp-contract=off -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
-        install; \
-    elif [ "$AVX_FLAG" != "noopt" ]; then \
+#        CFLAGS="-DCERENKOPT -DVLIBM -std=c99 -O3 -mavx512f -ffp-contract=off -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
+#        CXXFLAGS="-DCERENKOPT -DVLIBM -std=c99 -O3 -mavx512f -ffp-contract=off -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
+#        FFLAGS="-ffixed-line-length-132 -fno-automatic -frecord-marker=4 -std=legacy -DCERENKOPT -DVLIBM -std=c99 -O3 -mavx512f -ffp-contract=off -DVECTOR_SIZE=8 -DVECTOR_LENGTH=8" \
+#        install; \
+    if [ "$AVX_FLAG" != "noopt" ]; then \
         make \
         CC="${GCC_PATH}/gcc -static" \
         CXX="${GCC_PATH}/g++ -static" \
