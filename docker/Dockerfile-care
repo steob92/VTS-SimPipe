@@ -38,6 +38,9 @@ RUN mkdir CARE && tar -xzf v$CARE_VERSION.tar.gz -C CARE --strip-components=1 &&
 FROM rootproject/root:6.24.06-centos7
 LABEL maintainer.name="VERITAS Collaboration"
 LABEL maintainer.email="gernot.maier@desy.de"
+LABEL org.opencontainers.image.source="https://github.com/VERITAS-Observatory/VTS-SimPipe"
+LABEL org.opencontainers.image.description="CARE Camera simulations as used for the VERITAS simulation pipeline."
+LABEL org.opencontainers.image.licenses="BSD-3-Clause"
 WORKDIR /workdir
 COPY --from=build_image /workdir/VBF /workdir/VBF
 COPY --from=build_image /workdir/CARE /workdir/CARE

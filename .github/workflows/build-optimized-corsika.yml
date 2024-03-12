@@ -26,7 +26,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        type: ['noopt', 'avx2', 'avx512', 'avx', 'sse4']
+        type: ['noopt', 'avx2', 'avx512f', 'avx', 'sse4']
 
     steps:
       - name: Checkout repository

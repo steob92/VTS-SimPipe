@@ -29,6 +29,9 @@ RUN mkdir EventDisplay_v4 && tar -xzf v490.5.tar.gz -C EventDisplay_v4 --strip-c
 FROM rootproject/root:6.24.06-centos7
 LABEL maintainer.name="VERITAS Collaboration"
 LABEL maintainer.email="gernot.maier@desy.de"
+LABEL org.opencontainers.image.source="https://github.com/VERITAS-Observatory/VTS-SimPipe"
+LABEL org.opencontainers.image.description="MergeVBF  as used for the VERITAS simulation pipeline."
+LABEL org.opencontainers.image.licenses="BSD-3-Clause"
 WORKDIR /workdir
 COPY --from=build_image /workdir/VBF /workdir/VBF
 COPY --from=build_image /workdir/EventDisplay_v4 /workdir/EventDisplay_v4
