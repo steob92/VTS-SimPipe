@@ -74,10 +74,9 @@ generate_htcondor_file()
     cat > "${SUBFIL}" <<EOL
 Executable = ${SUBSCRIPT}
 Arguments = \$(run_number) \$(wobble_offset) \$(nsb_level)
-Log = ${SUBSCRIPT}.\$(Cluster)_\$(Process).log
-Output = ${SUBSCRIPT}.\$(Cluster)_\$(Process).output
-Error = ${SUBSCRIPT}.\$(Cluster)_\$(Process).error
-Log = ${SUBSCRIPT}.\$(Cluster)_\$(Process).log
+Log = $(dirname ${SUBSCRIPT})/\$(run_number)/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).log
+Output = $(dirname ${SUBSCRIPT})/\$(run_number)/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).output
+Error = $(dirname ${SUBSCRIPT})/\$(run_number)/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).error
 request_memory = 4000M
 getenv = True
 max_materialize = 350
