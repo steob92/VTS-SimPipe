@@ -71,7 +71,19 @@ generate_htcondor_file()
     SUBFIL=${SUBSCRIPT}.condor
     rm -f "${SUBFIL}"
 
-    cat > "${SUBFIL}" <<EOL
+    if [[ ${2} == "NO_RUN_NUMBER" ]]; then
+        cat > "${SUBFIL}" <<EOL
+Executable = ${SUBSCRIPT}
+Log = $(dirname ${SUBSCRIPT})/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).log
+Output = $(dirname ${SUBSCRIPT})/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).output
+Error = $(dirname ${SUBSCRIPT})/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).error
+request_memory = 8000M
+getenv = True
+max_materialize = 350
+queue 1
+EOL
+    else
+        cat > "${SUBFIL}" <<EOL
 Executable = ${SUBSCRIPT}
 Arguments = \$(run_number) \$(wobble_offset) \$(nsb_level)
 Log = $(dirname ${SUBSCRIPT})/\$(run_number)/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).log
@@ -81,9 +93,10 @@ request_memory = 4000M
 getenv = True
 max_materialize = 350
 queue 1
-EOL
 # priority = 15
 # requirements='OpSysAndVer=="AlmaLinux9"'
+EOL
+    fi
 }
 
 # return string with CARE configs
@@ -149,7 +162,7 @@ if [[ $SIM_TYPE == "MERGEVBF" ]]; then
                 generate_mergevbf_submission_script "${FSCRIPT}_${config}_${WOBBLE}_${NSB}" "$OUTPUT_FILE" \
                     "${WOBBLE}" "${NSB}" "${config}"
                 for sub_script in "${FSCRIPT}_${config}_${WOBBLE}_${NSB}"*.sh; do
-                    generate_htcondor_file "$sub_script"
+                    generate_htcondor_file "$sub_script" NO_RUN_NUMBER
                 done
             done
         done
