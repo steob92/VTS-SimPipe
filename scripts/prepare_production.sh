@@ -77,7 +77,7 @@ Executable = ${SUBSCRIPT}
 Log = $(dirname ${SUBSCRIPT})/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).log
 Output = $(dirname ${SUBSCRIPT})/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).output
 Error = $(dirname ${SUBSCRIPT})/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).error
-request_memory = 12000M
+request_memory = 16000M
 getenv = True
 max_materialize = 350
 queue 1
@@ -93,7 +93,6 @@ request_memory = 4000M
 getenv = True
 max_materialize = 350
 queue 1
-# priority = 15
 # requirements='OpSysAndVer=="AlmaLinux9"'
 EOL
     fi
