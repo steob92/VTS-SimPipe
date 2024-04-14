@@ -77,7 +77,7 @@ Executable = ${SUBSCRIPT}
 Log = $(dirname ${SUBSCRIPT})/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).log
 Output = $(dirname ${SUBSCRIPT})/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).output
 Error = $(dirname ${SUBSCRIPT})/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).error
-request_memory = 16000M
+request_memory = 20000M
 getenv = True
 max_materialize = 350
 queue 1
