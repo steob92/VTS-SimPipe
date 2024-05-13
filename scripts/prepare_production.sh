@@ -79,7 +79,7 @@ Output = $(dirname ${SUBSCRIPT})/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process
 Error = $(dirname ${SUBSCRIPT})/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).error
 request_memory = 20000M
 getenv = True
-max_materialize = 350
+max_materialize = 700
 queue 1
 EOL
     else
