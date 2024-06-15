@@ -79,7 +79,7 @@ Output = $(dirname ${SUBSCRIPT})/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process
 Error = $(dirname ${SUBSCRIPT})/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).error
 request_memory = 20000M
 getenv = True
-max_materialize = 700
+max_materialize = 2000
 queue 1
 EOL
     else
@@ -89,9 +89,9 @@ Arguments = \$(run_number) \$(wobble_offset) \$(nsb_level)
 Log = $(dirname ${SUBSCRIPT})/\$(run_number)/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).log
 Output = $(dirname ${SUBSCRIPT})/\$(run_number)/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).output
 Error = $(dirname ${SUBSCRIPT})/\$(run_number)/$(basename ${SUBSCRIPT})_\$(Cluster)_\$(Process).error
-request_memory = 4000M
+request_memory = 8000M
 getenv = True
-max_materialize = 350
+max_materialize = 2000
 queue 1
 # requirements='OpSysAndVer=="AlmaLinux9"'
 EOL
