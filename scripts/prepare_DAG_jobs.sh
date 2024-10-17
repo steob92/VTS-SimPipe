@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # DAGMan Workflows to prepare all steps simultaneously
 #
 

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # submit a list of scripts to HTCondor job submission system
 #
